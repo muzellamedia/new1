@@ -1,0 +1,2 @@
+# goldrate
+Daily Gold Rate
