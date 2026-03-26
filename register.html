@@ -148,18 +148,19 @@ import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/fireb
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
-apiKey: "YOUR_KEY",
-authDomain: "YOUR_DOMAIN",
-projectId: "YOUR_ID",
-storageBucket: "YOUR_BUCKET",
-messagingSenderId: "YOUR_MSG_ID",
-appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBxnjf4XDfnr4kj6mb-bR_wHW_3ZT0e9BU",
+  authDomain: "gold-5735f.firebaseapp.com",
+  projectId: "gold-5735f",
+  storageBucket: "gold-5735f.firebasestorage.app",
+  messagingSenderId: "5295731508",
+  appId: "1:5295731508:web:07d5430da5ebaaf6886b61"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
+// REGISTER FUNCTION
 window.register = async function(){
 
 const btn = document.getElementById("registerBtn");
@@ -184,14 +185,14 @@ if(cb.checked) products.push(cb.value);
 
 // validation
 if(!phone || !shop || !place || !district || !state || !logoFile || !footerFile){
-showMessage("Fill all fields","red");
+alert("Fill all fields");
 btn.disabled=false;
 btn.innerText="Register";
 return;
 }
 
 if(products.length===0){
-showMessage("Select products","red");
+alert("Select products");
 btn.disabled=false;
 btn.innerText="Register";
 return;
@@ -203,7 +204,7 @@ const userRef = doc(db,"users",phone);
 const existing = await getDoc(userRef);
 
 if(existing.exists()){
-showMessage("Already registered","red");
+alert("Already registered");
 btn.disabled=false;
 btn.innerText="Register";
 return;
@@ -219,7 +220,7 @@ const footerRef = ref(storage,"footers/"+phone);
 await uploadBytes(footerRef,footerFile);
 const footerURL = await getDownloadURL(footerRef);
 
-// generate code
+// code generate
 const code = Math.floor(100000 + Math.random()*900000);
 
 await setDoc(userRef,{
@@ -233,19 +234,19 @@ createdAt: new Date()
 
 localStorage.setItem("userPhone",phone);
 
-document.getElementById("securityCode").innerText = code;
-document.getElementById("successPopup").style.display="flex";
+alert("Registration Success! Code: "+code);
 
 }
 catch(err){
 console.log(err);
-showMessage("Error occurred","red");
+alert("Error");
 }
 
 btn.innerText="Register";
 btn.disabled=false;
 
 }
+
 
 window.goHome = function(){
 window.location.href="index.html";
