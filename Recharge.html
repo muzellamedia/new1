@@ -172,9 +172,20 @@ contact: phone
 },
 
 handler:function(){
+
+fetch(API_URL,{
+method:"POST",
+body: JSON.stringify({
+type:"paymentSuccess",
+phone:phone,
+days:days,
+key:SECRET
+})
+});
+
 alert("Payment Successful");
 location.href="index.html";
-},
+}
 
 modal:{
 ondismiss:function(){
