@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Details</title>
+
+<style>
+body{
+  font-family: Arial;
+  background: linear-gradient(135deg,#b8860b,#ffd700);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  margin:0;
+}
+
+.box{
+  background:white;
+  padding:25px;
+  border-radius:12px;
+  text-align:center;
+  width:90%;
+  max-width:360px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+.logo-preview{
+width:100px;
+height:100px;
+border-radius:50%;
+overflow:hidden;
+border:1px solid #ccc;
+margin:auto;
+margin-bottom:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+input, select{
+width:100%;
+padding:12px;
+margin:6px 0;
+border-radius:8px;
+border:1px solid #ccc;
+font-size:16px;
+}
+
+button{
+width:100%;
+padding:14px;
+background:#b8860b;
+color:white;
+border:none;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;
+margin-top:10px;
+font-size:16px;
+}
+
+#loadingScreen,#savingScreen{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:white;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:9999;
+}
+
+.loader{
+width:40px;
+height:40px;
+border:4px solid #ddd;
+border-top:4px solid #b8860b;
+border-radius:50%;
+animation:spin 1s linear infinite;
+margin-bottom:10px;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="loadingScreen">
+  <div class="loader"></div>
+  <p>Loading...</p>
+</div>
+
+<div class="box">
+
+<h3>Edit Shop Details</h3>
+
+<div class="logo-preview" id="logoPreview">No Logo</div>
+<input type="file" id="logoFile" accept="image/*">
+
+<input type="text" id="shop" placeholder="Shop Name">
+<input type="text" id="place" placeholder="Place">
+
+<select id="state">
+<option value="">Select State</option>
+<option>Kerala</option>
+<option>Tamil Nadu</option>
+<option>Karnataka</option>
+</select>
+
+<h4>Products</h4>
+<label><input type="checkbox" value="916 Gold" class="product"> 916 Gold</label><br>
+<label><input type="checkbox" value="22K Gold" class="product"> 22K Gold</label><br>
+<label><input type="checkbox" value="Silver" class="product"> Silver</label>
+
+<h4>Footer Design</h4>
+<input type="file" id="footerFile" accept="image/*">
+
+<button onclick="saveDetails()">Save</button> <button id="homeBtn" onclick="location.href='index.html'" style="display:none;background:#444;">
+Back to Home </button>
+
+</div>
+
+<div id="savingScreen" style="display:none">
+  <div class="loader"></div>
+  <p id="saveText">Saving...</p>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBxnjf4XDfnr4kj6mb-bR_wHW_3ZT0e9BU",
+  authDomain: "gold-5735f.firebaseapp.com",
+  projectId: "gold-5735f",
+  storageBucket: "gold-5735f.firebasestorage.app",
+  messagingSenderId: "5295731508",
+  appId: "1:5295731508:web:07d5430da5ebaaf6886b61"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+const phone = localStorage.getItem("userPhone");
+
+if(!phone){
+  alert("Login required");
+  location.href="login.html";
+}
+
+// LOAD DATA
+async function loadData(){
+
+const userRef = doc(db,"users",phone);
+const snap = await getDoc(userRef);
+
+if(snap.exists()){
+
+const data = snap.data();
+
+document.getElementById("shop").value = data.shop || "";
+document.getElementById("place").value = data.place || "";
+document.getElementById("state").value = data.state || "";
+
+// products
+if(data.products){
+document.querySelectorAll(".product").forEach(cb=>{
+cb.checked = data.products.includes(cb.value);
+});
+}
+
+// logo preview
+if(data.logoURL){
+document.getElementById("logoPreview").innerHTML =
+"<img src='"+data.logoURL+"' width='100%'>";
+}
+
+}
+
+document.getElementById("loadingScreen").style.display="none";
+
+}
+
+loadData();
+
+// SAVE
+window.saveDetails = async function(){
+
+document.getElementById("savingScreen").style.display="flex";
+
+const logoFile = document.getElementById("logoFile").files[0];
+const footerFile = document.getElementById("footerFile").files[0];
+
+const userRef = doc(db,"users",phone);
+
+// products
+let products = [];
+document.querySelectorAll(".product").forEach(cb=>{
+if(cb.checked) products.push(cb.value);
+});
+
+let updateData = {
+shop: document.getElementById("shop").value,
+place: document.getElementById("place").value,
+state: document.getElementById("state").value,
+products: products
+};
+
+// logo upload
+if(logoFile){
+const logoRef = ref(storage,"logos/"+phone);
+await uploadBytes(logoRef,logoFile);
+updateData.logoURL = await getDownloadURL(logoRef);
+}
+
+// footer upload
+if(footerFile){
+const footerRef = ref(storage,"footers/"+phone);
+await uploadBytes(footerRef,footerFile);
+updateData.footerURL = await getDownloadURL(footerRef);
+}
+
+await updateDoc(userRef, updateData);
+
+document.getElementById("saveText").innerText="Saved ✔";
+
+setTimeout(()=>{
+document.getElementById("savingScreen").style.display="none";
+document.getElementById("homeBtn").style.display="block";
+},1200);
+
+}
+
+</script>
+
+</body>
+</html>
