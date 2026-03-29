@@ -513,7 +513,10 @@ const rechargeBtn = document.getElementById("rechargeBtn");
 // =====================
 // SHARE BUTTON
 // =====================
-shareBtn.onclick = async function(){
+// =====================
+// SHARE BUTTON (FIREBASE VERSION)
+// =====================
+sshareBtn.onclick = async function(){
 
 shareBtn.classList.add("share-loading");
 shareBtn.innerText = "";
@@ -521,34 +524,126 @@ shareBtn.style.pointerEvents = "none";
 
 try{
 
-const SECRET = "Gold@Security";
+const userRef = doc(db,"users",userPhone);
+const userSnap = await getDoc(userRef);
 
-const res = await fetch(
-  API_URL + "?type=checkDownload&phone=" + userPhone + "&key=" + SECRET
-);
-
-const data = await res.json();
-
-if(data.status === "limit"){
-disableShareBtn("2 Poster Limit"); // 🔥 NO resetBtn
-return;
+if(!userSnap.exists()){
+  alert("User not found");
+  resetBtn();
+  return;
 }
 
-if(data.status === "expired"){
-disableShareBtn("Plan Expired");
-return;
+const userData = userSnap.data();
+
+// =====================
+// PLAN CHECK
+// =====================
+const expiry = userData.planExpiry;
+
+if(!expiry){
+  disableShareBtn("No Plan");
+  return;
 }
 
+if(new Date(expiry) < new Date()){
+  disableShareBtn("Plan Expired");
+  return;
+}
+
+// =====================
+// RATE CHECK (Firebase rates)
+// =====================
+const rateRef = doc(db,"rates","today");
+const rateSnap = await getDoc(rateRef);
+
+if(!rateSnap.exists()){
+  alert("Rate not available");
+  resetBtn();
+  return;
+}
+
+const rateData = rateSnap.data();
+
+const todayDate = rateData.date;
+const todayRate = rateData.gold22_1g;
+
+// =====================
+// DOWNLOAD CHECK
+// =====================
+if(
+  userData.lastDownloadDate === todayDate &&
+  userData.lastDownloadRate === todayRate
+){
+  disableShareBtn("Already Downloaded");
+  return;
+}
+
+// =====================
+// GENERATE POSTER
+// =====================
 generatePoster(true);
 
+// =====================
+// SAVE DOWNLOAD STATE
+// =====================
+await updateDoc(userRef,{
+  lastDownloadDate: todayDate,
+  lastDownloadRate: todayRate
+});
+
 }catch(err){
+console.log(err);
 alert("Network error");
 resetBtn();
 }
 
+};
 
+const userData = userSnap.data();
+
+// =====================
+// PLAN CHECK
+// =====================
+const expiry = userData.planExpiry;
+
+if(!expiry){
+  disableShareBtn("No Plan");
+  return;
 }
 
+const today = new Date();
+const expiryDate = new Date(expiry);
+
+if(expiryDate < today){
+  disableShareBtn("Plan Expired");
+  return;
+}
+
+// =====================
+// DOWNLOAD LIMIT CHECK
+// =====================
+
+
+
+// =====================
+// GENERATE POSTER
+// =====================
+generatePoster(true);
+
+// =====================
+// UPDATE COUNT
+// =====================
+await setDoc(downloadRef,{
+  count: count + 1
+});
+
+}catch(err){
+console.log(err);
+alert("Network error");
+resetBtn();
+}
+
+};
 function isPlanActive(){
 
 if(!planExpiry) return false;
@@ -575,69 +670,62 @@ if(diff22k_1g > 0){
 // =====================
 // INIT LOAD
 // =====================
-try {
-
-const SECRET = "Gold@Security";
-
-const res = await fetch(API_URL + "?type=init&phone=" + userPhone + "&key=" + SECRET);
-
-const data = await res.json();
-
-const user = data.user || {};
-const rates = data.rates || {};
-backgrounds = data.backgrounds || [];
 
 // =====================
-// USER DATA
+// =====================
+// USER DATA (FIREBASE)
 // =====================
 shopName = user.shop || "";
-logoUrl = user.logo || "";
 place = user.place || "";
+district = user.district || "";
+state = user.state || "";
 
-contacts = [
-user.contact1,
-user.contact2,
-user.contact3
-].filter(n=>n);
+logoUrl = user.logoURL || "";
+footerUrl = user.footerURL || "";
+
+products = user.products || [];
 
 // UI
 document.getElementById("shopName").innerText = shopName;
-document.getElementById("place").innerText = user.place || "";
-document.getElementById("district").innerText = user.district || "";
-document.getElementById("email").innerText = user.email || "";
-document.getElementById("contact").innerText = contacts.join(" | ");
+document.getElementById("place").innerText = place;
+document.getElementById("district").innerText = district;
 
 // =====================
-// LOGO
+// LOGO (FIREBASE DIRECT)
 // =====================
-if(user.logo){
-let fileId = "";
-
-if(user.logo.includes("id=")){
-fileId = user.logo.split("id=")[1];
-}
-else if(user.logo.includes("/d/")){
-fileId = user.logo.split("/d/")[1].split("/")[0];
-}
-
-let imgUrl = "https://lh3.googleusercontent.com/d/" + fileId;
-document.getElementById("logoBox").innerHTML = "<img src='"+imgUrl+"'>";
-logoUrl = imgUrl;
+if(logoUrl){
+document.getElementById("logoBox").innerHTML =
+  "<img src='"+logoUrl+"'>";
 }
 
 // =====================
-// RATES
+// FOOTER (NEW)
 // =====================
-gold1Gram = rates.gold1gram || 0;
-gold1Pavan = gold1Gram * 8;
+if(footerUrl){
+document.getElementById("footerBox").innerHTML =
+  "<img src='"+footerUrl+"' style='width:100%'>";
+}
+
+// =====================
+// RATES (FIREBASE)
+// =====================
+rate22k_1g = rates.gold22_1g || 0;
+rate22k_1p = rates.gold22_1p || 0;
+rate18k_1g = rates.gold18_1g || 0;
+rateSilver_1g = rates.silver_1g || 0;
 
 let rawDate = rates.date || "";
 let rawTime = rates.time || "";
-rateTime = rawTime || "";
 
-gold1Gram = Number(gold1Gram).toLocaleString("en-IN");
-gold1Pavan = Number(gold1Pavan).toLocaleString("en-IN");
+rateTime = rawTime;
 
+// format numbers
+rate22k_1g = Number(rate22k_1g).toLocaleString("en-IN");
+rate22k_1p = Number(rate22k_1p).toLocaleString("en-IN");
+rate18k_1g = Number(rate18k_1g).toLocaleString("en-IN");
+rateSilver_1g = Number(rateSilver_1g).toLocaleString("en-IN");
+
+// format date
 if(rawDate){
 const d = new Date(rawDate);
 
@@ -664,12 +752,12 @@ if(rateDateISO === today){
 statusHeader.innerText = "Today's Gold Rate Updated";
 statusHeader.style.background = "#0a6b3c";
 
-statusDate.innerText = rawDate;
+statusDate.innerText = rateDate;
 statusTime.innerText = rateTime;
 
 }else{
 
-statusHeader.innerText = "Today's Gold Not Rate Updated";
+statusHeader.innerText = "Today's Gold Rate Not Updated";
 statusHeader.style.background = "#e60000";
 
 statusDate.innerText = rateDate || "--";
@@ -680,7 +768,7 @@ disableShareBtn("Rate Not Updated");
 }
 
 // =====================
-// PLAN STATUS
+// PLAN STATUS (FIREBASE)
 // =====================
 const expiry = user.planExpiry ? new Date(user.planExpiry) : null;
 const todayDate = new Date();
@@ -692,15 +780,14 @@ statusPlan.style.background = "#e60000";
 statusPlan.style.color = "yellow";
 
 disableShareBtn("Plan Expired");
-  document.getElementById("rechargeBtn").style.display = "block";
-
+document.getElementById("rechargeBtn").style.display = "block";
 
 }else{
 
 const diffTime = expiry - todayDate;
 const remainingDays = Math.ceil(diffTime / (1000*60*60*24));
 
-statusPlan.innerText = "Plan Active - " + remainingDays + " Days Remaining";
+statusPlan.innerText = "Plan Active - " + remainingDays + " Days";
 statusPlan.style.background = "#0a6b3c";
 statusPlan.style.color = "yellow";
 
@@ -708,55 +795,37 @@ document.getElementById("rechargeBtn").style.display = "none";
 
 }
 
-
-
-}catch(err){
-alert("Init load failed");
-}
-
 // =====================
 // REMOVE LOADING
 // =====================
 document.getElementById("loadingScreen").style.display = "none";
-
-});
-  // =====================
  
+// =====================
+// DOWNLOAD (NO LIMIT)
+// =====================
 function downloadPoster(share=false){
 
-const phone = userPhone;
+// ❌ remove API call
+// ✅ directly generate
 
-const SECRET = "Gold@Security";
-
-fetch(API_URL + "?type=checkDownload&phone=" + phone + "&key=" + SECRET)
-.then(res => res.json())
-.then(data => {
-
-if(data.status === "limit"){
-disableShareBtn("2 Poster Limit");
-return;
-}
-
-// continue download
 generatePoster(share);
 
-});
-
 }
 
-  // =====================
-  // DOWNLOAD
-  // =====================
-  function generatePoster(share=false){
+
+// =====================
+// GENERATE POSTER
+// =====================
+function generatePoster(share=false){
 
 const btn = document.getElementById("shareBtn");
 
-// ✅ START animation
+// animation
 btn.classList.add("share-loading");
 btn.innerText = "";
 btn.style.pointerEvents = "none";
 
-// background load wait
+// wait background
 if(backgrounds.length === 0){
 
 setTimeout(function(){
@@ -769,6 +838,7 @@ return;
 
 let bgIndex;
 
+// 🔥 random background (no repeat)
 do{
 bgIndex = Math.floor(Math.random() * backgrounds.length);
 }while(bgIndex === lastBg);
@@ -780,50 +850,50 @@ createPoster(backgrounds[bgIndex], share);
 }
 
 
-  // =====================
-  // CREATE POSTER
-  // =====================
-  function createPoster(bgUrl, share){
+// =====================
+// CREATE POSTER
+// =====================
+function createPoster(bgUrl, share){
 
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
+const canvas = document.createElement("canvas");
+const ctx = canvas.getContext("2d");
 
-  canvas.width = 2480;
-  canvas.height = 3508;
+canvas.width = 2480;
+canvas.height = 3508;
 
-  const bg = new Image();
-  bg.crossOrigin = "anonymous";   // MUST
-  bg.src = bgUrl;
+const bg = new Image();
+bg.crossOrigin = "anonymous";
+bg.src = bgUrl;
 
-  bg.onload = function(){
+bg.onload = function(){
 
-    ctx.drawImage(bg,0,0,2480,3508);
+ctx.drawImage(bg,0,0,2480,3508);
 
-    const templateList = [
+// 🔥 templates
+const templateList = [
 template1,
 template2,
-template3,
-template4,
-template5,
-template6,
-template7,
-template8
+template3
 ];
-    let index;
 
+let index;
+
+// 🔥 random template (no repeat)
 do{
 index = Math.floor(Math.random() * templateList.length);
 }while(index === lastTemplate);
 
 lastTemplate = index;
 
-    templateList[index](ctx, canvas, share);
+// render
+templateList[index](ctx, canvas, share);
 
-  };
+};
 
-  bg.onerror = function(){
-    alert("Background failed to load");
-  };
+bg.onerror = function(){
+alert("Background failed to load");
+};
+
 }
 
   function template1(ctx, canvas, share){
@@ -972,910 +1042,7 @@ save(canvas, share);
 }
 
 
-function template2(ctx, canvas, share){
-
-// LOGO
-if(logoUrl){
-
-const logo = new Image();
-logo.crossOrigin="anonymous";
-logo.src = logoUrl + "?t=" + new Date().getTime();
-
-logo.onload = function(){
-
-const maxWidth = 1200;
-const maxHeight = 1200;
-
-let w = logo.width;
-let h = logo.height;
-
-// maintain aspect ratio
-if(w > maxWidth){
-  h = h * (maxWidth / w);
-  w = maxWidth;
-}
-
-if(h > maxHeight){
-  w = w * (maxHeight / h);
-  h = maxHeight;
-}
-
-// equal gap from top and right
-const gap = 80;
-
-const x = canvas.width - w - gap;
-const y = gap;
-
-ctx.drawImage(logo, x, y, w, h);
-
-drawTemplate2(ctx,canvas,share);
-
-};
-
-}else{
-
-drawTemplate2(ctx,canvas,share);
-
-}
-
-}
-
-
-
-function drawTemplate2(ctx,canvas,share){
-
-
-
-
-// TITLE + DATE BOX (TOP LEFT)
-
-// YELLOW TRANSPARENT BACKGROUND
-ctx.fillStyle="rgba(255,215,0,0.25)";
-roundRect(ctx,80,120,1050,200,30,true,false);
-
-// WHITE BORDER
-ctx.strokeStyle="white";
-ctx.lineWidth=8;
-roundRect(ctx,80,120,1050,200,30,false,true);
-
-
-// TITLE
-ctx.textAlign="left";
-ctx.fillStyle="#FFFFFF";
-ctx.font="bold 60px Arial";
-ctx.fillText("TODAY’S GOLD RATE",120,210);
-
- // DATE
-ctx.fillStyle="#FFFFFF";
-ctx.font="bold 100px Arial";
-ctx.fillText(rateDate,120,300);
-
-
-ctx.textAlign="center";
-
-
-// ---------- 1 GRAM ----------
-
-// 3. GOLD 1 GRAM BOX
-    ctx.fillStyle = "rgba(184, 134, 11, 0.9)"; // Gold color
-    ctx.fillRect(400, 1600, 1680, 400);
-    ctx.fillStyle = "white";
-    ctx.font = "100px Arial";
-    ctx.fillText("GOLD 1 GRAM", 1240, 1720);
-    ctx.font = "bold 180px Arial";
-    ctx.fillText("₹ " + gold1Gram, 1240, 1920);
-
-    // 4. 1 PAVAN BOX
-    ctx.fillStyle = "rgba(139, 0, 0, 0.9)"; // Dark red color
-    ctx.fillRect(400, 2100, 1680, 400);
-    ctx.fillStyle = "white";
-    ctx.font = "100px Arial";
-    ctx.fillText("GOLD 8 GRAM (1 PAVAN)", 1240, 2220);
-    ctx.font = "bold 180px Arial";
-    ctx.fillText("₹ " + gold1Pavan, 1240, 2420);
-
- 
-// FOOTER
-ctx.fillStyle="#003333";
-ctx.fillRect(0,3050,2480,450);
-
-ctx.fillStyle="white";
-
-ctx.font="bold 120px Arial";
-ctx.fillText(shopName,1240,3200);
-
-ctx.font="90px Arial";
-ctx.fillText(place,1240,3320);
-
-ctx.font="80px Arial";
-ctx.fillText("Ph: "+contacts.join(", "),1240,3450);
-
-
-// SAVE
-save(canvas, share);
-}
-
-function template3(ctx, canvas, share){
-
-// LOGO
-if(logoUrl){
-
-const logo = new Image();
-logo.crossOrigin="anonymous";
-logo.src = logoUrl + "?t=" + new Date().getTime();
-
-logo.onload = function(){
-
-const maxWidth = 1200;
-const maxHeight = 1200;
-
-let w = logo.width;
-let h = logo.height;
-
-// maintain aspect ratio
-if(w > maxWidth){
-  h = h * (maxWidth / w);
-  w = maxWidth;
-}
-
-if(h > maxHeight){
-  w = w * (maxHeight / h);
-  h = maxHeight;
-}
-
-// equal gap from top and right
-const gap = 80;
-
-const x = canvas.width - w - gap;
-const y = gap;
-
-ctx.drawImage(logo, x, y, w, h);
-drawTemplate3(ctx,canvas,share);
-
-};
-
-}else{
-
-drawTemplate3(ctx,canvas,share);
-
-}
-
-}
-
-
-
-function drawTemplate3(ctx,canvas,share){
-
-
-
-
-// TITLE + DATE BOX (TOP LEFT)
-
-// YELLOW TRANSPARENT BACKGROUND
-ctx.fillStyle="rgba(255,215,0,0.25)";
-roundRect(ctx,80,120,1050,200,30,true,false);
-
-// WHITE BORDER
-ctx.strokeStyle="white";
-ctx.lineWidth=8;
-roundRect(ctx,80,120,1050,200,30,false,true);
-
-
-// TITLE
-ctx.textAlign="left";
-ctx.fillStyle="#FFFFFF";
-ctx.font="bold 60px Arial";
-ctx.fillText("TODAY’S GOLD RATE",120,210);
-
- // DATE
-ctx.fillStyle="#FFFFFF";
-ctx.font="bold 100px Arial";
-ctx.fillText(rateDate,120,300);
-
-
-// -------- 1 GRAM --------
-
-// LABEL BOX
-ctx.fillStyle="rgba(0,0,0,0.6)";
-roundRect(ctx,1500,2100,400,120,25,true,false);
-
-ctx.fillStyle="white";
-ctx.textAlign="center";
-ctx.font="bold 80px Arial";
-ctx.fillText("1 Gram",1700,2180);
-
-
-// RATE BOX
-ctx.fillStyle="#b02a4a";
-roundRect(ctx,1350,2200,700,230,40,true,false);
-
-ctx.fillStyle="white";
-ctx.font="bold 180px Arial";
-ctx.fillText("₹ "+gold1Gram,1700,2360);
-
-
-
-// -------- 1 PAVAN --------
-
-// LABEL BOX
-ctx.fillStyle="rgba(0,0,0,0.6)";
-roundRect(ctx,1450,2450,500,120,25,true,false);
-
-ctx.fillStyle="white";
-ctx.font="bold 100px Arial";
-ctx.fillText("1 Pavan",1700,2530);
-
-
-// BIGGER RATE BOX
-ctx.fillStyle="#b02a4a";
-roundRect(ctx,1100,2550,1200,260,40,true,false);
-
-ctx.fillStyle="white";
-ctx.font="bold 210px Arial";
-ctx.fillText("₹ "+gold1Pavan,1700,2730);
- // FOOTER
-ctx.fillStyle="#003333";
-ctx.fillRect(0,3050,2480,450);
-
-ctx.fillStyle="white";
-
-ctx.font="bold 120px Arial";
-ctx.fillText(shopName,1240,3200);
-
-ctx.font="90px Arial";
-ctx.fillText(place,1240,3320);
-
-ctx.font="80px Arial";
-ctx.fillText("Ph: "+contacts.join(", "),1240,3450);
-
-
-// SAVE
-save(canvas, share);
-}
-
-
-function template4(ctx, canvas, share){
-
-// LOGO
-if(logoUrl){
-
-const logo = new Image();
-logo.crossOrigin="anonymous";
-logo.src = logoUrl + "?t=" + new Date().getTime();
-
-logo.onload = function(){
-
-const maxWidth = 1200;
-const maxHeight = 1200;
-
-let w = logo.width;
-let h = logo.height;
-
-// maintain aspect ratio
-if(w > maxWidth){
-  h = h * (maxWidth / w);
-  w = maxWidth;
-}
-
-if(h > maxHeight){
-  w = w * (maxHeight / h);
-  h = maxHeight;
-}
-
-// equal gap from top and right
-const gap = 80;
-
-const x = canvas.width - w - gap;
-const y = gap;
-
-ctx.drawImage(logo, x, y, w, h);
-
-drawTemplate4(ctx,canvas,share);
-
-};
-
-}else{
-
-drawTemplate4(ctx,canvas,share);
-
-}
-
-}
-
-
-
-function drawTemplate4(ctx,canvas,share){
-
-
-
-ctx.textAlign="center";
-
-
-// TITLE OUTLINE
-ctx.lineWidth = 10;
-ctx.fillStyle="#E2D609";
-ctx.strokeStyle = "#dcdcdc";
-ctx.font="bold 180px Arial";
-ctx.fillText("TODAY’S",1240,2000);
-ctx.fillText("GOLD RATE",1240,2200);
-
-
-// DATE
-ctx.fillStyle="#dcdcdc";
-ctx.font="bold 100px Arial";
-ctx.fillText(rateDate,1240,2400);
-
-
-
-// LEFT RATE BOX
-ctx.fillStyle="#FEFEFE";
-roundRect(ctx,300,2550,900,350,30,true,false);
-
-ctx.fillStyle="#1e1e1e";
-ctx.font="bold 160px Arial";
-ctx.fillText("₹ "+gold1Gram,750,2720);
-
-ctx.fillStyle="#7E251E";
-ctx.font="bold 120px Arial";
-ctx.fillText("1 Gram",750,2860);
-
-
-
-
-// RIGHT RATE BOX
-ctx.fillStyle="#FEFEFE";
-roundRect(ctx,1280,2550,900,350,30,true,false);
-
-ctx.fillStyle="#1e1e1e";
-ctx.font="bold 160px Arial";
-ctx.fillText("₹ "+gold1Pavan,1730,2720);
-
-ctx.fillStyle="#7E251E";
-ctx.font="bold 120px Arial";
-ctx.fillText("1 Pavan",1730,2860);
-
-
-
-
-// FOOTER
-ctx.fillStyle="#003333";
-ctx.fillRect(0,3050,2480,450);
-
-ctx.fillStyle="white";
-
-ctx.font="bold 120px Arial";
-ctx.fillText(shopName,1240,3200);
-
-ctx.font="90px Arial";
-ctx.fillText(place,1240,3320);
-
-ctx.font="80px Arial";
-ctx.fillText("Ph: "+contacts.join(", "),1240,3450);
-
- // SAVE
-save(canvas, share);
-
-}
-
-function template5(ctx, canvas, share){
-
-// LOGO
-if(logoUrl){
-
-const logo = new Image();
-logo.crossOrigin="anonymous";
-logo.src = logoUrl + "?t=" + new Date().getTime();
-
-logo.onload = function(){
-
-const maxWidth = 1200;
-const maxHeight = 1200;
-
-let w = logo.width;
-let h = logo.height;
-
-// maintain aspect ratio
-if(w > maxWidth){
-  h = h * (maxWidth / w);
-  w = maxWidth;
-}
-
-if(h > maxHeight){
-  w = w * (maxHeight / h);
-  h = maxHeight;
-}
-
-// equal gap from top and right
-const gap = 80;
-
-const x = canvas.width - w - gap;
-const y = gap;
-
-ctx.drawImage(logo, x, y, w, h);
-drawTemplate5(ctx,canvas,share);
-
-};
-
-}else{
-
-drawTemplate5(ctx,canvas,share);
-
-}
-
-}
-
-
-
-function drawTemplate5(ctx,canvas,share){
-
-
-
-
-ctx.textAlign="center";
-
-
-// TITLE
-ctx.fillStyle="white";
-ctx.font="bold 130px Arial";
-ctx.fillText("TODAY’S GOLD RATE",1240,1950);
-
-
-// 1 GRAM BOX
-ctx.fillStyle="rgba(255,255,255,0.7)";
-roundRect(ctx,780,2050,920,300,50,true,false);
-
-ctx.fillStyle="#222";
-
-// label
-ctx.font="bold 90px Arial";
-ctx.fillText("1 GRAM",1240,2150);
-
-// number
-ctx.font="bold 200px Arial";
-ctx.fillText("₹ " + gold1Gram,1240,2320);
-
-
-
-// 1 PAVAN BOX
-ctx.fillStyle="rgba(255,255,255,0.7)";
-roundRect(ctx,350,2400,1780,450,70,true,false);
-
-ctx.fillStyle="#222";
-
-ctx.font="bold 130px Arial";
-ctx.fillText("1 PAVAN",1240,2550);
-
-// CENTER FIX
-ctx.font="bold 320px Arial";
-ctx.fillText("₹ " + gold1Pavan,1240,2790);
-
-
-
-// DATE BOX
-ctx.fillStyle="#e6e6e6";
-roundRect(ctx,900,2920,700,140,30,true,false);
-
-ctx.fillStyle="#222";
-ctx.font="bold 80px Arial";
-ctx.fillText(rateDate,1240,3010);
-
-
-
-// FOOTER
-ctx.fillStyle="#003333";
-ctx.fillRect(0,3050,2480,450);
-
-ctx.fillStyle="white";
-
-ctx.font="bold 120px Arial";
-ctx.fillText(shopName,1240,3200);
-
-ctx.font="90px Arial";
-ctx.fillText(place,1240,3320);
-
-ctx.font="80px Arial";
-ctx.fillText("Ph: "+contacts.join(", "),1240,3450);
-
-
-// SAVE
-save(canvas, share);
-
-}
-
-function template6(ctx, canvas, share){
-
-// LOGO
-if(logoUrl){
-
-const logo = new Image();
-logo.crossOrigin="anonymous";
-logo.src = logoUrl + "?t=" + new Date().getTime();
-
-logo.onload = function(){
-
-const maxWidth = 1200;
-const maxHeight = 1200;
-
-let w = logo.width;
-let h = logo.height;
-
-// maintain aspect ratio
-if(w > maxWidth){
-  h = h * (maxWidth / w);
-  w = maxWidth;
-}
-
-if(h > maxHeight){
-  w = w * (maxHeight / h);
-  h = maxHeight;
-}
-
-// equal gap from top and right
-const gap = 80;
-
-const x = canvas.width - w - gap;
-const y = gap;
-
-ctx.drawImage(logo, x, y, w, h);
-
-drawTemplate6(ctx,canvas,share);
-
-};
-
-}else{
-
-drawTemplate6(ctx,canvas,share);
-
-}
-
-}
-
-
-
-function drawTemplate6(ctx,canvas,share){
-
-
-
-
-ctx.textAlign="center";
-
-
-// =====================
-// TITLE
-// =====================
-ctx.fillStyle="#f4d03f";
-ctx.font="bold 120px Arial";
-ctx.fillText("TODAY’S GOLD RATE",1240,2000);
-
-
-// =====================
-// RATE BOX
-// =====================
-ctx.lineWidth = 20;
-ctx.strokeStyle = "#6bdc22";
-ctx.fillStyle = "rgba(0,0,0,0.35)";
-
-roundRect(ctx,300,2100,1880,700,80,true,true);
-
-
-// =====================
-// DATE
-// =====================
-ctx.fillStyle="#ffffff";
-ctx.font="bold 120px Arial";
-ctx.fillText(rateDate,1240,2250);
-
-
-// =====================
-// PAVAN LABEL
-// =====================
-ctx.fillStyle="#f4d03f";
-ctx.font="bold 130px Arial";
-ctx.fillText("1 PAVAN",1240,2420);
-
-
-// =====================
-// PAVAN RATE BIG
-// =====================
-ctx.font="bold 320px Arial";
-ctx.fillText(gold1Pavan,1240,2720);
-
-
-// =====================
-// GRAM RATE
-// =====================
-ctx.fillStyle="#ffffff";
-ctx.font="bold 120px Arial";
-ctx.fillText("1 GRAM "+gold1Gram,1240,2920);
-
-
-// FOOTER
-ctx.fillStyle="#003333";
-ctx.fillRect(0,3050,2480,450);
-
-ctx.fillStyle="white";
-
-ctx.font="bold 120px Arial";
-ctx.fillText(shopName,1240,3200);
-
-ctx.font="90px Arial";
-ctx.fillText(place,1240,3320);
-
-ctx.font="80px Arial";
-ctx.fillText("Ph: "+contacts.join(", "),1240,3450);
-
-
-// SAVE
-save(canvas, share);
-
-}
-
-function template7(ctx, canvas, share){
-
-// LOGO
-if(logoUrl){
-
-const logo = new Image();
-logo.crossOrigin="anonymous";
-logo.src = logoUrl + "?t=" + new Date().getTime();
-
-logo.onload = function(){
-
-const maxWidth = 1200;
-const maxHeight = 1200;
-
-let w = logo.width;
-let h = logo.height;
-
-// maintain aspect ratio
-if(w > maxWidth){
-  h = h * (maxWidth / w);
-  w = maxWidth;
-}
-
-if(h > maxHeight){
-  w = w * (maxHeight / h);
-  h = maxHeight;
-}
-
-// equal gap from top and right
-const gap = 80;
-
-const x = canvas.width - w - gap;
-const y = gap;
-
-ctx.drawImage(logo, x, y, w, h);
-drawTemplate7(ctx,canvas,share);
-
-};
-
-}else{
-
-drawTemplate7(ctx,canvas,share);
-
-}
-
-}
-
-
-
-function drawTemplate7(ctx,canvas,share){
-
-
-
-
-ctx.textAlign="center";
-
-
-// =====================
-// TITLE
-// =====================
-ctx.fillStyle="#f4d03f";
-ctx.font="bold 140px Arial";
-ctx.fillText("TODAY’S GOLD RATE",1240,2000);
-
-
-// =====================
-// DATE BOX
-// =====================
-ctx.fillStyle="#dddddd";
-ctx.fillRect(850,2100,780,140);
-
-ctx.fillStyle="#000";
-ctx.font="bold 90px Arial";
-ctx.fillText(rateDate,1240,2200);
-
-
-// =====================
-// RATE BOX STYLE
-// =====================
-ctx.lineWidth = 10;
-ctx.strokeStyle = "#b6c94a";
-ctx.fillStyle = "rgba(0,0,0,0.55)";
-
-
-// LEFT BOX
-roundRect(ctx,300,2300,900,400,40,true,true);
-
-
-// RIGHT BOX
-roundRect(ctx,1280,2300,900,400,40,true,true);
-
-
-// =====================
-// LEFT TEXT
-// =====================
-ctx.fillStyle="white";
-
-ctx.font="bold 90px Arial";
-ctx.fillText("1 GRAM",750,2450);
-
-ctx.font="bold 180px Arial";
-ctx.fillText("₹ "+gold1Gram,750,2650);
-
-
-// =====================
-// RIGHT TEXT
-// =====================
-ctx.font="bold 90px Arial";
-ctx.fillText("1 PAVAN",1730,2450);
-
-ctx.font="bold 180px Arial";
-ctx.fillText("₹ "+gold1Pavan,1730,2650);
-
-
-// FOOTER
-ctx.fillStyle="#003333";
-ctx.fillRect(0,3050,2480,450);
-
-ctx.fillStyle="white";
-
-ctx.font="bold 120px Arial";
-ctx.fillText(shopName,1240,3200);
-
-ctx.font="90px Arial";
-ctx.fillText(place,1240,3320);
-
-ctx.font="80px Arial";
-ctx.fillText("Ph: "+contacts.join(", "),1240,3450);
-
-
-// SAVE
-save(canvas, share);
-
-}
-
-function template8(ctx, canvas, share){
-
-// LOGO
-if(logoUrl){
-
-const logo = new Image();
-logo.crossOrigin="anonymous";
-logo.src = logoUrl + "?t=" + new Date().getTime();
-
-logo.onload = function(){
-
-const maxWidth = 1200;
-const maxHeight = 1200;
-
-let w = logo.width;
-let h = logo.height;
-
-// maintain aspect ratio
-if(w > maxWidth){
-  h = h * (maxWidth / w);
-  w = maxWidth;
-}
-
-if(h > maxHeight){
-  w = w * (maxHeight / h);
-  h = maxHeight;
-}
-
-// equal gap from top and right
-const gap = 80;
-
-const x = canvas.width - w - gap;
-const y = gap;
-
-ctx.drawImage(logo, x, y, w, h);
-
-drawTemplate8(ctx,canvas,share);
-
-};
-
-}else{
-
-drawTemplate8(ctx,canvas,share);
-
-}
-
-}
-
-
-
-function drawTemplate8(ctx,canvas,share){
-
-
-
-
-ctx.textAlign="center";
-
-
-// =====================
-// TITLE
-// =====================
-// =====================
-// TITLE
-// =====================
-ctx.fillStyle="#f7d64a";
-ctx.textAlign="center";
-ctx.font="bold 140px Arial";
-ctx.fillText("TODAY’S GOLD RATE",1240,1850);
-
-
-// =====================
-// DATE BOX
-// =====================
-ctx.fillStyle="#dddddd";
-ctx.fillRect(840,1920,800,150);
-
-ctx.fillStyle="#000";
-ctx.font="bold 100px Arial";
-ctx.fillText(rateDate,1240,2030);
-
-
-// =====================
-// RATE PANEL (50% transparent)
-// =====================
-ctx.fillStyle="rgba(0,0,0,0.5)";
-ctx.fillRect(300,2100,1880,450);
-
-
-// LEFT RATE
-ctx.fillStyle="white";
-ctx.textAlign="center";
-
-ctx.font="bold 100px Arial";
-ctx.fillText("1 GRAM",700,2250);
-
-ctx.font="bold 180px Arial";
-ctx.fillText("₹ "+gold1Gram,700,2450);
-
-
-// RIGHT RATE
-ctx.font="bold 100px Arial";
-ctx.fillText("1 PAVAN",1700,2250);
-
-ctx.font="bold 180px Arial";
-ctx.fillText("₹ "+gold1Pavan,1700,2450);
-
-
-// CENTER LINE
-ctx.fillStyle="white";
-ctx.fillRect(1240,2100,6,450);
-
-// FOOTER
-ctx.fillStyle="#003333";
-ctx.fillRect(0,3050,2480,450);
-
-ctx.fillStyle="white";
-
-ctx.font="bold 120px Arial";
-ctx.fillText(shopName,1240,3200);
-
-ctx.font="90px Arial";
-ctx.fillText(place,1240,3320);
-
-ctx.font="80px Arial";
-ctx.fillText("Ph: "+contacts.join(", "),1240,3450);
-
-
-// SAVE
-save(canvas, share);
-
-}
+TEMPLETE HERE LATER DESIGN
 
 
    function roundRect(ctx,x,y,width,height,radius,fill,stroke){
