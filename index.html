@@ -516,7 +516,10 @@ const rechargeBtn = document.getElementById("rechargeBtn");
 // =====================
 // SHARE BUTTON (FIREBASE VERSION)
 // =====================
-sshareBtn.onclick = async function(){
+// =====================
+// SHARE BUTTON (CLEAN)
+// =====================
+shareBtn.onclick = async function(){
 
 shareBtn.classList.add("share-loading");
 shareBtn.innerText = "";
@@ -524,7 +527,8 @@ shareBtn.style.pointerEvents = "none";
 
 try{
 
-const userRef = doc(db,"users",userPhone);
+// 🔥 USER DATA
+const userRef = doc(db,"users",phone);
 const userSnap = await getDoc(userRef);
 
 if(!userSnap.exists()){
@@ -536,45 +540,17 @@ if(!userSnap.exists()){
 const userData = userSnap.data();
 
 // =====================
-// PLAN CHECK
+// PLAN CHECK ONLY
 // =====================
-const expiry = userData.planExpiry;
-
-if(!expiry){
+if(!userData.planExpiry){
   disableShareBtn("No Plan");
   return;
 }
 
-if(new Date(expiry) < new Date()){
+const expiry = new Date(userData.planExpiry);
+
+if(expiry < new Date()){
   disableShareBtn("Plan Expired");
-  return;
-}
-
-// =====================
-// RATE CHECK (Firebase rates)
-// =====================
-const rateRef = doc(db,"rates","today");
-const rateSnap = await getDoc(rateRef);
-
-if(!rateSnap.exists()){
-  alert("Rate not available");
-  resetBtn();
-  return;
-}
-
-const rateData = rateSnap.data();
-
-const todayDate = rateData.date;
-const todayRate = rateData.gold22_1g;
-
-// =====================
-// DOWNLOAD CHECK
-// =====================
-if(
-  userData.lastDownloadDate === todayDate &&
-  userData.lastDownloadRate === todayRate
-){
-  disableShareBtn("Already Downloaded");
   return;
 }
 
@@ -583,13 +559,16 @@ if(
 // =====================
 generatePoster(true);
 
-// =====================
-// SAVE DOWNLOAD STATE
-// =====================
-await updateDoc(userRef,{
-  lastDownloadDate: todayDate,
-  lastDownloadRate: todayRate
-});
+}catch(err){
+
+console.log(err);
+alert("Network error");
+resetBtn();
+
+}
+
+};
+
 
 }catch(err){
 console.log(err);
@@ -601,34 +580,6 @@ resetBtn();
 
 const userData = userSnap.data();
 
-// =====================
-// PLAN CHECK
-// =====================
-const expiry = userData.planExpiry;
-
-if(!expiry){
-  disableShareBtn("No Plan");
-  return;
-}
-
-const today = new Date();
-const expiryDate = new Date(expiry);
-
-if(expiryDate < today){
-  disableShareBtn("Plan Expired");
-  return;
-}
-
-// =====================
-// DOWNLOAD LIMIT CHECK
-// =====================
-
-
-
-// =====================
-// GENERATE POSTER
-// =====================
-generatePoster(true);
 
 // =====================
 // UPDATE COUNT
@@ -898,152 +849,7 @@ alert("Background failed to load");
 
 }
 
-  function template1(ctx, canvas, share){
-
-// LOGO
-if(logoUrl){
-
-const logo = new Image();
-logo.crossOrigin="anonymous";
-logo.src = logoUrl + "?t=" + new Date().getTime();
-
-logo.onload = function(){
-
-const maxWidth = 1200;
-const maxHeight = 1200;
-
-let w = logo.width;
-let h = logo.height;
-
-// maintain aspect ratio
-if(w > maxWidth){
-  h = h * (maxWidth / w);
-  w = maxWidth;
-}
-
-if(h > maxHeight){
-  w = w * (maxHeight / h);
-  h = maxHeight;
-}
-
-// equal gap from top and right
-const gap = 80;
-
-const x = canvas.width - w - gap;
-const y = gap;
-
-ctx.drawImage(logo, x, y, w, h);
-
-drawTemplate1(ctx,canvas,share);
-
-};
-
-}else{
-
-drawTemplate1(ctx,canvas,share);
-
-}
-
-}
-
-
-
-function drawTemplate1(ctx,canvas,share){
-
-
-
-
-// TITLE + DATE BOX (TOP LEFT)
-
-// YELLOW TRANSPARENT BACKGROUND
-ctx.fillStyle="rgba(255,215,0,0.25)";
-roundRect(ctx,80,120,1050,200,30,true,false);
-
-// WHITE BORDER
-ctx.strokeStyle="white";
-ctx.lineWidth=8;
-roundRect(ctx,80,120,1050,200,30,false,true);
-
-
-// TITLE
-ctx.textAlign="left";
-ctx.fillStyle="#FFFFFF";
-ctx.font="bold 60px Arial";
-ctx.fillText("TODAY’S GOLD RATE",120,210);
-
- // DATE
-ctx.fillStyle="#FFFFFF";
-ctx.font="bold 100px Arial";
-ctx.fillText(rateDate,120,300);
-
-
-ctx.textAlign="center";
-
-
-// ---------- 1 GRAM ----------
-
-ctx.fillStyle="#3ca26a";
-roundRect(ctx,980,1650,520,140,25,true,false);
-
-ctx.fillStyle="white";
-ctx.font="bold 120px Arial";
-ctx.fillText("1 Pavan",1240,1750);
-
-
-
-// 1 PAVAN RATE BOX
-
-ctx.fillStyle="#1f2d2f";
-roundRect(ctx,650,1820,1180,300,40,true,false);
-
-ctx.fillStyle="white";
-ctx.font="bold 240px Arial";
-ctx.fillText("₹ "+gold1Pavan,1240,2050);
-
-
-
-// 1 GRAM LABEL
-
-ctx.fillStyle="#3ca26a";
-roundRect(ctx,980,2160,520,140,25,true,false);
-
-ctx.fillStyle="white";
-ctx.font="bold 120px Arial";
-ctx.fillText("1 Gram",1240,2260);
-
-
-
-// 1 GRAM RATE BOX
-
-ctx.fillStyle="#1f2d2f";
-roundRect(ctx,820,2330,840,230,40,true,false);
-
-ctx.fillStyle="white";
-ctx.font="bold 180px Arial";
-ctx.fillText("₹ "+gold1Gram,1240,2490);
-
  
-// FOOTER
-ctx.fillStyle="#003333";
-ctx.fillRect(0,3050,2480,450);
-
-ctx.fillStyle="white";
-
-ctx.font="bold 120px Arial";
-ctx.fillText(shopName,1240,3200);
-
-ctx.font="90px Arial";
-ctx.fillText(place,1240,3320);
-
-ctx.font="80px Arial";
-ctx.fillText("Ph: "+contacts.join(", "),1240,3450);
-
-
-// SAVE
-save(canvas, share);
-}
-
-
 TEMPLETE HERE LATER DESIGN
 
 
@@ -1138,24 +944,7 @@ callback();
 };
 
 }
-  // =====================
-  // CONTACTS
-  // =====================
-  function drawContacts(ctx){
-
-    ctx.textAlign="center";
-
-    ctx.font="bold 110px Arial";
-    ctx.fillText("For more details:",1240,3200);
-
-    ctx.font="bold 100px Arial";
-    ctx.fillText(contacts.join("  |  "),1240,3350);
-
-    ctx.font="bold 80px Arial";
-    ctx.fillText("Rate Date: " + rateDate,1240,3500);
-  }
-
-
+ 
   // =====================
  // =====================
 function save(canvas, share=false){
