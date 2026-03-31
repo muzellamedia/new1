@@ -569,19 +569,6 @@ shareBtn.onclick = async function(){
 
 };
 
-
-
-try{
-
-  await setDoc(downloadRef,{
-    count: count + 1
-  });
-
-}catch(err){
-  console.log(err);
-  alert("Network error");
-  resetBtn();
-}
   
 function isPlanActive(){
 
@@ -822,9 +809,7 @@ ctx.drawImage(bg,0,0,2480,3508);
 
 // 🔥 templates
 const templateList = [
-template1,
-template2,
-template3
+template1
 ];
 
 let index;
@@ -850,7 +835,7 @@ alert("Background failed to load");
 }
 
  
-function template4(ctx, canvas){
+function template1(ctx, canvas){
 
 // =====================
 // LOGO
@@ -907,7 +892,7 @@ drawTemplate4(ctx,canvas);
 // =====================
 // MAIN DESIGN
 // =====================
-function drawTemplate4(ctx,canvas){
+function drawTemplate1(ctx,canvas){
 
 ctx.textAlign="center";
 
@@ -1184,13 +1169,7 @@ btn.classList.add("share-disabled");
 btn.style.pointerEvents = "none";
 
 }
-// RESET BUTTON (GLOBAL)
-// =====================
-function disableShareBtn(text){
-  const btn = document.getElementById("shareBtn");
-  btn.innerText = text;
-  btn.style.pointerEvents = "none";
-}
+
 
 
 function logoutUser(){
