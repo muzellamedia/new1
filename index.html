@@ -451,7 +451,7 @@ let district = "";
 let state = "";
 
 let products = [];
-
+let backgrounds = [];
 let logoUrl = "";
 let footerUrl = "";
 
@@ -510,12 +510,7 @@ const shareBtn = document.getElementById("shareBtn");
 const planStatus = document.getElementById("planStatus");
 const rechargeBtn = document.getElementById("rechargeBtn");
 
-// =====================
-// SHARE BUTTON
-// =====================
-// =====================
-// SHARE BUTTON (FIREBASE VERSION)
-// =====================
+
 // =====================
 // SHARE BUTTON (CLEAN)
 // =====================
@@ -551,23 +546,72 @@ shareBtn.onclick = async function(){
       return;
     }
 
-    const expiry = new Date(userData.planExpiry);
+    // =====================
+// MAIN LOAD
+// =====================
+window.addEventListener("DOMContentLoaded", async function(){
 
-    if(expiry < new Date()){
-      disableShareBtn("Plan Expired");
-      return;
+  const shareBtn = document.getElementById("shareBtn");
+  const rechargeBtn = document.getElementById("rechargeBtn");
+
+  // =====================
+  // SHARE BUTTON
+  // =====================
+  shareBtn.onclick = async function(){
+
+    shareBtn.classList.add("share-loading");
+    shareBtn.innerText = "";
+    shareBtn.style.pointerEvents = "none";
+
+    try{
+
+      const userRef = doc(db,"users",phone);
+      const userSnap = await getDoc(userRef);
+
+      if(!userSnap.exists()){
+        alert("User not found");
+        resetBtn();
+        return;
+      }
+
+      const userData = userSnap.data();
+
+      // BACKGROUND LOAD
+      const bgRef = doc(db,"settings","backgrounds");
+      const bgSnap = await getDoc(bgRef);
+
+      if(bgSnap.exists()){
+        backgrounds = bgSnap.data().list || [];
+      }else{
+        backgrounds = [];
+      }
+
+      // PLAN CHECK
+      if(!userData.planExpiry){
+        disableShareBtn("No Plan");
+        return;
+      }
+
+      const expiry = new Date(userData.planExpiry);
+
+      if(expiry < new Date()){
+        disableShareBtn("Plan Expired");
+        rechargeBtn.style.display = "block";
+        return;
+      }
+
+      // SUCCESS → GENERATE
+      generatePoster(true);
+
+    }catch(err){
+      console.log("ERROR:", err);
+      alert("Network error");
+      resetBtn();
     }
 
-    // GENERATE
-    generatePoster(true);
+  };
 
-  }catch(err){
-    console.log(err);
-    alert("Network error");
-    resetBtn();
-  }
-
-};
+});
 
   
 function isPlanActive(){
@@ -1147,6 +1191,15 @@ URL.revokeObjectURL(link.href);
 
 }
 
+
+}
+  function resetBtn(){
+
+  const btn = document.getElementById("shareBtn");
+
+  btn.classList.remove("share-loading","share-disabled");
+  btn.innerText = "Share";
+  btn.style.pointerEvents = "auto";
 
 }
 // =====================
