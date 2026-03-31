@@ -539,6 +539,13 @@ if(!userSnap.exists()){
 
 const userData = userSnap.data();
 
+  const bgRef = doc(db,"settings","backgrounds");
+const bgSnap = await getDoc(bgRef);
+
+if(bgSnap.exists()){
+  backgrounds = bgSnap.data().list || [];
+}
+  
 // =====================
 // PLAN CHECK ONLY
 // =====================
@@ -850,7 +857,165 @@ alert("Background failed to load");
 }
 
  
-TEMPLETE HERE LATER DESIGN
+function template4(ctx, canvas){
+
+// =====================
+// LOGO
+// =====================
+if(logoUrl){
+
+const logo = new Image();
+logo.crossOrigin="anonymous";
+logo.src = logoUrl + "?t=" + new Date().getTime();
+
+logo.onload = function(){
+
+const maxWidth = 700;
+const maxHeight = 400;
+
+let w = logo.width;
+let h = logo.height;
+
+if(w > maxWidth){
+h = h * (maxWidth / w);
+w = maxWidth;
+}
+
+if(h > maxHeight){
+w = w * (maxHeight / h);
+h = maxHeight;
+}
+
+const x = 1700;
+const y = 120;
+
+// background
+ctx.fillStyle = "rgba(255,255,255,0.9)";
+roundRect(ctx,x-40,y-40,w+80,h+80,30,true,false);
+
+// border
+ctx.strokeStyle = "white";
+ctx.lineWidth = 8;
+roundRect(ctx,x-40,y-40,w+80,h+80,30,false,true);
+
+ctx.drawImage(logo,x,y,w,h);
+
+drawTemplate4(ctx,canvas);
+
+};
+
+}else{
+drawTemplate4(ctx,canvas);
+}
+
+}
+
+
+// =====================
+// MAIN DESIGN
+// =====================
+function drawTemplate4(ctx,canvas){
+
+ctx.textAlign="center";
+
+// =====================
+// DATE BOX
+// =====================
+ctx.fillStyle="rgba(255,215,0,0.25)";
+roundRect(ctx,80,120,1050,200,30,true,false);
+
+ctx.strokeStyle="white";
+ctx.lineWidth=8;
+roundRect(ctx,80,120,1050,200,30,false,true);
+
+ctx.textAlign="left";
+ctx.fillStyle="#FFFFFF";
+
+ctx.font="bold 60px Arial";
+ctx.fillText("TODAY GOLD RATE",120,210);
+
+ctx.font="bold 100px Arial";
+ctx.fillText(rateDate,120,300);
+
+ctx.textAlign="center";
+
+// =====================
+// DYNAMIC RATE BOXES
+// =====================
+let y = 1600;
+
+// 👉 22K GOLD
+if(products.includes("22K Gold")){
+
+drawRateBox(ctx,
+"22K GOLD 1 GRAM",
+rate22k_1g,
+y
+);
+
+y += 450;
+
+drawRateBox(ctx,
+"22K GOLD 1 PAVAN",
+rate22k_1p,
+y
+);
+
+y += 500;
+}
+
+// 👉 18K GOLD
+if(products.includes("18K Gold")){
+
+drawRateBox(ctx,
+"18K GOLD 1 GRAM",
+rate18k_1g,
+y
+);
+
+y += 500;
+}
+
+// 👉 SILVER
+if(products.includes("Silver")){
+
+drawRateBox(ctx,
+"SILVER 1 GRAM",
+rateSilver_1g,
+y
+);
+
+}
+
+// =====================
+// FOOTER IMAGE
+// =====================
+drawFooter(ctx, canvas, function(){
+
+save(canvas);
+
+});
+
+}
+
+
+// =====================
+// RATE BOX FUNCTION
+// =====================
+function drawRateBox(ctx,title,price,y){
+
+ctx.fillStyle = "rgba(184,134,11,0.9)";
+ctx.fillRect(400,y,1680,350);
+
+ctx.fillStyle="white";
+
+ctx.font="90px Arial";
+ctx.fillText(title,1240,y+120);
+
+ctx.font="bold 150px Arial";
+ctx.fillText("₹ " + price,1240,y+260);
+
+}
 
 
    function roundRect(ctx,x,y,width,height,radius,fill,stroke){
