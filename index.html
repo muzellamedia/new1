@@ -533,33 +533,319 @@ window.addEventListener("DOMContentLoaded", async () => {
   };
 
 });
-
-// =====================
-// POSTER GENERATE (TEST VERSION)
-// =====================
+   
+lastBg = Math.floor(Math.random() * backgrounds.length);
+   
 function generatePoster(){
 
   const btn = document.getElementById("shareBtn");
 
-  if(backgrounds.length === 0){
-    alert("No backgrounds found");
-    resetBtn();
-    return;
-  }
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
 
-  let bgIndex;
+  canvas.width = 1080;
+  canvas.height = 1350;
 
-  do{
-    bgIndex = Math.floor(Math.random() * backgrounds.length);
-  }while(bgIndex === lastBg);
+  // BACKGROUND
+  const bg = new Image();
+  bg.crossOrigin = "anonymous";
+  bg.src = backgrounds[lastBg];
 
-  lastBg = bgIndex;
+  bg.onload = function(){
 
-  alert("Poster generated ✅ (next step ready)");
+    function template1(ctx, canvas){
 
-  resetBtn();
+// =====================
+// LOGO
+// =====================
+if(logoUrl){
+
+const logo = new Image();
+logo.crossOrigin="anonymous";
+logo.src = logoUrl + "?t=" + new Date().getTime();
+
+logo.onload = function(){
+
+const maxWidth = 700;
+const maxHeight = 400;
+
+let w = logo.width;
+let h = logo.height;
+
+if(w > maxWidth){
+h = h * (maxWidth / w);
+w = maxWidth;
 }
 
+if(h > maxHeight){
+w = w * (maxHeight / h);
+h = maxHeight;
+}
+
+const x = 1700;
+const y = 120;
+
+// background
+ctx.fillStyle = "rgba(255,255,255,0.9)";
+roundRect(ctx,x-40,y-40,w+80,h+80,30,true,false);
+
+// border
+ctx.strokeStyle = "white";
+ctx.lineWidth = 8;
+roundRect(ctx,x-40,y-40,w+80,h+80,30,false,true);
+
+ctx.drawImage(logo,x,y,w,h);
+
+drawTemplate4(ctx,canvas);
+
+};
+
+}else{
+drawTemplate1(ctx,canvas);
+}
+
+}
+
+
+// =====================
+// MAIN DESIGN
+// =====================
+function drawTemplate1(ctx,canvas){
+
+ctx.textAlign="center";
+
+// =====================
+// DATE BOX
+// =====================
+ctx.fillStyle="rgba(255,215,0,0.25)";
+roundRect(ctx,80,120,1050,200,30,true,false);
+
+ctx.strokeStyle="white";
+ctx.lineWidth=8;
+roundRect(ctx,80,120,1050,200,30,false,true);
+
+ctx.textAlign="left";
+ctx.fillStyle="#FFFFFF";
+
+ctx.font="bold 60px Arial";
+ctx.fillText("TODAY GOLD RATE",120,210);
+
+ctx.font="bold 100px Arial";
+ctx.fillText(rateDate,120,300);
+
+ctx.textAlign="center";
+
+// =====================
+// DYNAMIC RATE BOXES
+// =====================
+let y = 1600;
+
+// 👉 22K GOLD
+if(products.includes("22K Gold")){
+
+drawRateBox(ctx,
+"22K GOLD 1 GRAM",
+rate22k_1g,
+y
+);
+
+y += 450;
+
+drawRateBox(ctx,
+"22K GOLD 1 PAVAN",
+rate22k_1p,
+y
+);
+
+y += 500;
+}
+
+// 👉 18K GOLD
+if(products.includes("18K Gold")){
+
+drawRateBox(ctx,
+"18K GOLD 1 GRAM",
+rate18k_1g,
+y
+);
+
+y += 500;
+}
+
+// 👉 SILVER
+if(products.includes("Silver")){
+
+drawRateBox(ctx,
+"SILVER 1 GRAM",
+rateSilver_1g,
+y
+);
+
+}
+
+// =====================
+// FOOTER IMAGE
+// =====================
+drawFooter(ctx, canvas, function(){
+
+save(canvas);
+
+});
+
+}
+
+
+// =====================
+// RATE BOX FUNCTION
+// =====================
+function drawRateBox(ctx,title,price,y){
+
+ctx.fillStyle = "rgba(184,134,11,0.9)";
+ctx.fillRect(400,y,1680,350);
+
+ctx.fillStyle="white";
+
+ctx.font="90px Arial";
+ctx.fillText(title,1240,y+120);
+
+ctx.font="bold 150px Arial";
+ctx.fillText("₹ " + price,1240,y+260);
+
+}
+
+
+   function roundRect(ctx,x,y,width,height,radius,fill,stroke){
+
+ctx.beginPath();
+ctx.moveTo(x+radius,y);
+ctx.lineTo(x+width-radius,y);
+ctx.quadraticCurveTo(x+width,y,x+width,y+radius);
+ctx.lineTo(x+width,y+height-radius);
+ctx.quadraticCurveTo(x+width,y+height,x+width-radius,y+height);
+ctx.lineTo(x+radius,y+height);
+ctx.quadraticCurveTo(x,y+height,x,y+height-radius);
+ctx.lineTo(x,y+radius);
+ctx.quadraticCurveTo(x,y,x+radius,y);
+ctx.closePath();
+
+if(fill) ctx.fill();
+if(stroke) ctx.stroke();
+
+}
+ // =====================
+// RATES DRAW (UPDATED)
+// =====================
+function drawRates(ctx){
+
+ctx.textAlign="center";
+
+// 22K GOLD 1 GRAM
+ctx.font="bold 150px Arial";
+ctx.fillText("22K GOLD 1 GRAM",1240,1700);
+
+ctx.font="bold 170px Arial";
+ctx.fillText("₹ " + rate22k_1g,1240,1900);
+
+// 22K GOLD 1 PAVAN
+ctx.font="bold 150px Arial";
+ctx.fillText("22K GOLD 1 PAVAN",1240,2150);
+
+ctx.font="bold 170px Arial";
+ctx.fillText("₹ " + rate22k_1p,1240,2350);
+
+// 18K GOLD 1 GRAM
+ctx.font="bold 130px Arial";
+ctx.fillText("18K GOLD 1 GRAM",1240,2600);
+
+ctx.font="bold 150px Arial";
+ctx.fillText("₹ " + rate18k_1g,1240,2800);
+
+// SILVER
+ctx.font="bold 130px Arial";
+ctx.fillText("SILVER 1 GRAM",1240,3050);
+
+ctx.font="bold 150px Arial";
+ctx.fillText("₹ " + rateSilver_1g,1240,3250);
+
+}
+
+// =====================
+// FOOTER IMAGE
+// =====================
+function drawFooter(ctx, canvas, callback){
+
+if(!footerUrl){
+  callback(); // skip if no footer
+  return;
+}
+
+const footerImg = new Image();
+footerImg.crossOrigin = "anonymous";
+footerImg.src = footerUrl;
+
+footerImg.onload = function(){
+
+// 🔥 bottom footer position
+const footerHeight = 300;
+
+ctx.drawImage(
+  footerImg,
+  0,
+  canvas.height - footerHeight,
+  canvas.width,
+  footerHeight
+);
+
+callback(); // continue
+
+};
+
+footerImg.onerror = function(){
+callback();
+};
+
+}
+    // SAVE
+    canvas.toBlob(function(blob){
+
+      const fileName = "gold-rate.png";
+
+      // TRY SHARE
+      if(navigator.share){
+
+        const file = new File([blob], fileName, {type:"image/png"});
+
+        navigator.share({
+          files:[file],
+          title:"Gold Rate"
+        }).catch(()=>{
+          downloadFile(blob,fileName);
+        });
+
+      }else{
+        downloadFile(blob,fileName);
+      }
+
+      resetBtn();
+
+    },"image/png");
+
+  };
+
+}
+
+   function downloadFile(blob, fileName){
+
+  const link = document.createElement("a");
+  link.download = fileName;
+  link.href = URL.createObjectURL(blob);
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+}
+   
 // =====================
 // BUTTON FUNCTIONS
 // =====================
