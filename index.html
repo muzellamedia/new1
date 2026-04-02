@@ -776,7 +776,9 @@ drawRateBox(ctx,
 rate18k_1g,
 y
 );
+}
 
+}   
 y += 500;
 }
 
@@ -838,14 +840,7 @@ function resetBtn(){
   btn.style.pointerEvents = "auto";
 }
 
-function disableShareBtn(text){
-  const btn = document.getElementById("shareBtn");
-  btn.innerText = text;
-  btn.classList.add("share-disabled");
-  btn.style.pointerEvents = "none";
-}
-
-  function drawFooter(ctx, canvas, callback){
+   function drawFooter(ctx, canvas, callback){
 
   if(!footerUrl){
     callback();
@@ -886,6 +881,15 @@ function disableShareBtn(text){
 
 }
 
+   
+function disableShareBtn(text){
+  const btn = document.getElementById("shareBtn");
+  btn.innerText = text;
+  btn.classList.add("share-disabled");
+  btn.style.pointerEvents = "none";
+}
+
+  
 // =====================
 // EXTRA
 // =====================
