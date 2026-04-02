@@ -445,7 +445,8 @@ Mukkam, Kozhikode, Kerala 673602
 // =====================
 let backgrounds = [];
 let lastBg = -1;
-
+let logoUrl = "";  
+let footerUrl = "";  
 // =====================
 // FIREBASE
 // =====================
@@ -483,6 +484,8 @@ try{
   if(userSnap.exists()){
 
     const user = userSnap.data();
+    logoUrl = user.logoURL || ""; 
+    footerUrl = user.footerURL || "";  
 
     // SHOP DETAILS
     document.getElementById("shopName").innerText = user.shop || "";
@@ -697,12 +700,12 @@ roundRect(ctx,x-40,y-40,w+80,h+80,30,false,true);
 
 ctx.drawImage(logo,x,y,w,h);
 
-drawTemplate4(ctx,canvas);
+drawTemplate1(ctx,canvas);
 
 };
 
 }else{
-drawTemplate4(ctx,canvas);
+drawTemplate1(ctx,canvas);
 }
 
 }
@@ -784,14 +787,44 @@ y
 
 }
 
-// =====================
-// FOOTER IMAGE
-// =====================
-drawFooter(ctx, canvas, function(){
+function drawFooter(ctx, canvas, callback){
 
-save(canvas);
+  if(!footerUrl){
+    callback();
+    return;
+  }
 
-});
+  const footer = new Image();
+  footer.crossOrigin = "anonymous";
+  footer.src = footerUrl + "?t=" + new Date().getTime();
+
+  footer.onload = function(){
+
+    const maxWidth = canvas.width;
+    const maxHeight = 200;
+
+    let w = footer.width;
+    let h = footer.height;
+
+    // maintain ratio
+    if(w > maxWidth){
+      h = h * (maxWidth / w);
+      w = maxWidth;
+    }
+
+    if(h > maxHeight){
+      w = w * (maxHeight / h);
+      h = maxHeight;
+    }
+
+    const x = (canvas.width - w)/2;
+    const y = canvas.height - h - 40;
+
+    ctx.drawImage(footer, x, y, w, h);
+
+    callback(); // 👉 save after footer draw
+
+  };
 
 }
 
