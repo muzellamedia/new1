@@ -616,6 +616,9 @@ rateSilver_1g = rates.silver_1g || 0;
 
       backgrounds = bgSnap.exists() ? bgSnap.data().list || [] : [];
 
+
+lastBg = Math.floor(Math.random() * backgrounds.length);
+
       // PLAN CHECK
       if(!userData.planExpiry){
         disableShareBtn("No Plan");
