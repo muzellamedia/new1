@@ -680,19 +680,15 @@ function template1(ctx, canvas){
   ctx.fillStyle = "rgba(0,0,0,0.4)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  ctx.textAlign = "center";
+ ctx.textAlign = "left";
 
-  // ===== TITLE BOX =====
-  ctx.fillStyle = "#002b7f";
-  roundRect(ctx,60,60,960,160,20,true,false);
+ctx.fillStyle = "#FFD700";
+ctx.font = "bold 50px Indulekha, Arial";
+ctx.fillText("TODAY'S GOLD RATE",100,120);
 
-  ctx.fillStyle = "#FFD700";
-  ctx.font = "bold 50px Indulekha, Arial";
-  ctx.fillText("TODAY'S GOLD RATE",540,120);
-
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = "bold 80px Indulekha, Arial";
-  ctx.fillText(rateDate,540,190);
+ctx.fillStyle = "#FFFFFF";
+ctx.font = "bold 80px Indulekha, Arial";
+ctx.fillText(rateDate,100,190);
 
   // ===== LOGO =====
   if(logoUrl){
@@ -701,7 +697,15 @@ function template1(ctx, canvas){
     logo.src = logoUrl + "?t=" + new Date().getTime();
 
     logo.onload = function(){
-      ctx.drawImage(logo,780,240,220,220);
+      const logoSize = 260;
+
+const x = canvas.width - logoSize - 60; // right side
+const y = 80;
+
+ctx.fillStyle = "rgba(255,255,255,0.9)";
+roundRect(ctx, x-20, y-20, logoSize+40, logoSize+40, 25, true, false);
+
+ctx.drawImage(logo, x, y, logoSize, logoSize);
     };
   }
 
@@ -879,30 +883,15 @@ function resetBtn(){
 
   footer.onload = function(){
 
-    const maxWidth = canvas.width;
-    const maxHeight = 200;
+    const footerHeight = 250; // 🔥 height control (change if needed)
 
-    let w = footer.width;
-    let h = footer.height;
+    const x = 0;
+    const y = canvas.height - footerHeight;
 
-    // maintain ratio
-    if(w > maxWidth){
-      h = h * (maxWidth / w);
-      w = maxWidth;
-    }
+    // 👉 full width draw
+    ctx.drawImage(footer, x, y, canvas.width, footerHeight);
 
-    if(h > maxHeight){
-      w = w * (maxHeight / h);
-      h = maxHeight;
-    }
-
-    const x = (canvas.width - w)/2;
-    const y = canvas.height - h - 40;
-
-    ctx.drawImage(footer, x, y, w, h);
-
-    callback(); // 👉 save after footer draw
-
+    callback();
   };
 
 }
