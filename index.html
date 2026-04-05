@@ -453,6 +453,7 @@ let footerUrl = "";
 let rate22k_1p = 0;
 let rate18k_1g = 0;
 let rateSilver_1g = 0;
+   let diff = 0;
    
 // =====================
 // FIREBASE
@@ -544,6 +545,7 @@ if(rateSnap.exists()){
 rate22k_1p = rates.gold22_1p || 0;
 rate18k_1g = rates.gold18_1g || 0;
 rateSilver_1g = rates.silver_1g || 0;
+  diff = rates.diff || 0;
 
 
   const statusHeader = document.getElementById("statusHeader");
@@ -663,7 +665,7 @@ rateSilver_1g = rates.silver_1g || 0;
   bg.onload = function(){
     ctx.drawImage(bg,0,0,canvas.width,canvas.height);
     template1(ctx, canvas);
-    save(canvas, true);
+
   };
 
 } 
@@ -673,113 +675,98 @@ rateSilver_1g = rates.silver_1g || 0;
    // =====================
 // TEMPLATE
 // =====================
-function template1(ctx, canvas){
+function drawTemplate1(ctx, canvas){
 
-  // =====================
-  // LOGO
-  // =====================
+  // ===== BACKGROUND OVERLAY =====
+  ctx.fillStyle = "rgba(0,0,0,0.4)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  ctx.textAlign = "center";
+
+  // ===== TITLE BOX =====
+  ctx.fillStyle = "#002b7f";
+  roundRect(ctx,60,60,960,160,20,true,false);
+
+  ctx.fillStyle = "#FFD700";
+  ctx.font = "bold 50px Indulekha, Arial";
+  ctx.fillText("TODAY'S GOLD RATE",540,120);
+
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 80px Indulekha, Arial";
+  ctx.fillText(rateDate,540,190);
+
+  // ===== LOGO =====
   if(logoUrl){
-
     const logo = new Image();
     logo.crossOrigin="anonymous";
     logo.src = logoUrl + "?t=" + new Date().getTime();
 
     logo.onload = function(){
-
-      const maxWidth = 700;
-      const maxHeight = 400;
-
-      let w = logo.width;
-      let h = logo.height;
-
-      if(w > maxWidth){
-        h = h * (maxWidth / w);
-        w = maxWidth;
-      }
-
-      if(h > maxHeight){
-        w = w * (maxHeight / h);
-        h = maxHeight;
-      }
-
-      const x = 1700;
-      const y = 120;
-
-      // background
-      ctx.fillStyle = "rgba(255,255,255,0.9)";
-      roundRect(ctx,x-40,y-40,w+80,h+80,30,true,false);
-
-      // border
-      ctx.strokeStyle = "white";
-      ctx.lineWidth = 8;
-      roundRect(ctx,x-40,y-40,w+80,h+80,30,false,true);
-
-      ctx.drawImage(logo,x,y,w,h);
-
-      drawTemplate1(ctx,canvas); // ✅ continue
-
+      ctx.drawImage(logo,780,240,220,220);
     };
+  }
 
+  // ===== MAIN RATE BOX =====
+  let mainY = 500;
+
+  // 1 GRAM
+  ctx.fillStyle = "#ff2e8b";
+  roundRect(ctx,320,mainY,440,140,20,true,false);
+
+  ctx.fillStyle = "#FFD700";
+  ctx.font = "bold 45px Indulekha, Arial";
+  ctx.fillText("1 Gram",540,mainY+50);
+
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 65px Indulekha, Arial";
+  ctx.fillText("₹ " + rate22k_1g,540,mainY+110);
+
+  // 1 PAVAN
+  mainY += 160;
+
+  ctx.fillStyle = "#ff2e8b";
+  roundRect(ctx,200,mainY,680,180,20,true,false);
+
+  ctx.fillStyle = "#FFD700";
+  ctx.font = "bold 55px Indulekha, Arial";
+  ctx.fillText("1 Pavan",540,mainY+60);
+
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 95px Indulekha, Arial";
+  ctx.fillText("₹ " + rate22k_1p,540,mainY+140);
+
+  // ===== DIFF TEXT =====
+  let diffText = "";
+
+  if(diff === 0){
+    diffText = "ഇന്ന് വിലയിൽ മാറ്റമില്ല";
+  }else if(diff > 0){
+    diffText = "ഇന്ന് പവന് " + diff + " രൂപ കൂടി";
   }else{
-    drawTemplate1(ctx,canvas);
+    diffText = "ഇന്ന് പവന് " + Math.abs(diff) + " രൂപ കുറഞ്ഞു";
   }
 
-}
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 40px Indulekha, Arial";
+  ctx.fillText(diffText,540,mainY+200);
 
+  // ===== SMALL BOXES =====
+  let smallY = mainY + 260;
 
-// =====================
-// MAIN DESIGN
-// =====================
-function drawTemplate1(ctx,canvas){
+  ctx.fillStyle = "#6a00ff";
+  roundRect(ctx,60,smallY,420,100,15,true,false);
 
-  ctx.textAlign="center";
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 35px Indulekha, Arial";
+  ctx.fillText("1 Gram 18K : ₹ " + rate18k_1g,270,smallY+60);
 
-  // =====================
-  // DATE BOX
-  // =====================
-  ctx.fillStyle="rgba(255,215,0,0.25)";
-  roundRect(ctx,80,120,1050,200,30,true,false);
+  ctx.fillStyle = "#6a00ff";
+  roundRect(ctx,600,smallY,420,100,15,true,false);
 
-  ctx.strokeStyle="white";
-  ctx.lineWidth=8;
-  roundRect(ctx,80,120,1050,200,30,false,true);
+  ctx.fillStyle = "#fff";
+  ctx.fillText("1 Gram Silver : ₹ " + rateSilver_1g,810,smallY+60);
 
-  ctx.textAlign="left";
-  ctx.fillStyle="#FFFFFF";
-
-  ctx.font="bold 60px Arial";
-  ctx.fillText("TODAY GOLD RATE",120,210);
-
-  ctx.font="bold 100px Arial";
-  ctx.fillText(rateDate,120,300);
-
-  ctx.textAlign="center";
-
-  // =====================
-  // RATES
-  // =====================
-  let y = 1600;
-
-  if(products.includes("22K Gold")){
-    drawRateBox(ctx,"22K GOLD 1 GRAM",rate22k_1g,y);
-    y += 450;
-
-    drawRateBox(ctx,"22K GOLD 1 PAVAN",rate22k_1p,y);
-    y += 500;
-  }
-
-  if(products.includes("18K Gold")){
-    drawRateBox(ctx,"18K GOLD 1 GRAM",rate18k_1g,y);
-    y += 500;
-  }
-
-  if(products.includes("Silver")){
-    drawRateBox(ctx,"SILVER 1 GRAM",rateSilver_1g,y);
-  }
-
-  // =====================
-  // FOOTER + SAVE
-  // =====================
+  // ===== FOOTER =====
   drawFooter(ctx, canvas, function(){
     save(canvas, true);
   });
