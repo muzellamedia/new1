@@ -540,6 +540,11 @@ const rateSnap = await getDoc(rateRef);
 if(rateSnap.exists()){
 
   const rates = rateSnap.data();
+  rate22k_1g = rates.gold22_1g || 0;
+rate22k_1p = rates.gold22_1p || 0;
+rate18k_1g = rates.gold18_1g || 0;
+rateSilver_1g = rates.silver_1g || 0;
+
 
   const statusHeader = document.getElementById("statusHeader");
   const statusDate = document.getElementById("statusDate");
@@ -547,11 +552,7 @@ if(rateSnap.exists()){
 
   let rawDate = rates.date || "";
   let rawTime = rates.time || "";
-  rate22k_1g = rates.gold22_1g || 0;
-rate22k_1p = rates.gold22_1p || 0;
-rate18k_1g = rates.gold18_1g || 0;
-rateSilver_1g = rates.silver_1g || 0;
-
+  
   // FORMAT DATE
   const d = new Date(rawDate);
   const formatted =
