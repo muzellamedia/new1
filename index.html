@@ -653,8 +653,8 @@ lastBg = Math.floor(Math.random() * backgrounds.length);
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
-  canvas.width = 1080;
-  canvas.height = 1350;
+  canvas.width = 2480;
+canvas.height = 3508;
 
   const bg = new Image();
   bg.crossOrigin = "anonymous";
@@ -700,7 +700,7 @@ function drawHeader(ctx, canvas){
 
   // DATE
   ctx.font="bold 100px Arial";
-  ctx.fillText(rateDate,120,300);
+  ctx.fillText(rateDate,250,500);
 
 }
 
@@ -755,12 +755,12 @@ function template1(ctx, canvas){
   roundRect(ctx,320,y,440,140,20,true,false);
 
   ctx.fillStyle = "#FFD700";
-  ctx.font = "bold 45px Indulekha, Arial";
+  ctx.font = "bold 160px Indulekha, Arial";
   ctx.textAlign = "center";
   ctx.fillText("1 Gram",540,y+50);
 
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "bold 65px Indulekha, Arial";
+  ctx.font = "bold 160px Indulekha, Arial";
   ctx.fillText("₹ " + rate22k_1g,540,y+110);
 
   // 1 Pavan
@@ -770,11 +770,11 @@ function template1(ctx, canvas){
   roundRect(ctx,200,y,680,180,20,true,false);
 
   ctx.fillStyle = "#FFD700";
-  ctx.font = "bold 55px Indulekha, Arial";
+  ctx.font = "bold 180px Indulekha, Arial";
   ctx.fillText("1 Pavan",540,y+60);
 
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "bold 95px Indulekha, Arial";
+  ctx.font = "bold 200px Indulekha, Arial";
   ctx.fillText("₹ " + rate22k_1p,540,y+140);
 
 }
@@ -793,7 +793,7 @@ function template1(ctx, canvas){
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "bold 45px 'Noto Sans Malayalam', Arial";
+  ctx.font = "bold 160px 'Noto Sans Malayalam', Arial";
   ctx.fillText(text,540,880);
 
 }
@@ -834,13 +834,13 @@ if(stroke) ctx.stroke();
 
   // title
   ctx.fillStyle = "#FFD700";
-  ctx.font = "bold 60px Arial";
+  ctx.font = "bold 180px Arial";
   ctx.textAlign = "left";
   ctx.fillText(title, x + 40, y + 100);
 
   // value
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "bold 90px Arial";
+  ctx.font = "bold 180px Arial";
   ctx.textAlign = "right";
   ctx.fillText("₹ " + value, x + width - 40, y + 180);
 
