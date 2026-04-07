@@ -387,8 +387,6 @@ gap:10px;
 
 </div>
 
-</body>
-
 <button class="edit-btn" onclick="location.href='edit.html'">
 Edit Details
 </button>
@@ -406,8 +404,6 @@ Recharge Now
 <button class="logout-btn" onclick="logoutUser()">
 Logout
 </button>
-
-</div>
 
 </div>
 
@@ -449,11 +445,29 @@ let logoUrl = "";
 let footerUrl = "";  
  let products = ["22K Gold","18K Gold","Silver"];
    let rateDate = ""; 
+let rateDateObj = null;
    let rate22k_1g = 0;
 let rate22k_1p = 0;
 let rate18k_1g = 0;
 let rateSilver_1g = 0;
    let diff = 0;
+
+function parseRateDate(rawDate){
+  if(!rawDate) return null;
+
+  if(typeof rawDate === "object" && typeof rawDate.toDate === "function"){
+    return rawDate.toDate();
+  }
+
+  if(typeof rawDate === "string" && /^\d{2}-\d{2}-\d{4}$/.test(rawDate)){
+    const [dd, mm, yyyy] = rawDate.split("-").map(Number);
+    const d = new Date(yyyy, mm - 1, dd);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  const d = new Date(rawDate);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
    
 // =====================
 // FIREBASE
@@ -470,12 +484,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const phone = localStorage.getItem("userPhone");
-
-if(!phone){
-  alert("Login required");
-  location.href="login.html";
-}
+const phone = localStorage.getItem("userPhone") || "__preview__";
 
 // =====================
 // MAIN LOAD
@@ -556,24 +565,34 @@ rateSilver_1g = rates.silver_1g || 0;
   let rawTime = rates.time || "";
   
   // FORMAT DATE
-  const d = new Date(rawDate);
-  const formatted =
-    String(d.getDate()).padStart(2,'0') + "-" +
-    String(d.getMonth()+1).padStart(2,'0') + "-" +
-    d.getFullYear();
-  rateDate = formatted;   
+  const d = parseRateDate(rawDate);
 
-  statusDate.innerText = formatted;
-  statusTime.innerText = rawTime;
+  if(d){
+    rateDateObj = d;
+    rateDate =
+      String(d.getDate()).padStart(2,'0') + "-" +
+      String(d.getMonth()+1).padStart(2,'0') + "-" +
+      d.getFullYear();
 
-  const today = new Date().toISOString().slice(0,10);
-  const rateDateISO = new Date(rawDate).toISOString().slice(0,10);
+    statusDate.innerText = rateDate;
+    statusTime.innerText = rawTime || "--";
 
-  if(rateDateISO === today){
-    statusHeader.innerText = "Gold Rate Updated";
-    statusHeader.style.background = "#0a6b3c";
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const rateDayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+    if(rateDayStart.getTime() === todayStart.getTime()){
+      statusHeader.innerText = "Gold Rate Updated";
+      statusHeader.style.background = "#0a6b3c";
+    }else{
+      statusHeader.innerText = "Gold Rate Not Updated";
+      statusHeader.style.background = "red";
+    }
   }else{
-    statusHeader.innerText = "Gold Rate Not Updated";
+    rateDate = "--";
+    statusDate.innerText = "--";
+    statusTime.innerText = rawTime || "--";
+    statusHeader.innerText = "Date Invalid";
     statusHeader.style.background = "red";
   }
 
@@ -682,28 +701,30 @@ canvas.height = 3508;
  
 function drawHeader(ctx, canvas){
 
-  // YELLOW TRANSPARENT BOX
-  ctx.fillStyle="rgba(255,215,0,0.25)";
-  const padding = 100;
-const boxWidth = canvas.width - (padding * 2);
+  const centerX = canvas.width / 2;
 
-roundRect(ctx, padding, 120, boxWidth, 220, 30, true, false);
-
-  // WHITE BORDER
-  ctx.strokeStyle="white";
-  ctx.lineWidth=8;
-  roundRect(ctx,80,120,1050,200,30,false,true);
+  // TOP HIGHLIGHT BAND
+  ctx.fillStyle = "rgba(255,215,0,0.22)";
+  roundRect(ctx, 100, 110, canvas.width - 200, 250, 36, true, false);
 
   // TITLE
-  ctx.textAlign="center";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 92px Arial";
+  ctx.fillText("TODAY'S GOLD RATE", centerX, 245);
 
-  ctx.fillStyle="#FFFFFF";
-  ctx.font="bold 60px Arial";
-  ctx.fillText("TODAY’S GOLD RATE", canvas.width/2, 230);
+  // DATE BOX
+  const dateY = 420;
+  ctx.fillStyle = "rgba(10,10,10,0.55)";
+  roundRect(ctx, 530, dateY, 1420, 190, 28, true, false);
 
-  // DATE
-  ctx.font="bold 100px Arial";
-  ctx.fillText(rateDate, canvas.width/2, 550);
+  ctx.strokeStyle = "#FFD700";
+  ctx.lineWidth = 8;
+  roundRect(ctx, 530, dateY, 1420, 190, 28, false, true);
+
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 120px Arial";
+  ctx.fillText(rateDate || "--", centerX, dateY + 130);
 
 }
 
