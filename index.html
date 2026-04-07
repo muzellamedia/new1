@@ -701,30 +701,25 @@ canvas.height = 3508;
  
 function drawHeader(ctx, canvas){
 
-  const centerX = canvas.width / 2;
+  // YELLOW TRANSPARENT BACKGROUND
+  ctx.fillStyle = "rgba(255,215,0,0.25)";
+  roundRect(ctx, 80, 120, 1050, 200, 30, true, false);
 
-  // TOP HIGHLIGHT BAND
-  ctx.fillStyle = "rgba(255,215,0,0.22)";
-  roundRect(ctx, 100, 110, canvas.width - 200, 250, 36, true, false);
+  // WHITE BORDER
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 8;
+  roundRect(ctx, 80, 120, 1050, 200, 30, false, true);
 
   // TITLE
-  ctx.textAlign = "center";
+  ctx.textAlign = "left";
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "bold 92px Arial";
-  ctx.fillText("TODAY'S GOLD RATE", centerX, 245);
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("TODAY'S GOLD RATE", 120, 210);
 
-  // DATE BOX
-  const dateY = 420;
-  ctx.fillStyle = "rgba(10,10,10,0.55)";
-  roundRect(ctx, 530, dateY, 1420, 190, 28, true, false);
-
-  ctx.strokeStyle = "#FFD700";
-  ctx.lineWidth = 8;
-  roundRect(ctx, 530, dateY, 1420, 190, 28, false, true);
-
+  // DATE
   ctx.fillStyle = "#FFFFFF";
-  ctx.font = "bold 120px Arial";
-  ctx.fillText(rateDate || "--", centerX, dateY + 130);
+  ctx.font = "bold 100px Arial";
+  ctx.fillText(rateDate || "--", 120, 300);
 
 }
 
