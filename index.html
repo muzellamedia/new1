@@ -812,6 +812,36 @@ const maxHeight = 600;
 // TEMPLATE
 // =====================
 function template1(ctx, canvas){
+  const centerXMain = canvas.width / 2;
+  const mainBoxWidth = canvas.width - 300;
+  const mainBoxHeight = 300;
+  const mainX = (canvas.width - mainBoxWidth) / 2;
+  const topYMain = 1250;
+  const gapMain = 130;
+
+  function drawMainRateBar(y, title, value, bgColor){
+    ctx.save();
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(mainX, y, mainBoxWidth, mainBoxHeight);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "bold 72px Arial";
+    ctx.fillText(title, centerXMain, y + 105);
+
+    ctx.shadowColor = "rgba(0,0,0,0.45)";
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 4;
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "bold 98px Arial";
+    ctx.fillText("\u20B9 " + formatRateValue(value), centerXMain, y + 235);
+    ctx.restore();
+  }
+
+  drawMainRateBar(topYMain, "GOLD 1 GRAM", rate22k_1g, "rgba(190,140,0,0.82)");
+  drawMainRateBar(topYMain + mainBoxHeight + gapMain, "GOLD 8 GRAM (1 PAVAN)", rate22k_1p, "rgba(165,0,0,0.82)");
+  return;
 
   let y = 500;
 const centerX = canvas.width / 2;
@@ -872,18 +902,20 @@ function drawOptionalBottomRates(ctx, canvas){
 
   const y = canvas.height - FOOTER_DRAW_HEIGHT - OPTIONAL_RATE_BOX_GAP_FROM_FOOTER - OPTIONAL_RATE_BOX_HEIGHT;
 
-  let startX = (canvas.width - OPTIONAL_RATE_BOX_WIDTH) / 2;
-  let gap = 0;
+  const leftX = 110;
+  const rightX = canvas.width - OPTIONAL_RATE_BOX_WIDTH - 110;
 
   if(items.length === 2){
-    startX = 110;
-    gap = canvas.width - (startX * 2) - (OPTIONAL_RATE_BOX_WIDTH * 2);
+    const leftItem = items.find((item) => item.kind === "18k") || items[0];
+    const rightItem = items.find((item) => item.kind === "silver") || items[1];
+    drawBottomRateCard(ctx, leftX, y, leftItem.title, leftItem.value, leftItem.kind);
+    drawBottomRateCard(ctx, rightX, y, rightItem.title, rightItem.value, rightItem.kind);
+    return y;
   }
 
-  for(let i = 0; i < items.length; i++){
-    const boxX = startX + (i * (OPTIONAL_RATE_BOX_WIDTH + gap));
-    drawBottomRateCard(ctx, boxX, y, items[i].title, items[i].value, items[i].kind);
-  }
+  const onlyItem = items[0];
+  const singleX = onlyItem.kind === "silver" ? rightX : leftX;
+  drawBottomRateCard(ctx, singleX, y, onlyItem.title, onlyItem.value, onlyItem.kind);
 
   return y;
 }
