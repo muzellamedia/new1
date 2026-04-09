@@ -17,28 +17,43 @@ body{
   padding:20px;
 }
 
+/* LEFT */
 .editor{
-  width:40%;
+  width:35%;
 }
 
 textarea{
   width:100%;
-  height:90vh;
+  height:80vh;
   font-family:monospace;
   font-size:14px;
   padding:10px;
 }
 
+/* BUTTON */
+button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  font-size:16px;
+  cursor:pointer;
+}
+
+/* RIGHT */
 .preview{
-  width:60%;
+  width:65%;
   display:flex;
   justify-content:center;
   align-items:flex-start;
 }
 
+/* IMPORTANT: SCALE FIX */
 canvas{
   background:#0a6b2d;
   border:2px solid #000;
+
+  width: 420px;   /* display size */
+  height: 594px;  /* A4 ratio */
 }
 </style>
 
@@ -48,14 +63,13 @@ canvas{
 
 <div class="container">
 
-  <!-- LEFT: CODE BOX -->
+  <!-- LEFT -->
   <div class="editor">
-    <textarea id="codeBox">
-// ഇവിടെ നിങ്ങളുടെ template code paste ചെയ്യുക
-    </textarea>
+    <textarea id="codeBox"></textarea>
+    <button onclick="render()">Preview</button>
   </div>
 
-  <!-- RIGHT: PREVIEW -->
+  <!-- RIGHT -->
   <div class="preview">
     <canvas id="canvas"></canvas>
   </div>
@@ -65,23 +79,20 @@ canvas{
 <script>
 
 // =====================
-// A4 300 DPI SIZE
+// REAL A4 SIZE (PRINT)
 // =====================
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-// A4 @300 DPI = 2480 x 3508 px
+// REAL SIZE (HIGH QUALITY)
 canvas.width = 2480;
 canvas.height = 3508;
 
 
 // =====================
-// HELPER FUNCTIONS
+// HELPERS
 // =====================
 function roundRect(ctx, x, y, w, h, r, fill, stroke){
-  if (w < 2 * r) r = w / 2;
-  if (h < 2 * r) r = h / 2;
-
   ctx.beginPath();
   ctx.moveTo(x+r, y);
   ctx.arcTo(x+w, y, x+w, y+h, r);
@@ -89,46 +100,39 @@ function roundRect(ctx, x, y, w, h, r, fill, stroke){
   ctx.arcTo(x, y+h, x, y, r);
   ctx.arcTo(x, y, x+w, y, r);
   ctx.closePath();
-
-  if (fill) ctx.fill();
-  if (stroke) ctx.stroke();
+  if(fill) ctx.fill();
+  if(stroke) ctx.stroke();
 }
 
 function formatRateValue(val){
   return Number(val).toLocaleString("en-IN");
 }
 
-// DEMO VALUES
+// DEMO DATA
 let rate22k_1g = 15000;
 let rate22k_1p = 120000;
 
 
 // =====================
-// LIVE RENDER
+// BUTTON RENDER
 // =====================
-const codeBox = document.getElementById("codeBox");
-
-codeBox.addEventListener("input", render);
-
 function render(){
 
-  // clear canvas
+  // clear
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
   // background
   ctx.fillStyle = "#0a6b2d";
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
+  const code = document.getElementById("codeBox").value;
+
   try{
-    // run user code
-    new Function("ctx","canvas", codeBox.value)(ctx, canvas);
+    new Function("ctx","canvas", code)(ctx, canvas);
   }catch(e){
-    console.log("Error:", e);
+    alert("Code Error: " + e.message);
   }
 }
-
-// INITIAL LOAD
-render();
 
 </script>
 
