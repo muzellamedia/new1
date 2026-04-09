@@ -451,6 +451,10 @@ let rate22k_1p = 0;
 let rate18k_1g = 0;
 let rateSilver_1g = 0;
    let diff = 0;
+let lastTemplate = -1;
+let currentRateSignature = "";
+let shareCount = 0;
+const SHARE_LIMIT = 2;
 const FOOTER_DRAW_WIDTH = 2484;
 const FOOTER_DRAW_HEIGHT = 659;
 const OPTIONAL_RATE_BOX_WIDTH = 680;
@@ -506,7 +510,71 @@ function formatRateValue(value){
   if(Number.isNaN(n)) return "0";
   return n.toLocaleString("en-IN");
 }
-   
+
+function getShareLimitKey(){
+  return "shareLimit_" + String(phone || "__preview__");
+}
+
+function buildRateSignature(){
+  return [
+    rateDate || "--",
+    Number(rate22k_1g || 0),
+    Number(rate22k_1p || 0),
+    Number(rate18k_1g || 0),
+    Number(rateSilver_1g || 0),
+    Number(diff || 0)
+  ].join("|");
+}
+
+function loadShareLimitState(){
+  currentRateSignature = buildRateSignature();
+  let saved = null;
+
+  try{
+    const raw = localStorage.getItem(getShareLimitKey());
+    saved = raw ? JSON.parse(raw) : null;
+  }catch(err){
+    saved = null;
+  }
+
+  if(saved && saved.signature === currentRateSignature){
+    shareCount = Number(saved.count || 0);
+  }else{
+    shareCount = 0;
+    saveShareLimitState();
+  }
+}
+
+function saveShareLimitState(){
+  const data = {
+    signature: currentRateSignature,
+    count: shareCount
+  };
+  localStorage.setItem(getShareLimitKey(), JSON.stringify(data));
+}
+
+function isShareLimited(){
+  return shareCount >= SHARE_LIMIT;
+}
+
+function applyShareLimitUi(){
+  if(isShareLimited()){
+    disableShareBtn("Share Limited");
+  }
+}
+
+function onPosterDownloadSuccess(){
+  currentRateSignature = buildRateSignature();
+  shareCount += 1;
+  saveShareLimitState();
+
+  if(isShareLimited()){
+    disableShareBtn("Share Limited");
+    return;
+  }
+  resetBtn();
+}
+
 // =====================
 // FIREBASE
 // =====================
@@ -635,6 +703,9 @@ rateSilver_1g = rates.silver_1g || 0;
     statusHeader.style.background = "red";
   }
 
+  loadShareLimitState();
+  applyShareLimitUi();
+
 }
   
 }catch(err){
@@ -650,6 +721,10 @@ rateSilver_1g = rates.silver_1g || 0;
   // SHARE BUTTON
   // =====================
   shareBtn.onclick = async () => {
+    if(isShareLimited()){
+      disableShareBtn("Share Limited");
+      return;
+    }
 
     shareBtn.classList.add("share-loading");
     shareBtn.innerText = "";
@@ -673,7 +748,7 @@ rateSilver_1g = rates.silver_1g || 0;
       const bgRef = doc(db,"settings","backgrounds");
       const bgSnap = await getDoc(bgRef);
 
-      backgrounds = bgSnap.exists() ? bgSnap.data().list || [] : [];
+backgrounds = bgSnap.exists() ? bgSnap.data().list || [] : [];
 
 
 lastBg = Math.floor(Math.random() * backgrounds.length);
@@ -708,6 +783,9 @@ lastBg = Math.floor(Math.random() * backgrounds.length);
 
    
   function generatePoster(){
+  const bgUrl = backgrounds[lastBg] + "?t=" + new Date().getTime();
+  createPoster(bgUrl, true);
+  return;
 
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
@@ -741,8 +819,66 @@ canvas.height = 3508;
 }
 
 function drawActiveTemplate(ctx, canvas){
-  // Keep template selection centralized so common elements stay outside templates.
+  // Kept for backward compatibility with older call paths.
   template1(ctx, canvas);
+}
+
+  // =====================
+  // CREATE POSTER
+  // =====================
+  function createPoster(bgUrl, share){
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = 2480;
+  canvas.height = 3508;
+
+  const bg = new Image();
+  bg.crossOrigin = "anonymous";
+  bg.src = bgUrl;
+
+  bg.onload = function(){
+    ctx.drawImage(bg, 0, 0, 2480, 3508);
+    drawHeader(ctx, canvas);
+
+    drawLogo(ctx, canvas, function(){
+      const templateList = [
+        template1,
+        template2,
+        template3,
+        template4,
+        template5,
+        template6,
+        template7,
+        template8
+      ];
+
+      let index;
+      if(templateList.length <= 1){
+        index = 0;
+      }else{
+        do{
+          index = Math.floor(Math.random() * templateList.length);
+        }while(index === lastTemplate);
+      }
+
+      lastTemplate = index;
+      templateList[index](ctx, canvas, share);
+
+      const optionalRateTopY = drawOptionalBottomRates(ctx, canvas);
+      drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY);
+
+      drawFooter(ctx, canvas, function(){
+        save(canvas, share);
+      });
+    });
+  };
+
+  bg.onerror = function(){
+    alert("Background failed to load");
+    resetBtn();
+  };
 }
  
 function drawHeader(ctx, canvas){
@@ -811,12 +947,13 @@ const maxHeight = 600;
    // =====================
 // TEMPLATE
 // =====================
-const centerXMain = canvas.width / 2;
-    const mainBoxWidth = canvas.width - 750;
-    const mainBoxHeight = 350; // 
-    const mainX = (canvas.width - mainBoxWidth) / 2;
-    const topYMain = 1400; // 
-    const gapMain = 050;
+function template1(ctx, canvas){
+  const centerXMain = canvas.width / 2;
+  const mainBoxWidth = canvas.width - 300;
+  const mainBoxHeight = 300;
+  const mainX = (canvas.width - mainBoxWidth) / 2;
+  const topYMain = 1250;
+  const gapMain = 130;
 
   function drawMainRateBar(y, title, value, bgColor){
     ctx.save();
@@ -874,6 +1011,128 @@ roundRect(ctx, x, y, boxWidth, 200, 20, true, false);
   ctx.font = "bold 260px Indulekha, Arial";
   ctx.fillText("₹ " + rate22k_1p,540,y+140);
 
+}
+
+function template2(ctx, canvas){
+  const cardWidth = 2200;
+  const cardHeight = 360;
+  const cardX = (canvas.width - cardWidth) / 2;
+  const cardY = 1680;
+  const midX = cardX + (cardWidth / 2);
+
+  // Main dark block with slight green tone like reference.
+  ctx.fillStyle = "rgba(5,43,48,0.95)";
+  roundRect(ctx, cardX, cardY, cardWidth, cardHeight, 36, true, false);
+
+  // Vertical divider.
+  ctx.beginPath();
+  ctx.moveTo(midX, cardY + 18);
+  ctx.lineTo(midX, cardY + cardHeight - 18);
+  ctx.strokeStyle = "rgba(0,0,0,0.45)";
+  ctx.lineWidth = 6;
+  ctx.stroke();
+
+  // Left side: 1 GRAM
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#EAF1F1";
+  ctx.font = "bold 64px Arial";
+  ctx.fillText("1 GRAM", cardX + (cardWidth * 0.25), cardY + 120);
+
+  ctx.font = "bold 96px Arial";
+  ctx.fillText("\u20B9 " + formatRateValue(rate22k_1g), cardX + (cardWidth * 0.25), cardY + 280);
+
+  // Right side: 1 PAVAN
+  ctx.font = "bold 82px Arial";
+  ctx.fillText("1 PAVAN", cardX + (cardWidth * 0.75), cardY + 120);
+
+  ctx.font = "bold 96px Arial";
+  ctx.fillText("\u20B9 " + formatRateValue(rate22k_1p), cardX + (cardWidth * 0.75), cardY + 280);
+}
+
+function template3(ctx, canvas){
+  const outerX = 140;
+  const outerY = 1500;
+  const outerW = canvas.width - 280;
+  const outerH = 520;
+  const midY = outerY + (outerH / 2);
+
+  ctx.fillStyle = "rgba(12, 12, 12, 0.62)";
+  roundRect(ctx, outerX, outerY, outerW, outerH, 30, true, false);
+
+  ctx.strokeStyle = "rgba(255,255,255,0.25)";
+  ctx.lineWidth = 4;
+  roundRect(ctx, outerX, outerY, outerW, outerH, 30, false, true);
+
+  ctx.beginPath();
+  ctx.moveTo(outerX + 30, midY);
+  ctx.lineTo(outerX + outerW - 30, midY);
+  ctx.strokeStyle = "rgba(255,255,255,0.18)";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#FFD86A";
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("GOLD 1 GRAM", canvas.width / 2, outerY + 95);
+
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 112px Arial";
+  ctx.fillText("\u20B9 " + formatRateValue(rate22k_1g), canvas.width / 2, outerY + 225);
+
+  ctx.fillStyle = "#FFD86A";
+  ctx.font = "bold 66px Arial";
+  ctx.fillText("GOLD 8 GRAM (1 PAVAN)", canvas.width / 2, outerY + 345);
+
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 118px Arial";
+  ctx.fillText("\u20B9 " + formatRateValue(rate22k_1p), canvas.width / 2, outerY + 490);
+}
+
+function template4(ctx, canvas){
+  const cardY = 1580;
+  const cardH = 380;
+  const cardW = 1120;
+  const leftX = 90;
+  const gap = 60;
+  const rightX = leftX + cardW + gap;
+  const radius = 52;
+
+  function drawCard(x, title, value){
+    ctx.fillStyle = "rgba(4, 33, 36, 0.92)";
+    roundRect(ctx, x, cardY, cardW, cardH, radius, true, false);
+
+    ctx.strokeStyle = "#A8BF2B";
+    ctx.lineWidth = 10;
+    roundRect(ctx, x, cardY, cardW, cardH, radius, false, true);
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#ECF1F1";
+    ctx.font = "bold 62px Arial";
+    ctx.fillText(title, x + 120, cardY + 115);
+
+    ctx.fillStyle = "#ECF1F1";
+    ctx.font = "bold 102px Arial";
+    ctx.fillText(formatRateValue(value), x + 120, cardY + 310);
+  }
+
+  drawCard(leftX, "1 GRAM", rate22k_1g);
+  drawCard(rightX, "1 PAVAN", rate22k_1p);
+}
+
+function template5(ctx, canvas){
+  template2(ctx, canvas);
+}
+
+function template6(ctx, canvas){
+  template3(ctx, canvas);
+}
+
+function template7(ctx, canvas){
+  template1(ctx, canvas);
+}
+
+function template8(ctx, canvas){
+  template2(ctx, canvas);
 }
 
 function drawOptionalBottomRates(ctx, canvas){
@@ -1038,6 +1297,11 @@ if(stroke) ctx.stroke();
    function save(canvas, share=false){
 
 canvas.toBlob(async function(blob){
+if(!blob){
+  alert("Poster creation failed");
+  resetBtn();
+  return;
+}
 
 const fileName = "gold-rate.png";
 
@@ -1047,13 +1311,14 @@ const file = new File([blob], fileName, {type:"image/png"});
 
 try{
 await navigator.share({files:[file]});
+onPosterDownloadSuccess();
 return;
 }catch(e){}
 
 }
 
 downloadFile(blob,fileName);
-resetBtn();
+onPosterDownloadSuccess();
 
 },"image/png");
 
