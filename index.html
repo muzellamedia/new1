@@ -295,6 +295,11 @@ color: white;
 pointer-events: none;
 opacity: 1;
 }
+
+.countdown-mode{
+font-size:56px !important;
+letter-spacing:2px;
+}
   
 @keyframes pulse{
 0%{transform:scale(1);}
@@ -580,12 +585,13 @@ function startGeneratingCountdown(){
   }
 
   let count = 8;
-  btn.innerText = "Generating " + count;
+  btn.classList.add("countdown-mode");
+  btn.innerText = String(count);
 
   generatingInterval = setInterval(() => {
     count = count <= 0 ? 8 : count - 1;
-    btn.innerText = "Generating " + count;
-  }, 280);
+    btn.innerText = String(count);
+  }, 1000);
 }
 
 function stopGeneratingCountdown(){
@@ -2381,7 +2387,7 @@ onPosterDownloadSuccess();
 function resetBtn(){
   const btn = document.getElementById("shareBtn");
   stopGeneratingCountdown();
-  btn.classList.remove("share-loading","share-disabled");
+  btn.classList.remove("share-loading","share-disabled","countdown-mode");
   btn.innerText = "Share";
   btn.style.pointerEvents = "auto";
 }
@@ -2413,6 +2419,7 @@ function resetBtn(){
 function disableShareBtn(text){
   const btn = document.getElementById("shareBtn");
   stopGeneratingCountdown();
+  btn.classList.remove("countdown-mode");
   btn.innerText = text;
   btn.classList.add("share-disabled");
   btn.style.pointerEvents = "none";
