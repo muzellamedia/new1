@@ -111,10 +111,21 @@ width:90%;
 
 <select id="district">
 <option value="">Select District</option>
-<option>Kozhikode</option>
-<option>Malappuram</option>
-<option>Kannur</option>
+<option>Thiruvananthapuram</option>
+<option>Kollam</option>
+<option>Pathanamthitta</option>
+<option>Alappuzha</option>
+<option>Kottayam</option>
+<option>Idukki</option>
 <option>Ernakulam</option>
+<option>Thrissur</option>
+<option>Palakkad</option>
+<option>Malappuram</option>
+<option>Kozhikode</option>
+<option>Wayanad</option>
+<option>Kannur</option>
+<option>Kasaragod</option>
+<option>Outside Kerala</option>
 </select>
 
 <select id="state">
@@ -231,6 +242,11 @@ const footerURL = await getDownloadURL(footerRef);
 
 // code generate
 const code = Math.floor(1000 + Math.random()*9000);
+// 🔥 UPDATED
+const today = new Date();
+const expiry = new Date();
+expiry.setDate(today.getDate() + 1);
+
 await setDoc(userRef,{
 phone,
 shop,
@@ -245,10 +261,10 @@ footerURL,
 code,
 createdAt: new Date(),
 
-// 🔥 ADD THIS
-planDays: 0,
-planExpiry: "",
-status: "inactive"
+// ✅ PLAN DEFAULT 1 DAY
+planDays: 1,
+planExpiry: expiry.toISOString(),
+status: "active"
 });
 
 localStorage.setItem("userPhone",phone);
