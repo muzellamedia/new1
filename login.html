@@ -284,11 +284,10 @@ btn.innerText = "Login";
 }
 
 }
-function goRegister(){
-  // Optional: create separate register.html in GitHub
+window.goRegister = function(){
   window.location.href = "register.html";
 }
-function openWhatsApp(){
+window.openWhatsApp = function(){
 
 const msg = encodeURIComponent("I am forget my security code!");
 
