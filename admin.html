@@ -38,6 +38,7 @@ body{
   display:flex;
   gap:8px;
   align-items:center;
+  flex-wrap:wrap;
 }
 select,button,input,textarea{
   font:inherit;
@@ -137,16 +138,73 @@ th{background:#f9fafb}
   padding:8px 0;
   color:var(--muted);
 }
+.asset-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  align-items:center;
+}
+.hidden{
+  display:none !important;
+}
+.admin-lock{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:16px;
+}
+.admin-lock-box{
+  width:100%;
+  max-width:360px;
+  background:#fff;
+  border-radius:12px;
+  border:1px solid var(--line);
+  padding:18px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+.admin-lock-box h3{
+  margin:0 0 10px;
+}
+.admin-lock-actions{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+.admin-lock-msg{
+  margin-top:8px;
+  color:#b91c1c;
+  min-height:18px;
+  font-size:13px;
+}
 @media(max-width:900px){
   .grid{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div id="adminLock" class="admin-lock">
+  <div class="admin-lock-box">
+    <h3>Admin Access</h3>
+    <div class="muted" style="margin-bottom:8px;">Enter admin password</div>
+    <input id="adminPasswordInput" type="password" placeholder="Password">
+    <div class="admin-lock-actions">
+      <button id="adminUnlockBtn" class="btn-brand" style="flex:1;">Unlock</button>
+    </div>
+    <div id="adminLockMsg" class="admin-lock-msg"></div>
+  </div>
+</div>
+
+<div id="adminApp" class="wrap hidden">
   <div class="top">
     <h2 style="margin:0;">User Admin</h2>
     <div class="controls">
+      <input id="searchPhone" placeholder="Search by phone number" style="min-width:240px;">
+      <button class="btn" id="searchBtn">Search</button>
+      <button class="btn" id="clearSearchBtn">Clear</button>
       <label for="sortBy" class="muted">Sort</label>
       <select id="sortBy">
         <option value="new">New Users</option>
@@ -202,15 +260,18 @@ import {
   updateDoc,
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBxnjf4XDfnr4kj6mb-bR_wHW_3ZT0e9BU",
   authDomain: "gold-5735f.firebaseapp.com",
-  projectId: "gold-5735f"
+  projectId: "gold-5735f",
+  storageBucket: "gold-5735f.firebasestorage.app"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 const PAGE_SIZE = 20;
 let currentPage = 0;
@@ -218,6 +279,7 @@ let pageCursors = [null];
 let currentSort = "new";
 let currentDocs = [];
 let selectedPhone = "";
+const ADMIN_SESSION_KEY = "admin_unlocked_v1";
 
 const rowsEl = document.getElementById("userRows");
 const pageInfoEl = document.getElementById("pageInfo");
@@ -226,6 +288,14 @@ const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const sortByEl = document.getElementById("sortBy");
 const refreshBtn = document.getElementById("refreshBtn");
+const searchPhoneEl = document.getElementById("searchPhone");
+const searchBtn = document.getElementById("searchBtn");
+const clearSearchBtn = document.getElementById("clearSearchBtn");
+const adminLockEl = document.getElementById("adminLock");
+const adminAppEl = document.getElementById("adminApp");
+const adminPasswordInputEl = document.getElementById("adminPasswordInput");
+const adminUnlockBtnEl = document.getElementById("adminUnlockBtn");
+const adminLockMsgEl = document.getElementById("adminLockMsg");
 
 function formatDate(val){
   if(!val) return "--";
@@ -236,6 +306,52 @@ function formatDate(val){
     return d.toLocaleString();
   }catch{
     return String(val);
+  }
+}
+
+function setAdminLockMsg(text){
+  adminLockMsgEl.textContent = text || "";
+}
+
+async function getAdminPasswordFromFirestore(){
+  const snap = await getDoc(doc(db, "settings", "admin"));
+  if(!snap.exists()) return "";
+  const data = snap.data() || {};
+  return String(data.password || "");
+}
+
+function unlockAdminUi(){
+  adminLockEl.classList.add("hidden");
+  adminAppEl.classList.remove("hidden");
+}
+
+async function verifyAdminPassword(){
+  const entered = adminPasswordInputEl.value.trim();
+  if(!entered){
+    setAdminLockMsg("Enter password");
+    return;
+  }
+  adminUnlockBtnEl.disabled = true;
+  setAdminLockMsg("Checking...");
+  try{
+    const actual = await getAdminPasswordFromFirestore();
+    if(!actual){
+      setAdminLockMsg("Admin password not configured in Firestore");
+      return;
+    }
+    if(entered !== actual){
+      setAdminLockMsg("Wrong password");
+      return;
+    }
+    sessionStorage.setItem(ADMIN_SESSION_KEY, "1");
+    setAdminLockMsg("");
+    unlockAdminUi();
+    await loadPage(0);
+  }catch(err){
+    console.error(err);
+    setAdminLockMsg("Failed to verify password");
+  }finally{
+    adminUnlockBtnEl.disabled = false;
   }
 }
 
@@ -329,6 +445,16 @@ function renderDetails(phone, u){
 
     <div class="row"><label>Plan Expiry</label><input id="f_planExpiry" value="${u.planExpiry || ""}"></div>
     <div class="row"><label>Status</label><input id="f_status" value="${u.status || ""}"></div>
+    <div class="row"><label>Logo URL</label><input id="f_logoURL" value="${u.logoURL || ""}"></div>
+    <div class="row asset-row">
+      <input id="f_logoFile" type="file" accept="image/*">
+      <button class="btn" id="uploadLogoBtn">Change Logo</button>
+    </div>
+    <div class="row"><label>Footer URL</label><input id="f_footerURL" value="${u.footerURL || ""}"></div>
+    <div class="row asset-row">
+      <input id="f_footerFile" type="file" accept="image/*">
+      <button class="btn" id="uploadFooterBtn">Change Footer</button>
+    </div>
 
     <div class="actions">
       <button class="btn-brand" id="saveBtn">Edit / Save</button>
@@ -343,6 +469,8 @@ function renderDetails(phone, u){
   document.getElementById("deleteBtn").addEventListener("click", deleteUserProfile);
   document.getElementById("plan1Btn").addEventListener("click", () => activatePlan(1));
   document.getElementById("plan365Btn").addEventListener("click", () => activatePlan(365));
+  document.getElementById("uploadLogoBtn").addEventListener("click", () => uploadAsset("logo"));
+  document.getElementById("uploadFooterBtn").addEventListener("click", () => uploadAsset("footer"));
 }
 
 function setDetailStatus(text, danger=false){
@@ -376,7 +504,9 @@ async function saveDetails(){
       code: document.getElementById("f_code").value.trim(),
       planExpiry: document.getElementById("f_planExpiry").value.trim(),
       status: document.getElementById("f_status").value.trim() || "active",
-      products: collectProductsFromForm()
+      products: collectProductsFromForm(),
+      logoURL: document.getElementById("f_logoURL").value.trim(),
+      footerURL: document.getElementById("f_footerURL").value.trim()
     });
     setDetailStatus("Saved successfully.");
     await loadPage(currentPage);
@@ -384,6 +514,63 @@ async function saveDetails(){
     console.error(err);
     setDetailStatus("Save failed: " + (err.message || "error"), true);
   }
+}
+
+async function uploadAsset(kind){
+  if(!selectedPhone) return;
+  const fileInput = document.getElementById(kind === "logo" ? "f_logoFile" : "f_footerFile");
+  const file = fileInput?.files?.[0];
+  if(!file){
+    setDetailStatus(`Select ${kind} file first.`, true);
+    return;
+  }
+
+  const path = `${kind}s/${selectedPhone}`;
+  const field = kind === "logo" ? "logoURL" : "footerURL";
+  const inputId = kind === "logo" ? "f_logoURL" : "f_footerURL";
+
+  try{
+    setDetailStatus(`Uploading ${kind}...`);
+    const assetRef = ref(storage, path);
+    await uploadBytes(assetRef, file);
+    const url = await getDownloadURL(assetRef);
+    await updateDoc(doc(db, "users", selectedPhone), { [field]: url });
+    const input = document.getElementById(inputId);
+    if(input) input.value = url;
+    setDetailStatus(`${kind} updated successfully.`);
+  }catch(err){
+    console.error(err);
+    setDetailStatus(`${kind} upload failed: ${err.message || "error"}`, true);
+  }
+}
+
+async function searchByPhone(){
+  const phone = searchPhoneEl.value.trim();
+  if(!phone){
+    await loadPage(0);
+    return;
+  }
+  rowsEl.innerHTML = `<tr><td colspan="5" class="muted">Searching...</td></tr>`;
+  const snap = await getDoc(doc(db, "users", phone));
+  prevBtn.disabled = true;
+  nextBtn.disabled = true;
+  pageInfoEl.textContent = "Search Result";
+  if(!snap.exists()){
+    rowsEl.innerHTML = `<tr><td colspan="5" class="muted">User not found.</td></tr>`;
+    return;
+  }
+  const u = snap.data();
+  rowsEl.innerHTML = `
+    <tr>
+      <td><button class="phone-link" data-phone="${phone}">${phone}</button></td>
+      <td>${u.shop || "--"}</td>
+      <td>${u.place || "--"}</td>
+      <td>${formatDate(u.planExpiry)}</td>
+      <td>${u.status || "--"}</td>
+    </tr>
+  `;
+  document.querySelector(".phone-link")?.addEventListener("click", () => openDetails(phone));
+  await openDetails(phone);
 }
 
 async function activatePlan(days){
@@ -442,10 +629,46 @@ nextBtn.addEventListener("click", async () => {
   await loadPage(currentPage + 1);
 });
 
-loadPage(0).catch((err) => {
-  console.error(err);
-  rowsEl.innerHTML = `<tr><td colspan="5" class="muted">Failed to load users: ${err.message || err}</td></tr>`;
+searchBtn.addEventListener("click", () => {
+  searchByPhone().catch((err) => {
+    console.error(err);
+    rowsEl.innerHTML = `<tr><td colspan="5" class="muted">Search failed: ${err.message || err}</td></tr>`;
+  });
 });
+
+clearSearchBtn.addEventListener("click", async () => {
+  searchPhoneEl.value = "";
+  pageCursors = [null];
+  currentPage = 0;
+  await loadPage(0);
+});
+
+searchPhoneEl.addEventListener("keydown", (e) => {
+  if(e.key === "Enter"){
+    searchByPhone().catch((err) => {
+      console.error(err);
+      rowsEl.innerHTML = `<tr><td colspan="5" class="muted">Search failed: ${err.message || err}</td></tr>`;
+    });
+  }
+});
+
+adminUnlockBtnEl.addEventListener("click", () => {
+  verifyAdminPassword();
+});
+
+adminPasswordInputEl.addEventListener("keydown", (e) => {
+  if(e.key === "Enter"){
+    verifyAdminPassword();
+  }
+});
+
+if(sessionStorage.getItem(ADMIN_SESSION_KEY) === "1"){
+  unlockAdminUi();
+  loadPage(0).catch((err) => {
+    console.error(err);
+    rowsEl.innerHTML = `<tr><td colspan="5" class="muted">Failed to load users: ${err.message || err}</td></tr>`;
+  });
+}
 </script>
 </body>
 </html>
