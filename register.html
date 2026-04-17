@@ -95,6 +95,59 @@ text-align:center;
 max-width:300px;
 width:90%;
 }
+
+.products-title{
+margin:18px 0 10px;
+font-size:26px;
+}
+
+.products-grid{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:10px;
+margin-bottom:12px;
+}
+
+.product-option{
+display:flex;
+align-items:center;
+gap:10px;
+padding:12px 10px;
+border:1px solid #ddd;
+border-radius:12px;
+background:#fafafa;
+cursor:pointer;
+font-size:20px;
+font-weight:700;
+transition:0.2s;
+user-select:none;
+}
+
+.product-option:hover{
+border-color:#8b0000;
+}
+
+.product-option input{
+width:22px;
+height:22px;
+margin:0;
+accent-color:#8b0000;
+flex:0 0 auto;
+}
+
+.product-text{
+line-height:1.2;
+}
+
+@media(max-width:480px){
+.products-grid{
+grid-template-columns:1fr;
+}
+.product-option{
+font-size:22px;
+padding:14px 12px;
+}
+}
 </style>
 
 </head>
@@ -135,10 +188,21 @@ width:90%;
 <option>Karnataka</option>
 </select>
 
-<h3>Products</h3>
-<label><input type="checkbox" value="916 Gold" class="product"> 916 Gold</label><br>
-<label><input type="checkbox" value="22K Gold" class="product"> 22K Gold</label><br>
-<label><input type="checkbox" value="Silver" class="product"> Silver</label>
+<h3 class="products-title">Products</h3>
+<div class="products-grid">
+  <label class="product-option">
+    <input type="checkbox" value="916 Gold" class="product">
+    <span class="product-text">916 Gold</span>
+  </label>
+  <label class="product-option">
+    <input type="checkbox" value="22K Gold" class="product">
+    <span class="product-text">22K Gold</span>
+  </label>
+  <label class="product-option">
+    <input type="checkbox" value="Silver" class="product">
+    <span class="product-text">Silver</span>
+  </label>
+</div>
 
 <h3>Upload Logo</h3>
 <input type="file" id="logo" accept="image/*">
