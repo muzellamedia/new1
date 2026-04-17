@@ -958,23 +958,20 @@ function drawHeader(ctx, canvas){
 
   logo.onload = function(){
 
-    const maxWidth = 600;
-const maxHeight = 600;
+    const ratio = logo.width / logo.height;
+    // 2480x3508 canvas (~A4 at 300 DPI)
+    // Wide logo target ~10.7cm width, square/tall target ~8.2cm box.
+    const maxWidth = ratio >= 1.3 ? 1260 : 970;
+    const maxHeight = ratio >= 1.3 ? 620 : 970;
 
     let w = logo.width;
     let h = logo.height;
 
-    if(w > maxWidth){
-      h = h * (maxWidth / w);
-      w = maxWidth;
-    }
+    const scale = Math.min(maxWidth / w, maxHeight / h);
+    w = w * scale;
+    h = h * scale;
 
-    if(h > maxHeight){
-      w = w * (maxHeight / h);
-      h = maxHeight;
-    }
-
-    const gap = 80;
+    const gap = 90;
     const x = canvas.width - w - gap;
     const y = gap;
 
