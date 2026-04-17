@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Users</title>
+<style>
+:root{
+  --bg:#f5f6fa;
+  --card:#ffffff;
+  --ink:#111827;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --brand:#0f766e;
+  --danger:#b91c1c;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  color:var(--ink);
+  background:var(--bg);
+}
+.wrap{
+  max-width:1200px;
+  margin:0 auto;
+  padding:16px;
+}
+.top{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:14px;
+}
+.controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+select,button,input,textarea{
+  font:inherit;
+}
+select,input,textarea{
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:10px;
+  width:100%;
+}
+button{
+  border:none;
+  border-radius:8px;
+  padding:10px 14px;
+  font-weight:700;
+  cursor:pointer;
+}
+.btn{background:#111827;color:#fff}
+.btn-brand{background:var(--brand);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.grid{
+  display:grid;
+  grid-template-columns:1.2fr 1fr;
+  gap:14px;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+}
+.card h3{
+  margin:0;
+  padding:12px 14px;
+  border-bottom:1px solid var(--line);
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  border-bottom:1px solid var(--line);
+  padding:10px 12px;
+  font-size:14px;
+  text-align:left;
+}
+th{background:#f9fafb}
+.phone-link{
+  background:none;
+  color:#0b57d0;
+  border:none;
+  padding:0;
+  text-decoration:underline;
+  cursor:pointer;
+  font-weight:700;
+}
+.muted{color:var(--muted)}
+.pager{
+  padding:10px 12px;
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  border-top:1px solid var(--line);
+}
+.details{
+  padding:12px;
+}
+.row{
+  margin-bottom:10px;
+}
+.row label{
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+.chip-group{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.chip{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:8px 10px;
+}
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+}
+.status{
+  padding:8px 0;
+  color:var(--muted);
+}
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h2 style="margin:0;">User Admin</h2>
+    <div class="controls">
+      <label for="sortBy" class="muted">Sort</label>
+      <select id="sortBy">
+        <option value="new">New Users</option>
+        <option value="expiry">Expiry Date</option>
+      </select>
+      <button class="btn" id="refreshBtn">Refresh</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Users (20 per page)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Phone</th>
+            <th>Shop</th>
+            <th>Place</th>
+            <th>Plan Expiry</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="userRows"></tbody>
+      </table>
+      <div class="pager">
+        <span id="pageInfo" class="muted" style="margin-right:auto;">Page 1</span>
+        <button id="prevBtn">Prev</button>
+        <button id="nextBtn">Next</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>User Details</h3>
+      <div class="details" id="detailsWrap">
+        <div class="muted">Phone number click ചെയ്യുക.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  query,
+  orderBy,
+  limit,
+  getDocs,
+  startAfter,
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBxnjf4XDfnr4kj6mb-bR_wHW_3ZT0e9BU",
+  authDomain: "gold-5735f.firebaseapp.com",
+  projectId: "gold-5735f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const PAGE_SIZE = 20;
+let currentPage = 0;
+let pageCursors = [null];
+let currentSort = "new";
+let currentDocs = [];
+let selectedPhone = "";
+
+const rowsEl = document.getElementById("userRows");
+const pageInfoEl = document.getElementById("pageInfo");
+const detailsWrap = document.getElementById("detailsWrap");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const sortByEl = document.getElementById("sortBy");
+const refreshBtn = document.getElementById("refreshBtn");
+
+function formatDate(val){
+  if(!val) return "--";
+  try{
+    if(typeof val?.toDate === "function") return val.toDate().toLocaleString();
+    const d = new Date(val);
+    if(Number.isNaN(d.getTime())) return String(val);
+    return d.toLocaleString();
+  }catch{
+    return String(val);
+  }
+}
+
+function toIsoFromNow(days){
+  const now = new Date();
+  now.setDate(now.getDate() + days);
+  return now.toISOString();
+}
+
+function listQuery(cursor){
+  const usersRef = collection(db, "users");
+  const orderField = currentSort === "expiry" ? "planExpiry" : "createdAt";
+  const direction = currentSort === "expiry" ? "asc" : "desc";
+  if(cursor){
+    return query(usersRef, orderBy(orderField, direction), startAfter(cursor), limit(PAGE_SIZE));
+  }
+  return query(usersRef, orderBy(orderField, direction), limit(PAGE_SIZE));
+}
+
+async function loadPage(pageIndex){
+  rowsEl.innerHTML = `<tr><td colspan="5" class="muted">Loading...</td></tr>`;
+  const cursor = pageCursors[pageIndex] || null;
+  const snap = await getDocs(listQuery(cursor));
+  currentDocs = snap.docs;
+  currentPage = pageIndex;
+  pageInfoEl.textContent = `Page ${currentPage + 1}`;
+  prevBtn.disabled = currentPage === 0;
+  nextBtn.disabled = snap.docs.length < PAGE_SIZE;
+
+  if(snap.docs.length){
+    pageCursors[currentPage + 1] = snap.docs[snap.docs.length - 1];
+  }
+
+  renderRows(snap.docs);
+}
+
+function renderRows(docs){
+  if(!docs.length){
+    rowsEl.innerHTML = `<tr><td colspan="5" class="muted">No users found.</td></tr>`;
+    return;
+  }
+
+  rowsEl.innerHTML = docs.map((d) => {
+    const u = d.data();
+    return `
+      <tr>
+        <td><button class="phone-link" data-phone="${d.id}">${d.id}</button></td>
+        <td>${u.shop || "--"}</td>
+        <td>${u.place || "--"}</td>
+        <td>${formatDate(u.planExpiry)}</td>
+        <td>${u.status || "--"}</td>
+      </tr>
+    `;
+  }).join("");
+
+  document.querySelectorAll(".phone-link").forEach((btn) => {
+    btn.addEventListener("click", () => openDetails(btn.dataset.phone));
+  });
+}
+
+function collectProductsFromForm(){
+  const selected = [];
+  document.querySelectorAll(".pchk").forEach((cb) => {
+    if(cb.checked) selected.push(cb.value);
+  });
+  return selected;
+}
+
+function checkedAttr(products, value){
+  return Array.isArray(products) && products.includes(value) ? "checked" : "";
+}
+
+function renderDetails(phone, u){
+  const products = Array.isArray(u.products) ? u.products : [];
+  detailsWrap.innerHTML = `
+    <div class="row"><label>Phone</label><input id="f_phone" value="${phone}" disabled></div>
+    <div class="row"><label>Shop</label><input id="f_shop" value="${u.shop || ""}"></div>
+    <div class="row"><label>Place</label><input id="f_place" value="${u.place || ""}"></div>
+    <div class="row"><label>District</label><input id="f_district" value="${u.district || ""}"></div>
+    <div class="row"><label>State</label><input id="f_state" value="${u.state || ""}"></div>
+    <div class="row"><label>Security Code</label><input id="f_code" value="${u.code || ""}"></div>
+
+    <div class="row">
+      <label>Products</label>
+      <div class="chip-group">
+        <label class="chip"><input class="pchk" type="checkbox" value="22K Gold" ${checkedAttr(products, "22K Gold")}>22K Gold</label>
+        <label class="chip"><input class="pchk" type="checkbox" value="18K Gold" ${checkedAttr(products, "18K Gold")}>18K Gold</label>
+        <label class="chip"><input class="pchk" type="checkbox" value="Silver" ${checkedAttr(products, "Silver")}>Silver</label>
+      </div>
+    </div>
+
+    <div class="row"><label>Plan Expiry</label><input id="f_planExpiry" value="${u.planExpiry || ""}"></div>
+    <div class="row"><label>Status</label><input id="f_status" value="${u.status || ""}"></div>
+
+    <div class="actions">
+      <button class="btn-brand" id="saveBtn">Edit / Save</button>
+      <button class="btn-danger" id="deleteBtn">Delete User</button>
+      <button class="btn" id="plan1Btn">Activate 1 Day</button>
+      <button class="btn" id="plan365Btn">Activate 365 Day</button>
+    </div>
+    <div class="status" id="detailStatus"></div>
+  `;
+
+  document.getElementById("saveBtn").addEventListener("click", saveDetails);
+  document.getElementById("deleteBtn").addEventListener("click", deleteUserProfile);
+  document.getElementById("plan1Btn").addEventListener("click", () => activatePlan(1));
+  document.getElementById("plan365Btn").addEventListener("click", () => activatePlan(365));
+}
+
+function setDetailStatus(text, danger=false){
+  const el = document.getElementById("detailStatus");
+  if(!el) return;
+  el.style.color = danger ? "#b91c1c" : "#0f766e";
+  el.textContent = text;
+}
+
+async function openDetails(phone){
+  selectedPhone = phone;
+  detailsWrap.innerHTML = `<div class="muted">Loading details...</div>`;
+  const ref = doc(db, "users", phone);
+  const snap = await getDoc(ref);
+  if(!snap.exists()){
+    detailsWrap.innerHTML = `<div class="muted">User not found.</div>`;
+    return;
+  }
+  renderDetails(phone, snap.data());
+}
+
+async function saveDetails(){
+  if(!selectedPhone) return;
+  const ref = doc(db, "users", selectedPhone);
+  try{
+    await updateDoc(ref, {
+      shop: document.getElementById("f_shop").value.trim(),
+      place: document.getElementById("f_place").value.trim(),
+      district: document.getElementById("f_district").value.trim(),
+      state: document.getElementById("f_state").value.trim(),
+      code: document.getElementById("f_code").value.trim(),
+      planExpiry: document.getElementById("f_planExpiry").value.trim(),
+      status: document.getElementById("f_status").value.trim() || "active",
+      products: collectProductsFromForm()
+    });
+    setDetailStatus("Saved successfully.");
+    await loadPage(currentPage);
+  }catch(err){
+    console.error(err);
+    setDetailStatus("Save failed: " + (err.message || "error"), true);
+  }
+}
+
+async function activatePlan(days){
+  if(!selectedPhone) return;
+  const ref = doc(db, "users", selectedPhone);
+  try{
+    await updateDoc(ref, {
+      planDays: days,
+      planExpiry: toIsoFromNow(days),
+      status: "active"
+    });
+    setDetailStatus(`Plan activated: ${days} day`);
+    await openDetails(selectedPhone);
+    await loadPage(currentPage);
+  }catch(err){
+    console.error(err);
+    setDetailStatus("Plan update failed: " + (err.message || "error"), true);
+  }
+}
+
+async function deleteUserProfile(){
+  if(!selectedPhone) return;
+  const ok = confirm(`Delete user ${selectedPhone}? This cannot be undone.`);
+  if(!ok) return;
+  const ref = doc(db, "users", selectedPhone);
+  try{
+    await deleteDoc(ref);
+    selectedPhone = "";
+    detailsWrap.innerHTML = `<div class="muted">User deleted.</div>`;
+    await loadPage(currentPage);
+  }catch(err){
+    console.error(err);
+    setDetailStatus("Delete failed: " + (err.message || "error"), true);
+  }
+}
+
+sortByEl.addEventListener("change", async () => {
+  currentSort = sortByEl.value;
+  currentPage = 0;
+  pageCursors = [null];
+  await loadPage(0);
+});
+
+refreshBtn.addEventListener("click", async () => {
+  pageCursors = [null];
+  currentPage = 0;
+  await loadPage(0);
+});
+
+prevBtn.addEventListener("click", async () => {
+  if(currentPage === 0) return;
+  await loadPage(currentPage - 1);
+});
+
+nextBtn.addEventListener("click", async () => {
+  await loadPage(currentPage + 1);
+});
+
+loadPage(0).catch((err) => {
+  console.error(err);
+  rowsEl.innerHTML = `<tr><td colspan="5" class="muted">Failed to load users: ${err.message || err}</td></tr>`;
+});
+</script>
+</body>
+</html>
