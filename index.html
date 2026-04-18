@@ -2341,18 +2341,33 @@ if(!blob){
   return;
 }
 
-const fileName = "gold-rate.png";
+const now = new Date();
+const fileName =
+  String(now.getDate()).padStart(2,"0") + "." +
+  String(now.getMonth() + 1).padStart(2,"0") + "." +
+  now.getFullYear() + ".png";
 
 if(share && navigator.share){
 
 const file = new File([blob], fileName, {type:"image/png"});
 
 try{
+if(navigator.canShare && !navigator.canShare({files:[file]})){
+  alert("Share not supported on this device/browser");
+  resetBtn();
+  return;
+}
 await navigator.share({files:[file]});
 onPosterDownloadSuccess();
 return;
 }catch(e){}
 
+}
+
+if(share){
+  alert("Share option not available. Use a mobile browser (Chrome) for WhatsApp/Facebook share.");
+  resetBtn();
+  return;
 }
 
 downloadFile(blob,fileName);
