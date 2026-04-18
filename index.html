@@ -2352,22 +2352,16 @@ if(share && navigator.share){
 const file = new File([blob], fileName, {type:"image/png"});
 
 try{
-if(navigator.canShare && !navigator.canShare({files:[file]})){
-  alert("Share not supported on this device/browser");
-  resetBtn();
-  return;
-}
-await navigator.share({files:[file]});
+await navigator.share({
+  files:[file],
+  title:"Gold Rate Poster"
+});
 onPosterDownloadSuccess();
 return;
-}catch(e){}
-
+}catch(e){
+  // If user cancels or file-share fails, use fallback below.
 }
 
-if(share){
-  alert("Share option not available. Use a mobile browser (Chrome) for WhatsApp/Facebook share.");
-  resetBtn();
-  return;
 }
 
 downloadFile(blob,fileName);
