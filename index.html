@@ -296,6 +296,11 @@ pointer-events: none;
 opacity: 1;
 }
 
+.tap-share-mode{
+background:#0b57d0 !important;
+color:#ffffff !important;
+}
+
 .countdown-mode{
 font-size:56px !important;
 letter-spacing:2px;
@@ -607,6 +612,7 @@ async function trySharePendingFile(){
     const btn = document.getElementById("shareBtn");
     if(btn){
       btn.classList.remove("share-loading","countdown-mode");
+      btn.classList.add("tap-share-mode");
       btn.innerText = "Tap Share";
       btn.style.pointerEvents = "auto";
     }
@@ -2399,6 +2405,7 @@ if(share && isMobileDevice() && navigator.share){
   stopGeneratingCountdown();
   if(btn){
     btn.classList.remove("share-loading","countdown-mode");
+    btn.classList.add("tap-share-mode");
     btn.innerText = "Tap Share";
     btn.style.pointerEvents = "auto";
   }
@@ -2431,7 +2438,7 @@ function resetBtn(){
   const btn = document.getElementById("shareBtn");
   stopGeneratingCountdown();
   clearPendingShare();
-  btn.classList.remove("share-loading","share-disabled","countdown-mode");
+  btn.classList.remove("share-loading","share-disabled","countdown-mode","tap-share-mode");
   btn.innerText = "Share";
   btn.style.pointerEvents = "auto";
 }
@@ -2464,7 +2471,7 @@ function disableShareBtn(text){
   const btn = document.getElementById("shareBtn");
   stopGeneratingCountdown();
   clearPendingShare();
-  btn.classList.remove("countdown-mode");
+  btn.classList.remove("countdown-mode","tap-share-mode");
   btn.innerText = text;
   btn.classList.add("share-disabled");
   btn.style.pointerEvents = "none";
