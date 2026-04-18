@@ -457,7 +457,7 @@ let generatingInterval = null;
 const SHARE_LIMIT = 2;
 const FOOTER_DRAW_WIDTH = 2484;
 const FOOTER_DRAW_HEIGHT = 659;
-const OPTIONAL_RATE_BOX_WIDTH = 1080;
+const OPTIONAL_RATE_BOX_WIDTH = 820;
 const OPTIONAL_RATE_BOX_HEIGHT = 145;
 const OPTIONAL_RATE_BOX_GAP_FROM_FOOTER = 80;
 
@@ -2177,8 +2177,8 @@ function drawOptionalBottomRates(ctx, canvas){
 
   const y = canvas.height - FOOTER_DRAW_HEIGHT - OPTIONAL_RATE_BOX_GAP_FROM_FOOTER - OPTIONAL_RATE_BOX_HEIGHT + 59;
 
-  const leftX = 110;
-  const rightX = canvas.width - OPTIONAL_RATE_BOX_WIDTH - 110;
+  const leftX = 70;
+  const rightX = canvas.width - OPTIONAL_RATE_BOX_WIDTH - 70;
 
   if(items.length === 2){
     const leftItem = items.find((item) => item.kind === "18k") || items[0];
@@ -2215,20 +2215,20 @@ function drawBottomRateCard(ctx, x, y, title, value, kind){
   roundRect(ctx, x, y, w, h, 16, false, true);
 
   // Left colored tag area
-  const tagW = isSilver ? 470 : 390;
+  const tagW = isSilver ? 350 : 290;
   ctx.fillStyle = tagColor;
   roundRect(ctx, x + 4, y + 4, tagW, h - 8, 10, true, false);
 
   // Tag text
   ctx.textAlign = "left";
   ctx.fillStyle = "#000000";
-  ctx.font = "bold 60px Arial";
-  ctx.fillText(label, x + 22, y + 94);
+  ctx.font = "bold 66px Arial";
+  ctx.fillText(label, x + 20, y + 96);
 
   // Amount text
   ctx.fillStyle = "#f2f315";
-  ctx.font = "bold 80px Arial";
-  ctx.fillText("\u20B9 " + value, x + tagW + 36, y + 102);
+  ctx.font = "bold 92px Arial";
+  ctx.fillText("\u20B9 " + value, x + tagW + 28, y + 106);
 }
 
 function drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY){
