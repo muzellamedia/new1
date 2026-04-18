@@ -2346,20 +2346,31 @@ const fileName =
   String(now.getDate()).padStart(2,"0") + "." +
   String(now.getMonth() + 1).padStart(2,"0") + "." +
   now.getFullYear() + ".png";
+const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
-if(share && navigator.share){
+if(share && isMobileDevice && navigator.share){
 
 const file = new File([blob], fileName, {type:"image/png"});
 
 try{
-await navigator.share({
-  files:[file],
-  title:"Gold Rate Poster"
-});
+if(navigator.canShare && navigator.canShare({files:[file]})){
+  await navigator.share({
+    files:[file],
+    title:"Gold Rate Poster"
+  });
+}else{
+  await navigator.share({
+    title:"Gold Rate Poster",
+    text:"Today's Gold Rate Poster",
+    url: location.href
+  });
+}
 onPosterDownloadSuccess();
 return;
 }catch(e){
-  // If user cancels or file-share fails, use fallback below.
+  alert("Share cancelled or not supported on this phone.");
+  resetBtn();
+  return;
 }
 
 }
