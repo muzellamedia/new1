@@ -2204,8 +2204,7 @@ function drawBottomRateCard(ctx, x, y, title, value, kind){
   const w = OPTIONAL_RATE_BOX_WIDTH;
   const h = OPTIONAL_RATE_BOX_HEIGHT;
   const isSilver = kind === "silver";
-  const leftTagText = isSilver ? "Silver" : "18K";
-  const leftTagColor = isSilver ? "rgba(170,180,180,0.72)" : "rgba(214,197,117,0.92)";
+  const label = isSilver ? "Silver " : "18K ";
 
   // Main black transparent box
   ctx.fillStyle = "rgba(0,0,0,0.50)";
@@ -2214,19 +2213,16 @@ function drawBottomRateCard(ctx, x, y, title, value, kind){
   ctx.lineWidth = 4;
   roundRect(ctx, x, y, w, h, 16, false, true);
 
-  // Left tag segment
-  const tagW = isSilver ? 360 : 260;
-  ctx.fillStyle = leftTagColor;
-  ctx.fillRect(x + 4, y + 4, tagW - 8, h - 8);
+  // Label + amount in one line
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 68px Arial";
+  ctx.fillText(label, x + 24, y + 98);
+  const labelWidth = ctx.measureText(label).width;
 
-  ctx.fillStyle = "#000000";
-  ctx.font = "bold 78px Arial";
-  ctx.fillText(leftTagText, x + 22, y + 102);
-
-  // Right amount
   ctx.fillStyle = "#f3f500";
-  ctx.font = "bold 72px Arial";
-  ctx.fillText("\u20B9 " + value + " (1 Gram)", x + tagW + 30, y + 102);
+  ctx.font = "bold 64px Arial";
+  ctx.fillText("\u20B9 " + value + " (1 Gram)", x + 24 + labelWidth, y + 98);
 }
 
 function drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY){
