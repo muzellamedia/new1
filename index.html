@@ -454,6 +454,7 @@ let lastTemplate = -1;
 let currentRateSignature = "";
 let shareCount = 0;
 let generatingInterval = null;
+let pendingShareFile = null;
 const SHARE_LIMIT = 2;
 const FOOTER_DRAW_WIDTH = 2484;
 const FOOTER_DRAW_HEIGHT = 659;
@@ -573,6 +574,44 @@ function onPosterDownloadSuccess(){
     return;
   }
   resetBtn();
+}
+
+function isMobileDevice(){
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
+
+function clearPendingShare(){
+  pendingShareFile = null;
+}
+
+async function trySharePendingFile(){
+  if(!pendingShareFile || !navigator.share) return false;
+  try{
+    if(navigator.canShare && navigator.canShare({files:[pendingShareFile]})){
+      await navigator.share({
+        files:[pendingShareFile],
+        title:"Gold Rate Poster"
+      });
+    }else{
+      await navigator.share({
+        title:"Gold Rate Poster",
+        text:"Today's Gold Rate Poster",
+        url: location.href
+      });
+    }
+    clearPendingShare();
+    onPosterDownloadSuccess();
+    return true;
+  }catch(err){
+    // Keep pending file so user can retry share.
+    const btn = document.getElementById("shareBtn");
+    if(btn){
+      btn.classList.remove("share-loading","countdown-mode");
+      btn.innerText = "Tap Share";
+      btn.style.pointerEvents = "auto";
+    }
+    return false;
+  }
 }
 
 function startGeneratingCountdown(){
@@ -755,6 +794,13 @@ rateSilver_1g = rates.silver_1g || 0;
       disableShareBtn("Share Limited");
       return;
     }
+
+    if(isMobileDevice() && pendingShareFile){
+      await trySharePendingFile();
+      return;
+    }
+
+    clearPendingShare();
 
     shareBtn.classList.add("share-loading");
     shareBtn.style.pointerEvents = "none";
@@ -2346,33 +2392,17 @@ const fileName =
   String(now.getDate()).padStart(2,"0") + "." +
   String(now.getMonth() + 1).padStart(2,"0") + "." +
   now.getFullYear() + ".png";
-const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
-if(share && isMobileDevice && navigator.share){
-
-const file = new File([blob], fileName, {type:"image/png"});
-
-try{
-if(navigator.canShare && navigator.canShare({files:[file]})){
-  await navigator.share({
-    files:[file],
-    title:"Gold Rate Poster"
-  });
-}else{
-  await navigator.share({
-    title:"Gold Rate Poster",
-    text:"Today's Gold Rate Poster",
-    url: location.href
-  });
-}
-onPosterDownloadSuccess();
-return;
-}catch(e){
-  alert("Share cancelled or not supported on this phone.");
-  resetBtn();
+if(share && isMobileDevice() && navigator.share){
+  pendingShareFile = new File([blob], fileName, {type:"image/png"});
+  const btn = document.getElementById("shareBtn");
+  stopGeneratingCountdown();
+  if(btn){
+    btn.classList.remove("share-loading","countdown-mode");
+    btn.innerText = "Tap Share";
+    btn.style.pointerEvents = "auto";
+  }
   return;
-}
-
 }
 
 downloadFile(blob,fileName);
@@ -2400,6 +2430,7 @@ onPosterDownloadSuccess();
 function resetBtn(){
   const btn = document.getElementById("shareBtn");
   stopGeneratingCountdown();
+  clearPendingShare();
   btn.classList.remove("share-loading","share-disabled","countdown-mode");
   btn.innerText = "Share";
   btn.style.pointerEvents = "auto";
@@ -2432,6 +2463,7 @@ function resetBtn(){
 function disableShareBtn(text){
   const btn = document.getElementById("shareBtn");
   stopGeneratingCountdown();
+  clearPendingShare();
   btn.classList.remove("countdown-mode");
   btn.innerText = text;
   btn.classList.add("share-disabled");
