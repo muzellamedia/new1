@@ -877,9 +877,10 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
      
 
     if(isMobileDevice() && pendingShareFile){
-      await trySharePendingFile();
-      return;
-    }
+  await trySharePendingFile();
+  shareInProgress = false; // 🔥 ADD THIS
+  return;
+}
 
     clearPendingShare();
 
@@ -912,8 +913,9 @@ lastBg = Math.floor(Math.random() * backgrounds.length);
 
       // PLAN CHECK
       if(!userData.planExpiry){
-        disableShareBtn("No Plan");
-        return;
+       disableShareBtn("No Plan");
+shareInProgress = false;
+return;
       }
 
       const expiry = new Date(userData.planExpiry);
@@ -927,11 +929,12 @@ lastBg = Math.floor(Math.random() * backgrounds.length);
       // GENERATE POSTER
 generatePoster();
 
-    }catch(err){
-      console.log(err);
-      alert("Network error");
-      resetBtn();
-    }
+    catch(err){
+  console.log(err);
+  alert("Network error");
+  shareInProgress = false; // 🔥 ADD
+  resetBtn();
+}
 
   };
 
