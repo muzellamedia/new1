@@ -953,12 +953,22 @@ function drawActiveTemplate(ctx, canvas){
       lastTemplate = index;
       templateList[index](ctx, canvas, share);
 
-      const optionalRateTopY = drawOptionalBottomRates(ctx, canvas);
-      drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY);
+      const finalizePoster = () => {
+        const optionalRateTopY = drawOptionalBottomRates(ctx, canvas);
+        drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY);
 
-      drawFooter(ctx, canvas, function(){
-        save(canvas, share);
-      });
+        drawFooter(ctx, canvas, function(){
+          save(canvas, share);
+        });
+      };
+
+      // On Android devices, give template drawing a small buffer to avoid
+      // race conditions before exporting the canvas.
+      if(isMobileDevice()){
+        setTimeout(finalizePoster, 650);
+      }else{
+        finalizePoster();
+      }
     });
   };
 
