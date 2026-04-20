@@ -2505,7 +2505,7 @@ const mobileShare = share && isMobileDevice();
 const outputType = mobileShare ? "image/jpeg" : "image/png";
 const fileExt = mobileShare ? ".jpg" : ".png";
 
-canvas.toBlob(async function(blob){
+const exportBlob = () => canvas.toBlob(async function(blob){
 if(!blob){
   alert("Poster creation failed");
   resetBtn();
@@ -2535,6 +2535,18 @@ downloadFile(blob,fileName);
 onPosterDownloadSuccess();
 
 }, outputType, 0.92);
+
+// Android Chrome sometimes exports before late canvas draws are committed.
+// Wait two frames on mobile before blob export.
+if(isMobileDevice()){
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      exportBlob();
+    });
+  });
+}else{
+  exportBlob();
+}
 
 }
    
