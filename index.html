@@ -913,7 +913,8 @@ lastBg = Math.floor(Math.random() * backgrounds.length);
       }
 
       // GENERATE POSTER
-      generatePoster();
+      onPosterDownloadSuccess(); // 🔥 ADD THIS
+generatePoster();
 
     }catch(err){
       console.log(err);
@@ -1098,11 +1099,11 @@ function drawHeader(ctx, canvas){
   logo.onload = function(){
 
     const ratio = logo.width / logo.height;
-    // 2480x3508 canvas (~A4 at 300 DPI)
-    // Wide logo target ~10.7cm width, square/tall target ~8.2cm box.
-    const maxWidth = ratio >= 1.3 ? 1260 : 970;
-    const maxHeight = ratio >= 1.3 ? 620 : 970;
 
+const scaleReduce = 0.95; // 🔥 5% smaller (approx 5mm feel)
+
+const maxWidth = (ratio >= 1.3 ? 1260 : 970) * scaleReduce;
+const maxHeight = (ratio >= 1.3 ? 620 : 970) * scaleReduce;
     let w = logo.width;
     let h = logo.height;
 
