@@ -990,7 +990,11 @@ function drawActiveTemplate(ctx, canvas){
       }
 
       lastTemplate = index;
+      // Protect subsequent layers from template-specific canvas state leaks
+      // (clip/composite/transform), which can break rendering on Android.
+      ctx.save();
       templateList[index](ctx, canvas, share);
+      ctx.restore();
 
       const finalizePoster = () => {
         const optionalRateTopY = drawOptionalBottomRates(ctx, canvas);
@@ -2253,6 +2257,11 @@ function drawOptionalBottomRates(ctx, canvas){
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.globalAlpha = 1;
   ctx.filter = "none";
+  ctx.globalCompositeOperation = "source-over";
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
 
   const items = [];
   const hasProductConfig = Array.isArray(products) && products.length > 0;
