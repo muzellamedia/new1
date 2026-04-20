@@ -592,18 +592,10 @@ function clearPendingShare(){
 async function trySharePendingFile(){
   if(!pendingShareFile || !navigator.share) return false;
   try{
-    if(navigator.canShare && navigator.canShare({files:[pendingShareFile]})){
-      await navigator.share({
-        files:[pendingShareFile],
-        title:"Gold Rate Poster"
-      });
-    }else{
-      await navigator.share({
-        title:"Gold Rate Poster",
-        text:"Today's Gold Rate Poster",
-        url: location.href
-      });
-    }
+    await navigator.share({
+      files:[pendingShareFile],
+      title:"Gold Rate Poster"
+    });
     clearPendingShare();
     onPosterDownloadSuccess();
     return true;
@@ -766,9 +758,11 @@ rateSilver_1g = rates.silver_1g || 0;
     if(rateDayStart.getTime() === todayStart.getTime()){
       statusHeader.innerText = "Gold Rate Updated";
       statusHeader.style.background = "#0a6b3c";
+      resetBtn();
     }else{
       statusHeader.innerText = "Gold Rate Not Updated";
       statusHeader.style.background = "red";
+      disableShareBtn("Gold Rate Not Updated");
     }
   }else{
     rateDate = "--";
@@ -776,6 +770,7 @@ rateSilver_1g = rates.silver_1g || 0;
     statusTime.innerText = rawTime || "--";
     statusHeader.innerText = "Date Invalid";
     statusHeader.style.background = "red";
+    disableShareBtn("Date Invalid");
   }
 
   loadShareLimitState();
@@ -975,8 +970,8 @@ function drawActiveTemplate(ctx, canvas){
  
 function drawHeader(ctx, canvas){
 
-  // YELLOW TRANSPARENT BACKGROUND
-  ctx.fillStyle = "rgba(255,215,0,0.25)";
+  // BLACK TRANSPARENT BACKGROUND
+  ctx.fillStyle = "rgba(0,0,0,0.45)";
   roundRect(ctx, 80, 120, 900, 200, 30, true, false);
 
   // WHITE BORDER
@@ -2386,6 +2381,10 @@ if(stroke) ctx.stroke();
    
    function save(canvas, share=false){
 
+const mobileShare = share && isMobileDevice();
+const outputType = mobileShare ? "image/jpeg" : "image/png";
+const fileExt = mobileShare ? ".jpg" : ".png";
+
 canvas.toBlob(async function(blob){
 if(!blob){
   alert("Poster creation failed");
@@ -2397,10 +2396,10 @@ const now = new Date();
 const fileName =
   String(now.getDate()).padStart(2,"0") + "." +
   String(now.getMonth() + 1).padStart(2,"0") + "." +
-  now.getFullYear() + ".png";
+  now.getFullYear() + fileExt;
 
-if(share && isMobileDevice() && navigator.share){
-  pendingShareFile = new File([blob], fileName, {type:"image/png"});
+if(mobileShare && navigator.share){
+  pendingShareFile = new File([blob], fileName, {type:outputType});
   const btn = document.getElementById("shareBtn");
   stopGeneratingCountdown();
   if(btn){
@@ -2415,7 +2414,7 @@ if(share && isMobileDevice() && navigator.share){
 downloadFile(blob,fileName);
 onPosterDownloadSuccess();
 
-},"image/png");
+}, outputType, 0.92);
 
 }
    
