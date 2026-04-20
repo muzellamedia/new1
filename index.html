@@ -863,6 +863,7 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
       disableShareBtn("Share Limited");
       return;
     }
+     onPosterDownloadSuccess();
 
     if(isMobileDevice() && pendingShareFile){
       await trySharePendingFile();
@@ -913,7 +914,6 @@ lastBg = Math.floor(Math.random() * backgrounds.length);
       }
 
       // GENERATE POSTER
-      onPosterDownloadSuccess(); // 🔥 ADD THIS
 generatePoster();
 
     }catch(err){
