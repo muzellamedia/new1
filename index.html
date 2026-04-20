@@ -863,7 +863,7 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
       disableShareBtn("Share Limited");
       return;
     }
-     onPosterDownloadSuccess();
+     
 
     if(isMobileDevice() && pendingShareFile){
       await trySharePendingFile();
@@ -2538,7 +2538,6 @@ if(mobileShare && navigator.share){
 }
 
 downloadFile(blob,fileName);
-onPosterDownloadSuccess();
 
 }, outputType, 0.92);
 
