@@ -912,21 +912,23 @@ backgrounds = bgSnap.exists() ? bgSnap.data().list || [] : [];
 lastBg = Math.floor(Math.random() * backgrounds.length);
 
       // PLAN CHECK
-      if(!userData.planExpiry){
-       disableShareBtn("No Plan");
-shareInProgress = false;
-return;
-      }
+      try{
 
-      const expiry = new Date(userData.planExpiry);
+  // PLAN CHECK
+  if(!userData.planExpiry){
+    disableShareBtn("No Plan");
+    shareInProgress = false;
+    return;
+  }
 
-      if(expiry < new Date()){
-  disableShareBtn("Plan Expired");
-  rechargeBtn.style.display = "block";
-  shareInProgress = false; // 🔥 ADD THIS
-  return;
-      }
-try{
+  const expiry = new Date(userData.planExpiry);
+
+  if(expiry < new Date()){
+    disableShareBtn("Plan Expired");
+    rechargeBtn.style.display = "block";
+    shareInProgress = false; // 🔥 IMPORTANT
+    return;
+  }
 
   // GENERATE POSTER
   generatePoster();
