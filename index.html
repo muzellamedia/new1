@@ -437,8 +437,7 @@ Mukkam, Kozhikode, Kerala 673602
 </p>
 
 </footer>
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
+
  <script type="module">
 
 // =====================
@@ -1037,11 +1036,12 @@ function drawActiveTemplate(ctx, canvas){
 
         finalCtx.drawImage(canvas, 0, 0);
 
-        drawFooter(finalCtx, finalCanvas, function(){
-          const optionalRateTopY = drawOptionalBottomRates(finalCtx, finalCanvas);
-          drawCommonDiffAboveFooter(finalCtx, finalCanvas, optionalRateTopY);
-          save(finalCanvas, share);
-        });
+        const optionalRateTopY = drawOptionalBottomRates(finalCtx, finalCanvas);
+
+drawFooter(finalCtx, finalCanvas, function(){
+  drawCommonDiffAboveFooter(finalCtx, finalCanvas, optionalRateTopY);
+  save(finalCanvas, share);
+});
       };
 
       // On Android devices, give template drawing a small buffer to avoid
@@ -2306,8 +2306,8 @@ function drawOptionalBottomRates(ctx, canvas){
   const hasProductConfig = Array.isArray(products) && products.length > 0;
   const rate18 = parseRateNumber(rate18k_1g);
   const rateSilver = parseRateNumber(rateSilver_1g);
- const show18k = rate18k_1g > 0;
-const showSilver = rateSilver_1g > 0;
+ const show18k =  true;
+const showSilver =  true;
 
   if(show18k){
     items.push({
@@ -2608,27 +2608,24 @@ function resetBtn(){
   }, 3000); // थोड़ा increase ചെയ്തു
 
   footer.onload = function(){
-    try{
-      const x = Math.floor((canvas.width - FOOTER_DRAW_WIDTH) / 2);
-      const y = canvas.height - FOOTER_DRAW_HEIGHT;
+  try{
+    const x = Math.floor((canvas.width - FOOTER_DRAW_WIDTH) / 2);
+    const y = canvas.height - FOOTER_DRAW_HEIGHT;
 
-      // 🔥 reset context (Android rendering fix)
-      ctx.save();
-      ctx.setTransform(1,0,0,1,0,0);
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
+    // 🔥 ADD THIS (Android fix)
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = 1;
 
-      ctx.drawImage(footer, x, y, FOOTER_DRAW_WIDTH, FOOTER_DRAW_HEIGHT);
+    ctx.drawImage(footer, x, y, FOOTER_DRAW_WIDTH, FOOTER_DRAW_HEIGHT);
 
-      ctx.restore();
+  }catch(err){
+    console.log("Footer draw failed", err);
+  }
 
-    }catch(err){
-      console.log("Footer draw failed", err);
-    }
-
-    clearTimeout(timeoutId);
-    done();
-  };
+  clearTimeout(timeoutId);
+  done();
+};
 
   footer.onerror = function(){
     console.log("Footer load error");
