@@ -1026,10 +1026,20 @@ function drawActiveTemplate(ctx, canvas){
       ctx.restore();
 
       const finalizePoster = () => {
-        drawFooter(ctx, canvas, function(){
-          const optionalRateTopY = drawOptionalBottomRates(ctx, canvas);
-          drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY);
-          save(canvas, share);
+        // Compose footer + optional rates + diff on a fresh canvas so that
+        // template-specific context state leaks (clip/composite) won't hide
+        // these layers on Android Chrome.
+        const finalCanvas = document.createElement("canvas");
+        finalCanvas.width = canvas.width;
+        finalCanvas.height = canvas.height;
+        const finalCtx = finalCanvas.getContext("2d");
+
+        finalCtx.drawImage(canvas, 0, 0);
+
+        drawFooter(finalCtx, finalCanvas, function(){
+          const optionalRateTopY = drawOptionalBottomRates(finalCtx, finalCanvas);
+          drawCommonDiffAboveFooter(finalCtx, finalCanvas, optionalRateTopY);
+          save(finalCanvas, share);
         });
       };
 
