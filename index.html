@@ -447,7 +447,7 @@ let backgrounds = [];
 let lastBg = -1;
 let logoUrl = "";  
 let footerUrl = "";  
- let products = ["22K Gold"];
+ let products = [];
    let rateDate = ""; 
 let rateDateObj = null;
    let rate22k_1g = 0;
@@ -485,11 +485,20 @@ function parseRateDate(rawDate){
 }
 
 function normalizeProducts(rawProducts){
-  if(!Array.isArray(rawProducts)) return products;
-  const clean = rawProducts
-    .map((item) => String(item || "").trim())
-    .filter(Boolean);
-  return clean.length ? clean : products;
+  if(Array.isArray(rawProducts)){
+    return rawProducts
+      .map((item) => String(item || "").trim())
+      .filter(Boolean);
+  }
+
+  if(typeof rawProducts === "string"){
+    return rawProducts
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
 }
 
 function normalizeProductToken(value){
@@ -2216,8 +2225,11 @@ function drawOptionalBottomRates(ctx, canvas){
   ctx.filter = "none";
 
   const items = [];
+  const hasProductConfig = Array.isArray(products) && products.length > 0;
+  const show18k = hasProductConfig ? hasProduct("18k") : Number(rate18k_1g || 0) > 0;
+  const showSilver = hasProductConfig ? hasProduct("silver") : Number(rateSilver_1g || 0) > 0;
 
-  if(hasProduct("18k")){
+  if(show18k){
     items.push({
       kind: "18k",
       title: "1 Gram 18K",
@@ -2225,7 +2237,7 @@ function drawOptionalBottomRates(ctx, canvas){
     });
   }
 
-  if(hasProduct("silver")){
+  if(showSilver){
     items.push({
       kind: "silver",
       title: "1 Gram Silver",
