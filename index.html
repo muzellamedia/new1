@@ -1046,7 +1046,7 @@ function drawActiveTemplate(ctx, canvas){
       // On Android devices, give template drawing a small buffer to avoid
       // race conditions before exporting the canvas.
       if(isMobileDevice()){
-        setTimeout(finalizePoster, 650);
+        setTimeout(finalizePoster,1200);
       }else{
         finalizePoster();
       }
@@ -2305,14 +2305,8 @@ function drawOptionalBottomRates(ctx, canvas){
   const hasProductConfig = Array.isArray(products) && products.length > 0;
   const rate18 = parseRateNumber(rate18k_1g);
   const rateSilver = parseRateNumber(rateSilver_1g);
-  const show18k =
-    hasProduct("18k") ||
-    (!hasProductConfig && rate18 > 0) ||
-    (isMobileDevice() && rate18 > 0);
-  const showSilver =
-    hasProduct("silver") ||
-    (!hasProductConfig && rateSilver > 0) ||
-    (isMobileDevice() && rateSilver > 0);
+ const show18k = rate18k_1g > 0;
+const showSilver = rateSilver_1g > 0;
 
   if(show18k){
     items.push({
@@ -2585,45 +2579,65 @@ function resetBtn(){
 }
 
    function drawFooter(ctx, canvas, callback){
+
   let doneCalled = false;
+
   const done = () => {
     if(doneCalled) return;
     doneCalled = true;
     callback();
   };
 
+  // ❌ footer ഇല്ലെങ്കിൽ skip
   if(!footerUrl){
     done();
     return;
   }
 
   const footer = new Image();
+
+  // ✅ IMPORTANT (Android fix)
   footer.crossOrigin = "anonymous";
+  footer.decoding = "async";
+
+  // ⏱ fallback timeout (Android safety)
   const timeoutId = setTimeout(() => {
+    console.log("Footer timeout fallback");
     done();
-  }, 2500);
+  }, 3000); // थोड़ा increase ചെയ്തു
 
   footer.onload = function(){
     try{
       const x = Math.floor((canvas.width - FOOTER_DRAW_WIDTH) / 2);
       const y = canvas.height - FOOTER_DRAW_HEIGHT;
+
+      // 🔥 reset context (Android rendering fix)
+      ctx.save();
+      ctx.setTransform(1,0,0,1,0,0);
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+
       ctx.drawImage(footer, x, y, FOOTER_DRAW_WIDTH, FOOTER_DRAW_HEIGHT);
+
+      ctx.restore();
+
     }catch(err){
       console.log("Footer draw failed", err);
     }
+
     clearTimeout(timeoutId);
     done();
   };
 
   footer.onerror = function(){
+    console.log("Footer load error");
     clearTimeout(timeoutId);
     done();
   };
 
-  footer.src = footerUrl + "?t=" + new Date().getTime();
-
+  // ✅ CACHE BREAK (MOST IMPORTANT)
+  footer.src = footerUrl + "?t=" + Date.now();
 }
-
    
 function disableShareBtn(text){
   const btn = document.getElementById("shareBtn");
