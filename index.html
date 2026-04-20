@@ -2210,6 +2210,11 @@ function template18  (ctx, canvas, share){
 }
 
 function drawOptionalBottomRates(ctx, canvas){
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalAlpha = 1;
+  ctx.filter = "none";
+
   const items = [];
 
   if(hasProduct("18k")){
@@ -2229,6 +2234,7 @@ function drawOptionalBottomRates(ctx, canvas){
   }
 
   if(!items.length){
+    ctx.restore();
     return canvas.height - FOOTER_DRAW_HEIGHT;
   }
 
@@ -2242,6 +2248,7 @@ function drawOptionalBottomRates(ctx, canvas){
     const rightItem = items.find((item) => item.kind === "silver") || items[1];
     drawBottomRateCard(ctx, leftX, y, leftItem.title, leftItem.value, leftItem.kind);
     drawBottomRateCard(ctx, rightX, y, rightItem.title, rightItem.value, rightItem.kind);
+    ctx.restore();
     return y;
   }
 
@@ -2249,6 +2256,7 @@ function drawOptionalBottomRates(ctx, canvas){
   const singleX = onlyItem.kind === "silver" ? rightX : leftX;
   drawBottomRateCard(ctx, singleX, y, onlyItem.title, onlyItem.value, onlyItem.kind);
 
+  ctx.restore();
   return y;
 }
 
