@@ -484,17 +484,39 @@ function parseRateDate(rawDate){
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
+function normalizeProductEntry(entry){
+  if(entry == null) return "";
+  if(typeof entry === "string") return entry.trim();
+  if(typeof entry === "number" || typeof entry === "boolean") return String(entry).trim();
+  if(Array.isArray(entry)){
+    return entry.map(normalizeProductEntry).filter(Boolean).join(" ").trim();
+  }
+  if(typeof entry === "object"){
+    if(typeof entry.name === "string") return entry.name.trim();
+    if(typeof entry.label === "string") return entry.label.trim();
+    if(typeof entry.product === "string") return entry.product.trim();
+    return Object.values(entry).map(normalizeProductEntry).filter(Boolean).join(" ").trim();
+  }
+  return String(entry).trim();
+}
+
 function normalizeProducts(rawProducts){
   if(Array.isArray(rawProducts)){
     return rawProducts
-      .map((item) => String(item || "").trim())
+      .map(normalizeProductEntry)
       .filter(Boolean);
   }
 
   if(typeof rawProducts === "string"){
     return rawProducts
       .split(",")
-      .map((item) => item.trim())
+      .map((item) => normalizeProductEntry(item))
+      .filter(Boolean);
+  }
+
+  if(rawProducts && typeof rawProducts === "object"){
+    return Object.values(rawProducts)
+      .map(normalizeProductEntry)
       .filter(Boolean);
   }
 
@@ -507,8 +529,8 @@ function normalizeProductToken(value){
 
 function hasProduct(keyword){
   const aliases = {
-    "18k": ["18k", "18kgold", "18kt", "750"],
-    "22k": ["22k", "22kgold", "22kt", "916", "916gold"],
+    "18k": ["18k", "18kgold", "18kt", "18", "18gold", "750"],
+    "22k": ["22k", "22kgold", "22kt", "22", "22gold", "916", "916gold"],
     "silver": ["silver", "ag", "silver1g"]
   };
 
