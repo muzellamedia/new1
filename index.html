@@ -921,18 +921,20 @@ return;
       const expiry = new Date(userData.planExpiry);
 
       if(expiry < new Date()){
-        disableShareBtn("Plan Expired");
-        rechargeBtn.style.display = "block";
-        return;
+  disableShareBtn("Plan Expired");
+  rechargeBtn.style.display = "block";
+  shareInProgress = false; // 🔥 ADD THIS
+  return;
       }
+try{
 
-      // GENERATE POSTER
-generatePoster();
+  // GENERATE POSTER
+  generatePoster();
 
-    catch(err){
+}catch(err){
   console.log(err);
   alert("Network error");
-  shareInProgress = false; // 🔥 ADD
+  shareInProgress = false;
   resetBtn();
 }
 
