@@ -495,7 +495,11 @@ function normalizeProductEntry(entry){
     if(typeof entry.name === "string") return entry.name.trim();
     if(typeof entry.label === "string") return entry.label.trim();
     if(typeof entry.product === "string") return entry.product.trim();
-    return Object.values(entry).map(normalizeProductEntry).filter(Boolean).join(" ").trim();
+    const fromTrueKeys = Object.entries(entry)
+      .filter(([k, v]) => typeof k === "string" && v === true)
+      .map(([k]) => k.trim());
+    const fromValues = Object.values(entry).map(normalizeProductEntry).filter(Boolean);
+    return [...fromTrueKeys, ...fromValues].join(" ").trim();
   }
   return String(entry).trim();
 }
@@ -515,9 +519,13 @@ function normalizeProducts(rawProducts){
   }
 
   if(rawProducts && typeof rawProducts === "object"){
-    return Object.values(rawProducts)
-      .map(normalizeProductEntry)
-      .filter(Boolean);
+    const list = [];
+    Object.entries(rawProducts).forEach(([k, v]) => {
+      if(v === true && k) list.push(String(k).trim());
+      const parsed = normalizeProductEntry(v);
+      if(parsed) list.push(parsed);
+    });
+    return list.filter(Boolean);
   }
 
   return [];
@@ -2265,6 +2273,25 @@ function drawOptionalBottomRates(ctx, canvas){
       title: "1 Gram Silver",
       value: formatRateValue(rateSilver_1g)
     });
+  }
+
+  // Android-specific hard fallback:
+  // if products parsing still fails, render by available rate values.
+  if(!items.length && isMobileDevice()){
+    if(Number(rate18k_1g || 0) > 0){
+      items.push({
+        kind: "18k",
+        title: "1 Gram 18K",
+        value: formatRateValue(rate18k_1g)
+      });
+    }
+    if(Number(rateSilver_1g || 0) > 0){
+      items.push({
+        kind: "silver",
+        title: "1 Gram Silver",
+        value: formatRateValue(rateSilver_1g)
+      });
+    }
   }
 
   if(!items.length){
