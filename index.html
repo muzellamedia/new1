@@ -460,7 +460,8 @@ let currentRateSignature = "";
 let shareCount = 0;
 let generatingInterval = null;
 let pendingShareFile = null;
-const SHARE_LIMIT = 2;
+let shareInProgress = false;
+   const SHARE_LIMIT = 2;
 const FOOTER_DRAW_WIDTH = 2484;
 const FOOTER_DRAW_HEIGHT = 659;
 const OPTIONAL_RATE_BOX_WIDTH = 820;
@@ -646,6 +647,8 @@ async function trySharePendingFile(){
     downloadFile(pendingShareFile, pendingShareFile.name);
     clearPendingShare();
     onPosterDownloadSuccess();
+    shareInProgress = false; // 🔥 UNLOCK
+return true;
     alert("Share not supported in this browser. Poster downloaded.");
     return true;
   }
@@ -675,6 +678,8 @@ async function trySharePendingFile(){
     downloadFile(pendingShareFile, pendingShareFile.name);
     clearPendingShare();
     onPosterDownloadSuccess();
+shareInProgress = false; // 🔥 UNLOCK
+return false;
     alert("File share not supported in this browser. Poster downloaded.");
     return false;
   }
@@ -859,10 +864,16 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
   // SHARE BUTTON
   // =====================
   shareBtn.onclick = async () => {
-    if(isShareLimited()){
-      disableShareBtn("Share Limited");
-      return;
-    }
+
+  if(shareInProgress) return; // 🔥 BLOCK DOUBLE CLICK
+
+  if(isShareLimited()){
+    disableShareBtn("Share Limited");
+    return;
+  }
+
+  shareInProgress = true; // 🔥 LOCK
+
      
 
     if(isMobileDevice() && pendingShareFile){
