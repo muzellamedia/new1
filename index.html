@@ -641,7 +641,14 @@ function clearPendingShare(){
 }
 
 async function trySharePendingFile(){
-  if(!pendingShareFile || !navigator.share) return false;
+  if(!pendingShareFile) return false;
+  if(!navigator.share){
+    downloadFile(pendingShareFile, pendingShareFile.name);
+    clearPendingShare();
+    onPosterDownloadSuccess();
+    alert("Share not supported in this browser. Poster downloaded.");
+    return true;
+  }
   try{
     await navigator.share({
       files:[pendingShareFile],
@@ -1019,10 +1026,9 @@ function drawActiveTemplate(ctx, canvas){
       ctx.restore();
 
       const finalizePoster = () => {
-        const optionalRateTopY = drawOptionalBottomRates(ctx, canvas);
-        drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY);
-
         drawFooter(ctx, canvas, function(){
+          const optionalRateTopY = drawOptionalBottomRates(ctx, canvas);
+          drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY);
           save(canvas, share);
         });
       };
