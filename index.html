@@ -535,6 +535,19 @@ function normalizeProductToken(value){
   return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+function parseRateNumber(value){
+  if(typeof value === "number"){
+    return Number.isFinite(value) ? value : 0;
+  }
+  if(typeof value === "string"){
+    const cleaned = value.replace(/[^0-9.-]/g, "");
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  }
+  const n = Number(value || 0);
+  return Number.isFinite(n) ? n : 0;
+}
+
 function hasProduct(keyword){
   const aliases = {
     "18k": ["18k", "18kgold", "18kt", "18", "18gold", "750"],
@@ -551,8 +564,7 @@ function hasProduct(keyword){
 }
 
 function formatRateValue(value){
-  const n = Number(value || 0);
-  if(Number.isNaN(n)) return "0";
+  const n = parseRateNumber(value);
   return n.toLocaleString("en-IN");
 }
 
@@ -563,10 +575,10 @@ function getShareLimitKey(){
 function buildRateSignature(){
   return [
     rateDate || "--",
-    Number(rate22k_1g || 0),
-    Number(rate22k_1p || 0),
-    Number(rate18k_1g || 0),
-    Number(rateSilver_1g || 0),
+    parseRateNumber(rate22k_1g),
+    parseRateNumber(rate22k_1p),
+    parseRateNumber(rate18k_1g),
+    parseRateNumber(rateSilver_1g),
     Number(diff || 0)
   ].join("|");
 }
@@ -639,14 +651,24 @@ async function trySharePendingFile(){
     onPosterDownloadSuccess();
     return true;
   }catch(err){
-    // Keep pending file so user can retry share.
-    const btn = document.getElementById("shareBtn");
-    if(btn){
-      btn.classList.remove("share-loading","countdown-mode");
-      btn.classList.add("tap-share-mode");
-      btn.innerText = "Tap Share";
-      btn.style.pointerEvents = "auto";
+    // User cancelled share sheet -> keep tap-share state.
+    if(err && err.name === "AbortError"){
+      const btn = document.getElementById("shareBtn");
+      if(btn){
+        btn.classList.remove("share-loading","countdown-mode");
+        btn.classList.add("tap-share-mode");
+        btn.innerText = "Tap Share";
+        btn.style.pointerEvents = "auto";
+      }
+      return false;
     }
+
+    // Browsers like Firefox Android may not support file-share.
+    // Fallback to download so action is not silent.
+    downloadFile(pendingShareFile, pendingShareFile.name);
+    clearPendingShare();
+    onPosterDownloadSuccess();
+    alert("File share not supported in this browser. Poster downloaded.");
     return false;
   }
 }
@@ -763,10 +785,10 @@ const rateSnap = await getDoc(rateRef);
 if(rateSnap.exists()){
 
   const rates = rateSnap.data();
-  rate22k_1g = rates.gold22_1g || 0;
-rate22k_1p = rates.gold22_1p || 0;
-rate18k_1g = rates.gold18_1g || 0;
-rateSilver_1g = rates.silver_1g || 0;
+  rate22k_1g = parseRateNumber(rates.gold22_1g);
+rate22k_1p = parseRateNumber(rates.gold22_1p);
+rate18k_1g = parseRateNumber(rates.gold18_1g);
+rateSilver_1g = parseRateNumber(rates.silver_1g);
   diff = rates.diff || 0;
 
 
@@ -2265,8 +2287,16 @@ function drawOptionalBottomRates(ctx, canvas){
 
   const items = [];
   const hasProductConfig = Array.isArray(products) && products.length > 0;
-  const show18k = hasProductConfig ? hasProduct("18k") : Number(rate18k_1g || 0) > 0;
-  const showSilver = hasProductConfig ? hasProduct("silver") : Number(rateSilver_1g || 0) > 0;
+  const rate18 = parseRateNumber(rate18k_1g);
+  const rateSilver = parseRateNumber(rateSilver_1g);
+  const show18k =
+    hasProduct("18k") ||
+    (!hasProductConfig && rate18 > 0) ||
+    (isMobileDevice() && rate18 > 0);
+  const showSilver =
+    hasProduct("silver") ||
+    (!hasProductConfig && rateSilver > 0) ||
+    (isMobileDevice() && rateSilver > 0);
 
   if(show18k){
     items.push({
@@ -2287,14 +2317,14 @@ function drawOptionalBottomRates(ctx, canvas){
   // Android-specific hard fallback:
   // if products parsing still fails, render by available rate values.
   if(!items.length && isMobileDevice()){
-    if(Number(rate18k_1g || 0) > 0){
+    if(rate18 > 0){
       items.push({
         kind: "18k",
         title: "1 Gram 18K",
         value: formatRateValue(rate18k_1g)
       });
     }
-    if(Number(rateSilver_1g || 0) > 0){
+    if(rateSilver > 0){
       items.push({
         kind: "silver",
         title: "1 Gram Silver",
