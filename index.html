@@ -2323,20 +2323,16 @@ function drawOptionalBottomRates(ctx, canvas){
   // Android-specific hard fallback:
   // if products parsing still fails, render by available rate values.
   if(!items.length && isMobileDevice()){
-    if(rate18 > 0){
-      items.push({
-        kind: "18k",
-        title: "1 Gram 18K",
-        value: formatRateValue(rate18k_1g)
-      });
-    }
-    if(rateSilver > 0){
-      items.push({
-        kind: "silver",
-        title: "1 Gram Silver",
-        value: formatRateValue(rateSilver_1g)
-      });
-    }
+    items.push({
+      kind: "18k",
+      title: "1 Gram 18K",
+      value: formatRateValue(rate18k_1g)
+    });
+    items.push({
+      kind: "silver",
+      title: "1 Gram Silver",
+      value: formatRateValue(rateSilver_1g)
+    });
   }
 
   if(!items.length){
@@ -2567,25 +2563,42 @@ function resetBtn(){
 }
 
    function drawFooter(ctx, canvas, callback){
+  let doneCalled = false;
+  const done = () => {
+    if(doneCalled) return;
+    doneCalled = true;
+    callback();
+  };
 
   if(!footerUrl){
-    callback();
+    done();
     return;
   }
 
   const footer = new Image();
   footer.crossOrigin = "anonymous";
-  footer.src = footerUrl + "?t=" + new Date().getTime();
+  const timeoutId = setTimeout(() => {
+    done();
+  }, 2500);
 
   footer.onload = function(){
-
-    const x = Math.floor((canvas.width - FOOTER_DRAW_WIDTH) / 2);
-    const y = canvas.height - FOOTER_DRAW_HEIGHT;
-
-    ctx.drawImage(footer, x, y, FOOTER_DRAW_WIDTH, FOOTER_DRAW_HEIGHT);
-
-    callback();
+    try{
+      const x = Math.floor((canvas.width - FOOTER_DRAW_WIDTH) / 2);
+      const y = canvas.height - FOOTER_DRAW_HEIGHT;
+      ctx.drawImage(footer, x, y, FOOTER_DRAW_WIDTH, FOOTER_DRAW_HEIGHT);
+    }catch(err){
+      console.log("Footer draw failed", err);
+    }
+    clearTimeout(timeoutId);
+    done();
   };
+
+  footer.onerror = function(){
+    clearTimeout(timeoutId);
+    done();
+  };
+
+  footer.src = footerUrl + "?t=" + new Date().getTime();
 
 }
 
