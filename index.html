@@ -497,6 +497,13 @@ function parseRateDate(rawDate){
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
+function withCacheBust(url){
+  const raw = String(url || "").trim();
+  if(!raw) return "";
+  const sep = raw.includes("?") ? "&" : "?";
+  return raw + sep + "t=" + Date.now();
+}
+
 function normalizeProductEntry(entry){
   if(entry == null) return "";
   if(typeof entry === "string") return entry.trim();
@@ -1002,39 +1009,9 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
 
    
   function generatePoster(){
-  const bgUrl = backgrounds[lastBg] + "?t=" + new Date().getTime();
+  const bgUrl = withCacheBust(backgrounds[lastBg]);
   createPoster(bgUrl, true);
-  
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  canvas.width = 2480;
-canvas.height = 3508;
-
-  const bg = new Image();
-  bg.crossOrigin = "anonymous";
-  bg.src = backgrounds[lastBg] + "?t=" + new Date().getTime();
-
-  bg.onload = function(){
-
-  ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
-  drawHeader(ctx, canvas);
-
-  drawLogo(ctx, canvas, function(){   // 👈 callback add
-
-    drawActiveTemplate(ctx, canvas);
-    const optionalRateTopY = drawOptionalBottomRates(ctx, canvas);
-    drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY);
-
-    drawFooter(ctx, canvas, function(){
-      save(canvas, true);
-    });
-
-    });
-
-  };
-
+  return;
 }
 
 function drawActiveTemplate(ctx, canvas){
@@ -1167,7 +1144,7 @@ function drawHeader(ctx, canvas){
 
   const logo = new Image();
   logo.crossOrigin="anonymous";
-  logo.src = logoUrl + "?t=" + new Date().getTime();
+  logo.src = withCacheBust(logoUrl);
 
   logo.onload = function(){
 
@@ -2683,7 +2660,7 @@ function resetBtn(){
   const timeoutId = setTimeout(() => {
     console.log("Footer timeout fallback");
     done();
-  }, 3000); // थोड़ा increase ചെയ്തു
+  }, 10000);
 
   footer.onload = function(){
   try{
@@ -2711,8 +2688,7 @@ function resetBtn(){
     done();
   };
 
-  // ✅ CACHE BREAK (MOST IMPORTANT)
-  footer.src = footerUrl + "?t=" + Date.now();
+  footer.src = withCacheBust(footerUrl);
 }
    
 function disableShareBtn(text){
