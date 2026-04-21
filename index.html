@@ -637,6 +637,7 @@ function onPosterDownloadSuccess(){
   currentRateSignature = buildRateSignature();
   shareCount += 1;
   saveShareLimitState();
+  shareInProgress = false;
 
   if(isShareLimited()){
     disableShareBtn("Share Limited");
@@ -655,17 +656,19 @@ function clearPendingShare(){
 
 async function trySharePendingFile(){
   if(!pendingShareFile) return false;
-  if(!navigator.share){
+  const shareData = {
+    files:[pendingShareFile],
+    title:"Gold Rate Poster"
+  };
+
+  if(!navigator.share || (navigator.canShare && !navigator.canShare(shareData))){
     downloadFile(pendingShareFile, pendingShareFile.name);
     clearPendingShare();
     shareInProgress = false;
     return true;
   }
   try{
-    await navigator.share({
-      files:[pendingShareFile],
-      title:"Gold Rate Poster"
-    });
+    await navigator.share(shareData);
     clearPendingShare();
     onPosterDownloadSuccess();
     return true;
@@ -2598,6 +2601,7 @@ if(mobileShare && navigator.share){
   pendingShareFile = new File([blob], fileName, {type:outputType});
   const btn = document.getElementById("shareBtn");
   stopGeneratingCountdown();
+  shareInProgress = false;
   if(btn){
     btn.classList.remove("share-loading","countdown-mode");
     btn.classList.add("tap-share-mode");
