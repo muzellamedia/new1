@@ -438,6 +438,18 @@ Mukkam, Kozhikode, Kerala 673602
 
 </footer>
 
+<script>
+// Module script fail aayalum loader stick aakathirikkan global fallback
+(function(){
+  function hideLoaderSafe(){
+    var el = document.getElementById("loadingScreen");
+    if(el) el.style.display = "none";
+  }
+  setTimeout(hideLoaderSafe, 5000);
+  window.addEventListener("load", hideLoaderSafe, { once: true });
+})();
+</script>
+
  <script type="module">
 
 // =====================
