@@ -739,7 +739,10 @@ import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10
 const firebaseConfig = {
   apiKey: "AIzaSyBxnjf4XDfnr4kj6mb-bR_wHW_3ZT0e9BU",
   authDomain: "gold-5735f.firebaseapp.com",
-  projectId: "gold-5735f"
+  projectId: "gold-5735f",
+  storageBucket: "gold-5735f.firebasestorage.app",
+  messagingSenderId: "5295731508",
+  appId: "1:5295731508:web:07d5430da5ebaaf6886b61"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -808,6 +811,12 @@ try{
 
     }
 
+  }else{
+    disableShareBtn("Login Required");
+    setTimeout(() => {
+      location.href = "login.html";
+    }, 400);
+    return;
   }
 
   // =====================
@@ -874,7 +883,19 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
 }
   
 }catch(err){
-  console.log(err);
+  console.log("Init load error:", err);
+  const statusHeader = document.getElementById("statusHeader");
+  const statusPlan = document.getElementById("statusPlan");
+  if(statusHeader){
+    statusHeader.innerText = "Load Error";
+    statusHeader.style.background = "red";
+  }
+  if(statusPlan){
+    statusPlan.innerText = "Check Internet / Login";
+    statusPlan.style.background = "#8b0000";
+    statusPlan.style.color = "#fff";
+  }
+  disableShareBtn("Retry");
 }
   const shareBtn = document.getElementById("shareBtn");
   const rechargeBtn = document.getElementById("rechargeBtn");
