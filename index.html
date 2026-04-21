@@ -913,6 +913,7 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
 }
   const shareBtn = document.getElementById("shareBtn");
   const rechargeBtn = document.getElementById("rechargeBtn");
+  clearTimeout(loadingFailSafe);
 
   // REMOVE LOADING
   hideLoadingScreen();
@@ -995,10 +996,6 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
 
   };
 
-}finally{
-  clearTimeout(loadingFailSafe);
-  hideLoadingScreen();
-}
 });
    
 
