@@ -655,7 +655,12 @@ function clearPendingShare(){
 
 async function trySharePendingFile(){
   if(!pendingShareFile) return false;
- 
+  if(!navigator.share){
+    downloadFile(pendingShareFile, pendingShareFile.name);
+    clearPendingShare();
+    onPosterDownloadSuccess();
+    shareInProgress = false;
+    return true;
   }
   try{
     await navigator.share({
@@ -683,10 +688,8 @@ async function trySharePendingFile(){
     downloadFile(pendingShareFile, pendingShareFile.name);
     clearPendingShare();
     onPosterDownloadSuccess();
-shareInProgress = false; // 🔥 UNLOCK
-return false;
-    alert("File share not supported in this browser. Poster downloaded.");
-    return false;
+    shareInProgress = false;
+    return true;
   }
 }
 
@@ -943,7 +946,6 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
     startGeneratingCountdown();
 
     try{
-
       const userResult = await fetchUserSnapshotByPhone(activeUserId || phone);
       if(!userResult || !userResult.snap.exists()){
         alert("User not found");
@@ -956,43 +958,40 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
       const userData = userResult.snap.data();
       products = normalizeProducts(userData.products || userData.productList || userData.selectedProducts);
 
-      // BACKGROUND LOAD
       const bgRef = doc(db,"settings","backgrounds");
       const bgSnap = await getDoc(bgRef);
+      backgrounds = bgSnap.exists() ? bgSnap.data().list || [] : [];
 
-backgrounds = bgSnap.exists() ? bgSnap.data().list || [] : [];
+      if(!backgrounds.length){
+        alert("Background not available");
+        resetBtn();
+        shareInProgress = false;
+        return;
+      }
 
+      lastBg = Math.floor(Math.random() * backgrounds.length);
 
-lastBg = Math.floor(Math.random() * backgrounds.length);
+      if(!userData.planExpiry){
+        disableShareBtn("No Plan");
+        shareInProgress = false;
+        return;
+      }
 
-      // PLAN CHECK
-      try{
+      const expiry = new Date(userData.planExpiry);
+      if(expiry < new Date()){
+        disableShareBtn("Plan Expired");
+        rechargeBtn.style.display = "block";
+        shareInProgress = false;
+        return;
+      }
 
-  // PLAN CHECK
-  if(!userData.planExpiry){
-    disableShareBtn("No Plan");
-    shareInProgress = false;
-    return;
-  }
-
-  const expiry = new Date(userData.planExpiry);
-
-  if(expiry < new Date()){
-    disableShareBtn("Plan Expired");
-    rechargeBtn.style.display = "block";
-    shareInProgress = false; // 🔥 IMPORTANT
-    return;
-  }
-
-  // GENERATE POSTER
-  generatePoster();
-
-}catch(err){
-  console.log(err);
-  alert("Network error");
-  shareInProgress = false;
-  resetBtn();
-}
+      generatePoster();
+    }catch(err){
+      console.log(err);
+      alert("Network error");
+      shareInProgress = false;
+      resetBtn();
+    }
 
   };
 
