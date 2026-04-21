@@ -711,6 +711,13 @@ function stopGeneratingCountdown(){
   }
 }
 
+function hideLoadingScreen(){
+  const loading = document.getElementById("loadingScreen");
+  if(loading){
+    loading.style.display = "none";
+  }
+}
+
 // =====================
 // FIREBASE
 // =====================
@@ -736,6 +743,9 @@ if(!phone){
 // MAIN LOAD
 // =====================
 window.addEventListener("DOMContentLoaded", async () => {
+const loadingFailSafe = setTimeout(() => {
+  hideLoadingScreen();
+}, 6000);
 // =====================
 // LOAD USER + RATES
 // =====================
@@ -858,7 +868,7 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
   const rechargeBtn = document.getElementById("rechargeBtn");
 
   // REMOVE LOADING
-  document.getElementById("loadingScreen").style.display = "none";
+  hideLoadingScreen();
 
   // =====================
   // SHARE BUTTON
@@ -942,6 +952,10 @@ lastBg = Math.floor(Math.random() * backgrounds.length);
 
   };
 
+}finally{
+  clearTimeout(loadingFailSafe);
+  hideLoadingScreen();
+}
 });
    
 
