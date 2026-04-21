@@ -658,7 +658,6 @@ async function trySharePendingFile(){
   if(!navigator.share){
     downloadFile(pendingShareFile, pendingShareFile.name);
     clearPendingShare();
-    onPosterDownloadSuccess();
     shareInProgress = false;
     return true;
   }
@@ -687,7 +686,6 @@ async function trySharePendingFile(){
     // Fallback to download so action is not silent.
     downloadFile(pendingShareFile, pendingShareFile.name);
     clearPendingShare();
-    onPosterDownloadSuccess();
     shareInProgress = false;
     return true;
   }
@@ -2627,15 +2625,19 @@ if(isMobileDevice()){
 
 }
    
-   function downloadFile(blob, fileName){
+function downloadFile(blob, fileName){
 
   const link = document.createElement("a");
+  const objectUrl = URL.createObjectURL(blob);
   link.download = fileName;
-  link.href = URL.createObjectURL(blob);
+  link.href = objectUrl;
 
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+
+  onPosterDownloadSuccess();
 
 }
    
