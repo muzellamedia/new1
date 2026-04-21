@@ -655,14 +655,7 @@ function clearPendingShare(){
 
 async function trySharePendingFile(){
   if(!pendingShareFile) return false;
-  if(!navigator.share){
-    downloadFile(pendingShareFile, pendingShareFile.name);
-    clearPendingShare();
-    onPosterDownloadSuccess();
-    shareInProgress = false; // 🔥 UNLOCK
-return true;
-    alert("Share not supported in this browser. Poster downloaded.");
-    return true;
+ 
   }
   try{
     await navigator.share({
