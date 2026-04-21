@@ -640,10 +640,13 @@ function applyShareLimitUi(){
   }
 }
 
-function onPosterDownloadSuccess(){
+function recordShareClick(){
   currentRateSignature = buildRateSignature();
   shareCount += 1;
   saveShareLimitState();
+}
+
+function onPosterDownloadSuccess(){
   shareInProgress = false;
 
   if(isShareLimited()){
@@ -937,6 +940,9 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
     disableShareBtn("Share Limited");
     return;
   }
+
+  // Count every click (mobile/desktop)
+  recordShareClick();
 
   shareInProgress = true; // 🔥 LOCK
 
