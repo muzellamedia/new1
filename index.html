@@ -749,9 +749,30 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const phone = localStorage.getItem("userPhone");
+let activeUserId = String(phone || "").trim();
 
 if(!phone){
   location.href = "login.html";
+}
+
+function getPhoneCandidates(rawPhone){
+  const raw = String(rawPhone || "").trim();
+  const digits = raw.replace(/\D/g, "");
+  const last10 = digits.length >= 10 ? digits.slice(-10) : digits;
+  const plus91 = last10 ? ("+91" + last10) : "";
+
+  return [...new Set([raw, digits, last10, plus91].filter(Boolean))];
+}
+
+async function fetchUserSnapshotByPhone(rawPhone){
+  const candidates = getPhoneCandidates(rawPhone);
+  for(const id of candidates){
+    const snap = await getDoc(doc(db, "users", id));
+    if(snap.exists()){
+      return { id, snap };
+    }
+  }
+  return null;
 }
 
 // =====================
@@ -766,10 +787,11 @@ const loadingFailSafe = setTimeout(() => {
 // =====================
 try{
 
-  const userRef = doc(db,"users",phone);
-  const userSnap = await getDoc(userRef);
+  const userResult = await fetchUserSnapshotByPhone(phone);
 
-  if(userSnap.exists()){
+  if(userResult && userResult.snap.exists()){
+    activeUserId = userResult.id;
+    const userSnap = userResult.snap;
 
     const user = userSnap.data();
     logoUrl = user.logoURL || ""; 
@@ -813,10 +835,6 @@ try{
 
   }else{
     disableShareBtn("Login Required");
-    setTimeout(() => {
-      location.href = "login.html";
-    }, 400);
-    return;
   }
 
   // =====================
@@ -933,16 +951,16 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
 
     try{
 
-      const userRef = doc(db,"users",phone);
-      const userSnap = await getDoc(userRef);
-
-      if(!userSnap.exists()){
+      const userResult = await fetchUserSnapshotByPhone(activeUserId || phone);
+      if(!userResult || !userResult.snap.exists()){
         alert("User not found");
         resetBtn();
+        shareInProgress = false;
         return;
       }
 
-      const userData = userSnap.data();
+      activeUserId = userResult.id;
+      const userData = userResult.snap.data();
       products = normalizeProducts(userData.products || userData.productList || userData.selectedProducts);
 
       // BACKGROUND LOAD
