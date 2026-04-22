@@ -473,7 +473,8 @@ let shareCount = 0;
 let generatingInterval = null;
 let pendingShareFile = null;
 let shareInProgress = false;
-   const SHARE_LIMIT = 2;
+const MOBILE_SHARE_LIMIT = 4;
+const DESKTOP_DOWNLOAD_LIMIT = 2;
 const FOOTER_DRAW_WIDTH = 2484;
 const FOOTER_DRAW_HEIGHT = 659;
 const OPTIONAL_RATE_BOX_WIDTH = 820;
@@ -589,7 +590,16 @@ function formatRateValue(value){
 }
 
 function getShareLimitKey(){
-  return "shareLimit_" + String(phone || "__preview__");
+  const modeKey = isMobileDevice() ? "mobile" : "desktop";
+  return "shareLimit_" + String(phone || "__preview__") + "_" + modeKey;
+}
+
+function getCurrentLimit(){
+  return isMobileDevice() ? MOBILE_SHARE_LIMIT : DESKTOP_DOWNLOAD_LIMIT;
+}
+
+function getLimitReachedText(){
+  return isMobileDevice() ? "Share Limited" : "Download Limited";
 }
 
 function buildRateSignature(){
@@ -631,12 +641,12 @@ function saveShareLimitState(){
 }
 
 function isShareLimited(){
-  return shareCount >= SHARE_LIMIT;
+  return shareCount >= getCurrentLimit();
 }
 
 function applyShareLimitUi(){
   if(isShareLimited()){
-    disableShareBtn("Share Limited");
+    disableShareBtn(getLimitReachedText());
   }
 }
 
@@ -650,7 +660,7 @@ function onPosterDownloadSuccess(){
   shareInProgress = false;
 
   if(isShareLimited()){
-    disableShareBtn("Share Limited");
+    disableShareBtn(getLimitReachedText());
     return;
   }
   resetBtn();
@@ -937,7 +947,7 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
   if(shareInProgress) return; // 🔥 BLOCK DOUBLE CLICK
 
   if(isShareLimited()){
-    disableShareBtn("Share Limited");
+    disableShareBtn(getLimitReachedText());
     return;
   }
 
