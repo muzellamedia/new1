@@ -680,7 +680,6 @@ async function trySharePendingFile(){
   try{
     await navigator.share(shareData);
     clearPendingShare();
-    recordShareClick();
     onPosterDownloadSuccess();
     return true;
   }catch(err){
@@ -700,7 +699,6 @@ async function trySharePendingFile(){
     // Fallback to download so action is not silent.
     downloadFile(pendingShareFile, pendingShareFile.name);
     clearPendingShare();
-    recordShareClick();
     shareInProgress = false;
     return true;
   }
@@ -943,7 +941,8 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
     return;
   }
 
-
+  // Count every click (mobile/desktop)
+  recordShareClick();
 
   shareInProgress = true; // 🔥 LOCK
 
