@@ -2574,8 +2574,8 @@ if(stroke) ctx.stroke();
    function save(canvas, share=false){
 
 const mobileShare = share && isMobileDevice();
-const outputType = mobileShare ? "image/jpeg" : "image/png";
-const fileExt = mobileShare ? ".jpg" : ".png";
+const outputType = "image/jpeg";
+const fileExt = ".jpg";
 
 const exportBlob = () => canvas.toBlob(async function(blob){
 
@@ -2603,6 +2603,18 @@ if(mobileShare && window.Android){
 
     // 👉 CALL ANDROID SHARE
     Android.shareImage(base64);
+
+// 🔥 STOP COUNTDOWN + RESET UI
+stopGeneratingCountdown();
+shareInProgress = false;
+
+const btn = document.getElementById("shareBtn");
+if(btn){
+  btn.classList.remove("share-loading","countdown-mode");
+  btn.classList.add("tap-share-mode");
+  btn.innerText = "Tap Share";
+  btn.style.pointerEvents = "auto";
+}
 
   };
 
@@ -2632,7 +2644,7 @@ if(mobileShare && navigator.share){
 // 💻 FALLBACK DOWNLOAD
 downloadFile(blob,fileName);
 
-}, outputType, 0.92);
+}, outputType, 0.75);
 
 
 // Android render fix (keep your logic)
