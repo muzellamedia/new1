@@ -2578,6 +2578,7 @@ const outputType = mobileShare ? "image/jpeg" : "image/png";
 const fileExt = mobileShare ? ".jpg" : ".png";
 
 const exportBlob = () => canvas.toBlob(async function(blob){
+
 if(!blob){
   alert("Poster creation failed");
   resetBtn();
@@ -2590,26 +2591,51 @@ const fileName =
   String(now.getMonth() + 1).padStart(2,"0") + "." +
   now.getFullYear() + fileExt;
 
-if(mobileShare && navigator.share){
-  pendingShareFile = new File([blob], fileName, {type:outputType});
-  const btn = document.getElementById("shareBtn");
-  stopGeneratingCountdown();
-  shareInProgress = false;
-  if(btn){
-    btn.classList.remove("share-loading","countdown-mode");
-    btn.classList.add("tap-share-mode");
-    btn.innerText = "Tap Share";
-    btn.style.pointerEvents = "auto";
-  }
+
+// 🔥 ANDROID APP SHARE (WebView)
+if(mobileShare && window.Android){
+
+  const reader = new FileReader();
+
+  reader.onloadend = function(){
+
+    const base64 = reader.result.split(',')[1];
+
+    // 👉 CALL ANDROID SHARE
+    Android.shareImage(base64);
+
+  };
+
+  reader.readAsDataURL(blob);
+
   return;
 }
 
+
+// 📱 MOBILE BROWSER SHARE
+if(mobileShare && navigator.share){
+
+  const file = new File([blob], fileName, {type:outputType});
+
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+
+    await navigator.share({
+      files:[file],
+      title:"Gold Poster"
+    });
+
+    return;
+  }
+}
+
+
+// 💻 FALLBACK DOWNLOAD
 downloadFile(blob,fileName);
 
 }, outputType, 0.92);
 
-// Android Chrome sometimes exports before late canvas draws are committed.
-// Wait two frames on mobile before blob export.
+
+// Android render fix (keep your logic)
 if(isMobileDevice()){
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -2621,23 +2647,25 @@ if(isMobileDevice()){
 }
 
 }
-   
+
+
 function downloadFile(blob, fileName){
 
-  const link = document.createElement("a");
-  const objectUrl = URL.createObjectURL(blob);
-  link.download = fileName;
-  link.href = objectUrl;
+const link = document.createElement("a");
+const objectUrl = URL.createObjectURL(blob);
 
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+link.download = fileName;
+link.href = objectUrl;
 
-  onPosterDownloadSuccess();
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
 
-}
-   
+setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+
+onPosterDownloadSuccess();
+
+} 
 // =====================
 // BUTTON FUNCTIONS
 // =====================
