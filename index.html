@@ -1043,8 +1043,8 @@ function drawActiveTemplate(ctx, canvas){
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
-  canvas.width = 1240;
-canvas.height = 1754;
+  canvas.width = 2480;
+  canvas.height = 3508;
 
   const bg = new Image();
   bg.crossOrigin = "anonymous";
@@ -2574,11 +2574,10 @@ if(stroke) ctx.stroke();
    function save(canvas, share=false){
 
 const mobileShare = share && isMobileDevice();
-const outputType = "image/jpeg";
-const fileExt = ".jpg";
+const outputType = mobileShare ? "image/jpeg" : "image/png";
+const fileExt = mobileShare ? ".jpg" : ".png";
 
 const exportBlob = () => canvas.toBlob(async function(blob){
-
 if(!blob){
   alert("Poster creation failed");
   resetBtn();
@@ -2591,63 +2590,26 @@ const fileName =
   String(now.getMonth() + 1).padStart(2,"0") + "." +
   now.getFullYear() + fileExt;
 
-
-// 🔥 ANDROID APP SHARE (WebView)
-if(mobileShare && window.Android){
-
-  const reader = new FileReader();
-
-  reader.onloadend = function(){
-
-    const base64 = reader.result.split(',')[1];
-
-    // 👉 CALL ANDROID SHARE
-    Android.shareImage(base64);
-
-// 🔥 STOP COUNTDOWN + RESET UI
-stopGeneratingCountdown();
-shareInProgress = false;
-
-const btn = document.getElementById("shareBtn");
-if(btn){
-  btn.classList.remove("share-loading","countdown-mode");
-  btn.classList.add("tap-share-mode");
-  btn.innerText = "Tap Share";
-  btn.style.pointerEvents = "auto";
-}
-
-  };
-
-  reader.readAsDataURL(blob);
-
+if(mobileShare && navigator.share){
+  pendingShareFile = new File([blob], fileName, {type:outputType});
+  const btn = document.getElementById("shareBtn");
+  stopGeneratingCountdown();
+  shareInProgress = false;
+  if(btn){
+    btn.classList.remove("share-loading","countdown-mode");
+    btn.classList.add("tap-share-mode");
+    btn.innerText = "Tap Share";
+    btn.style.pointerEvents = "auto";
+  }
   return;
 }
 
-
-// 📱 MOBILE BROWSER SHARE
-if(mobileShare && navigator.share){
-
-  const file = new File([blob], fileName, {type:outputType});
-
-  if(navigator.canShare && navigator.canShare({files:[file]})){
-
-    await navigator.share({
-      files:[file],
-      title:"Gold Poster"
-    });
-
-    return;
-  }
-}
-
-
-// 💻 FALLBACK DOWNLOAD
 downloadFile(blob,fileName);
 
-}, outputType, 0.75);
+}, outputType, 0.92);
 
-
-// Android render fix (keep your logic)
+// Android Chrome sometimes exports before late canvas draws are committed.
+// Wait two frames on mobile before blob export.
 if(isMobileDevice()){
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -2659,25 +2621,23 @@ if(isMobileDevice()){
 }
 
 }
-
-
+   
 function downloadFile(blob, fileName){
 
-const link = document.createElement("a");
-const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const objectUrl = URL.createObjectURL(blob);
+  link.download = fileName;
+  link.href = objectUrl;
 
-link.download = fileName;
-link.href = objectUrl;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
 
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
+  onPosterDownloadSuccess();
 
-setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
-
-onPosterDownloadSuccess();
-
-} 
+}
+   
 // =====================
 // BUTTON FUNCTIONS
 // =====================
