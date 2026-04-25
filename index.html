@@ -526,7 +526,17 @@ function getTemplateMainRateBottomY(){
     14: 2300, // template15
     15: 2270, // template16
     16: 2060, // template17
-    17: 2290  // template18
+    17: 2290, // template18
+    18: 2460, // template19
+    19: 2380, // template20
+    20: 2350, // template21
+    21: 2350, // template22
+    22: 2350, // template23
+    23: 2330, // template24
+    24: 2420, // template25
+    25: 2380, // template26
+    26: 2500, // template27
+    27: 2450  // template28
   };
 
   return map[lastTemplate] || 2250;
@@ -2253,6 +2263,7 @@ function template19(ctx, canvas, share){
   drawCenteredLine("8gm", rate22k_1p, y + 115);
 
   ctx.restore();
+}
 
 
 function template20(ctx, canvas, share){
@@ -2544,6 +2555,7 @@ function template24(ctx, canvas, share){
   drawRow(y, "1 Pavan", rate22k_1p);
 
   ctx.restore();
+}
 
 
 function template25(ctx, canvas, share){
@@ -2677,6 +2689,7 @@ function template26(ctx, canvas, share){
   ctx.fillText("₹ " + formatRateValue(rate22k_1p), x + boxW * 0.75, y + 260);
 
   ctx.restore();
+}
 
 
 function template27(ctx, canvas, share){
@@ -2821,8 +2834,8 @@ function drawOptionalBottomRates(ctx, canvas){
   const hasProductConfig = Array.isArray(products) && products.length > 0;
   const rate18 = parseRateNumber(rate18k_1g);
   const rateSilver = parseRateNumber(rateSilver_1g);
- const show18k =  true;
-const showSilver =  true;
+  const show18k = hasProductConfig ? hasProduct("18k") : rate18 > 0;
+  const showSilver = hasProductConfig ? hasProduct("silver") : rateSilver > 0;
 
   if(show18k){
     items.push({
@@ -2843,16 +2856,20 @@ const showSilver =  true;
   // Android-specific hard fallback:
   // if products parsing still fails, render by available rate values.
   if(!items.length && isMobileDevice()){
-    items.push({
-      kind: "18k",
-      title: "1 Gram 18K",
-      value: formatRateValue(rate18k_1g)
-    });
-    items.push({
-      kind: "silver",
-      title: "1 Gram Silver",
-      value: formatRateValue(rateSilver_1g)
-    });
+    if(rate18 > 0){
+      items.push({
+        kind: "18k",
+        title: "1 Gram 18K",
+        value: formatRateValue(rate18k_1g)
+      });
+    }
+    if(rateSilver > 0){
+      items.push({
+        kind: "silver",
+        title: "1 Gram Silver",
+        value: formatRateValue(rateSilver_1g)
+      });
+    }
   }
 
   if(!items.length){
