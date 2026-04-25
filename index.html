@@ -1594,7 +1594,6 @@ function template8(ctx, canvas, share){
 
   ctx.fillStyle = "#ff66cc";
   ctx.font = "bold 140px Arial";
-  ctx.fillText("Today's Gold Rate", canvas.width/2, centerY - 120);
 
   // remove shadow for shapes if needed later
   ctx.shadowColor = "transparent";
@@ -1706,10 +1705,8 @@ function template9(ctx, canvas, share){
 
   ctx.fillStyle = "#ffee00";
   ctx.font = "bold 140px Arial";
-  ctx.fillText("Today's", centerX, y);
 
   y += 160;
-  ctx.fillText("Gold Rate", centerX, y);
 
 
   // ===== FUNCTION: DOTTED BOX =====
@@ -1781,7 +1778,6 @@ function template10(ctx, canvas, share){
 
   ctx.fillStyle = "#ffee00";
   ctx.font = "bold 160px Arial";
-  ctx.fillText("TODAY'S GOLD RATE", centerX, y);
 
   // ===== TOP DASH LINE =====
   y += 120;
@@ -1875,7 +1871,6 @@ function template11(ctx, canvas, share){
 
   ctx.fillStyle = "#ffee00";
   ctx.font = "bold 130px Arial";
-  ctx.fillText("TODAY'S GOLD RATE", centerX, y + 140);
 
 
   // ===== MAIN BOX =====
@@ -1946,7 +1941,6 @@ function template12(ctx, canvas, share){
 
   ctx.fillStyle = "#00CCff";
   ctx.font = "bold 110px Arial";
-  ctx.fillText("TODAY'S GOLD RATE", centerX, y + 110);
 
 
   // ===== 1 GRAM =====
@@ -2000,10 +1994,8 @@ function template13(ctx, canvas, share){
   ctx.textAlign = "left";
   ctx.fillStyle = "#eaeaea";
   ctx.font = "bold 120px Arial";
-  ctx.fillText("TODAY'S", startX, y);
 
   y += 140;
-  ctx.fillText("GOLD RATE", startX, y);
 
 
   // ===== FUNCTION =====
@@ -2075,15 +2067,12 @@ function template14(ctx, canvas, share){
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 120px Arial";
-  ctx.fillText("TODAY'S", centerX, y);
 
   y += 130;
 
   ctx.fillStyle = "#ffcc00";
-  ctx.fillText("GOLD", centerX - 120, y);
 
   ctx.fillStyle = "#ffffff";
-  ctx.fillText(" RATE", centerX + 180, y);
 
 
   // ===== TABLE BOX =====
@@ -2280,29 +2269,6 @@ function template17(ctx, canvas, share){
   ctx.strokeStyle = "#ffee00";
   ctx.lineWidth = 6;
   roundRect(ctx, x, y, boxW, boxH, 40, false, true);
-
-
-  // ===== TITLE CUT (CENTER ON BORDER) =====
-  const titleText = "TODAY'S GOLD RATE";
-
-  ctx.font = "bold 110px Arial";
-  const textWidth = ctx.measureText(titleText).width;
-
-  const padding = 80;
-  const cutW = textWidth + padding;
-  const cutH = 140;
-
-  const tx = centerX - cutW/2;
-  const ty = y - cutH/2; // 🔥 border middle cut
-
-  // cover border (cut effect)
-  ctx.fillStyle = "rgba(0,0,0,0.5)"; // same as box
-  ctx.fillRect(tx, ty, cutW, cutH);
-
-  // title text
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(titleText, centerX, y + 30); // perfectly on line
 
 
   // ===== CONTENT =====
@@ -2535,7 +2501,8 @@ function drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY){
     text = "ഇന്ന് പവന് " + formatRateValue(amount) + " രൂപ " + (isRepeat ? "വീണ്ടും " : "") + "കുറഞ്ഞു";
   }
 
-  const y = (optionalRateTopY || (canvas.height - FOOTER_DRAW_HEIGHT)) - 110;
+  const footerTopY = canvas.height - FOOTER_DRAW_HEIGHT;
+  const y = footerTopY - 28;
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#FFFFFF";
