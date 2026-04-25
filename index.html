@@ -480,6 +480,7 @@ const FOOTER_DRAW_HEIGHT = 659;
 const OPTIONAL_RATE_BOX_WIDTH = 820;
 const OPTIONAL_RATE_BOX_HEIGHT = 145;
 const OPTIONAL_RATE_BOX_GAP_FROM_FOOTER = 80;
+const OPTIONAL_RATE_MOVE_DOWN_CM = 4;
 
 function parseRateDate(rawDate){
   if(!rawDate) return null;
@@ -503,6 +504,10 @@ function withCacheBust(url){
   if(!raw) return "";
   const sep = raw.includes("?") ? "&" : "?";
   return raw + sep + "t=" + Date.now();
+}
+
+function cmToCanvasPx(cm){
+  return Math.round((300 / 2.54) * Number(cm || 0));
 }
 
 function normalizeProductEntry(entry){
@@ -2412,7 +2417,7 @@ const showSilver =  true;
     return canvas.height - FOOTER_DRAW_HEIGHT;
   }
 
-  const y = canvas.height - FOOTER_DRAW_HEIGHT - OPTIONAL_RATE_BOX_GAP_FROM_FOOTER - OPTIONAL_RATE_BOX_HEIGHT + 59;
+  const y = canvas.height - FOOTER_DRAW_HEIGHT - OPTIONAL_RATE_BOX_GAP_FROM_FOOTER - OPTIONAL_RATE_BOX_HEIGHT + 59 + cmToCanvasPx(OPTIONAL_RATE_MOVE_DOWN_CM);
 
   const leftX = 70;
   const rightX = canvas.width - OPTIONAL_RATE_BOX_WIDTH - 70;
