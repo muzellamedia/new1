@@ -477,11 +477,11 @@ const MOBILE_SHARE_LIMIT = 4;
 const DESKTOP_DOWNLOAD_LIMIT = 2;
 const FOOTER_DRAW_WIDTH = 2484;
 const FOOTER_DRAW_HEIGHT = 659;
-const OPTIONAL_RATE_BOX_WIDTH = 540;
-const OPTIONAL_RATE_BOX_HEIGHT = 100;
+const OPTIONAL_RATE_BOX_WIDTH = 620;
+const OPTIONAL_RATE_BOX_HEIGHT = 120;
 const OPTIONAL_RATE_BOX_GAP_FROM_FOOTER = 80;
 const OPTIONAL_RATE_GAP_FROM_MAIN = 40;
-const OPTIONAL_RATE_PAIR_GAP = 26;
+const OPTIONAL_RATE_PAIR_GAP = 34;
 
 function parseRateDate(rawDate){
   if(!rawDate) return null;
@@ -2922,13 +2922,13 @@ function drawBottomRateCard(ctx, x, y, title, value, kind){
 
   // Single-line text: label muted, amount bright
   ctx.textAlign = "left";
-  ctx.font = "bold 56px Arial";
+  ctx.font = "bold 64px Arial";
 
   const labelPart = label + " ";
   const labelWidth = ctx.measureText(labelPart).width;
 
-  const textX = x + 26;
-  const textY = y + 68;
+  const textX = x + 28;
+  const textY = y + 80;
 
   ctx.fillStyle = "#a7afb3";
   ctx.fillText(labelPart, textX, textY);
