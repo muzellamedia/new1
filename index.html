@@ -477,11 +477,11 @@ const MOBILE_SHARE_LIMIT = 4;
 const DESKTOP_DOWNLOAD_LIMIT = 2;
 const FOOTER_DRAW_WIDTH = 2484;
 const FOOTER_DRAW_HEIGHT = 659;
-const OPTIONAL_RATE_BOX_WIDTH = 820;
-const OPTIONAL_RATE_BOX_HEIGHT = 145;
+const OPTIONAL_RATE_BOX_WIDTH = 540;
+const OPTIONAL_RATE_BOX_HEIGHT = 100;
 const OPTIONAL_RATE_BOX_GAP_FROM_FOOTER = 80;
 const OPTIONAL_RATE_GAP_FROM_MAIN = 40;
-const OPTIONAL_RATE_PAIR_GAP = 110;
+const OPTIONAL_RATE_PAIR_GAP = 26;
 
 function parseRateDate(rawDate){
   if(!rawDate) return null;
@@ -1101,6 +1101,15 @@ function drawActiveTemplate(ctx, canvas){
         template16,
         template17,
         template18
+        template19,
+        template20,
+        template21,
+        template22,
+        template23,
+        template24,
+        template25,
+        template26,
+        template27
       ];
 
       let index;
@@ -1219,273 +1228,218 @@ const maxHeight = (ratio >= 1.3 ? 620 : 970) * scaleReduce;
 // =====================
 // template 1
 
-function template1(ctx, canvas){
-const centerXMain = canvas.width / 2;
-    const mainBoxWidth = canvas.width - 850;
-    const mainBoxHeight = 350; // 
-    const mainX = (canvas.width - mainBoxWidth) / 2;
-    const topYMain = 1600; // 
-    const gapMain = 50;
+function template1(ctx, canvas) {
 
-  function drawMainRateBar(y, title, value, bgColor){
-    ctx.save();
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(mainX, y, mainBoxWidth, mainBoxHeight);
+    // Reduced size
+    const cardWidth = 1800;   // before 2200
+    const cardHeight = 400;   // before 520
 
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = "bold 80px Arial";
-    ctx.fillText(title, centerXMain, y + 105);
-
-    ctx.shadowColor = "rgba(0,0,0,0.80)";
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 4;
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = "bold 150px Arial";
-    ctx.fillText("\u20B9 " + formatRateValue(value), centerXMain, y + 265);
-    ctx.restore();
-  }
-
-  drawMainRateBar(topYMain, "GOLD 1 GRAM", rate22k_1g, "rgba(190,140,0,0.82)");
-  drawMainRateBar(topYMain + mainBoxHeight + gapMain, "GOLD 8 GRAM (1 PAVAN)", rate22k_1p, "rgba(165,0,0,0.82)");
-  return;
-
-  let y = 500;
-const centerX = canvas.width / 2;
-  // 1 Gram
-  ctx.fillStyle = "#ff2e8b";
-  const boxWidth = canvas.width * 0.7;
-const x = (canvas.width - boxWidth) / 2;
-
-roundRect(ctx, x, y, boxWidth, 200, 20, true, false);
-
-  ctx.fillStyle = "#FFD700";
-  ctx.font = "bold 160px Indulekha, Arial";
-  ctx.textAlign = "center";
-  ctx.fillText("1 Gram",540,y+50);
-
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = "bold 160px Indulekha, Arial";
-  ctx.fillText("₹ " + rate22k_1g,540,y+110);
-
-  // 1 Pavan
-  y += 160;
-
-  ctx.fillStyle = "#ff2e8b";
-  roundRect(ctx,200,y,680,180,20,true,false);
-
-  ctx.fillStyle = "#FFD700";
-  ctx.font = "bold 180px Indulekha, Arial";
-  ctx.fillText("1 Pavan",540,y+60);
-
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = "bold 260px Indulekha, Arial";
-  ctx.fillText("₹ " + rate22k_1p,540,y+140);
-
-}
-
-function template2(ctx, canvas) {
-    const cardWidth = 2200;
-    const cardHeight = 520; // Increased height to accommodate larger text
     const cardX = (canvas.width - cardWidth) / 2;
-    const cardY = 1800; 
+    const cardY = 2000;  // slightly adjusted
     const midX = cardX + (cardWidth / 2);
 
     // Dark Box
     ctx.fillStyle = "rgba(5,43,48,0.95)";
-    roundRect(ctx, cardX, cardY, cardWidth, cardHeight, 36, true, false);
+    roundRect(ctx, cardX, cardY, cardWidth, cardHeight, 28, true, false);
 
-    // Center Line
+    // Center Line (thinner)
     ctx.beginPath();
-    ctx.moveTo(midX, cardY + 40);
-    ctx.lineTo(midX, cardY + cardHeight - 40);
-    ctx.strokeStyle = "rgba(255,255,255,0.2)";
-    ctx.lineWidth = 6;
+    ctx.moveTo(midX, cardY + 30);
+    ctx.lineTo(midX, cardY + cardHeight - 30);
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 4;
     ctx.stroke();
 
     ctx.textAlign = "center";
     ctx.fillStyle = "#EAF1F1";
 
-    // Left Side: 1 GRAM
-    ctx.font = "bold 100px Arial"; // Increased from 80px
-    ctx.fillText("1 GRAM", cardX + (cardWidth * 0.25), cardY + 160);
-    
-    ctx.font = "bold 180px Arial"; // Increased from 130px
-    ctx.fillText("₹ " + formatRateValue(rate22k_1g), cardX + (cardWidth * 0.25), cardY + 380);
+    // LEFT SIDE (1 GRAM)
+    ctx.font = "bold 70px Arial";
+    ctx.fillText("1 GRAM", cardX + (cardWidth * 0.25), cardY + 110);
 
-    // Right Side: 1 PAVAN
-    ctx.font = "bold 100px Arial"; // Increased from 80px
-    ctx.fillText("1 PAVAN", cardX + (cardWidth * 0.75), cardY + 160);
+    ctx.font = "bold 130px Arial";
+    ctx.fillText("₹ " + formatRateValue(rate22k_1g), cardX + (cardWidth * 0.25), cardY + 280);
 
-    ctx.font = "bold 180px Arial"; // Increased from 130px
-    ctx.fillText("₹ " + formatRateValue(rate22k_1p), cardX + (cardWidth * 0.75), cardY + 380);
+
+    // RIGHT SIDE (1 PAVAN)
+    ctx.font = "bold 70px Arial";
+    ctx.fillText("1 PAVAN", cardX + (cardWidth * 0.75), cardY + 110);
+
+    ctx.font = "bold 130px Arial";
+    ctx.fillText("₹ " + formatRateValue(rate22k_1p), cardX + (cardWidth * 0.75), cardY + 280);
 }
 
 
-function template3(ctx, canvas, share){
+function template2(ctx, canvas) {
 
-  ctx.save();
+    // Reduced size
+    const cardWidth = 1800;   // before 2200
+    const cardHeight = 400;   // before 520
 
-  const boxWidth = canvas.width - 950;
-  const boxHeight = 500;
-  const x = (canvas.width - boxWidth) / 2;
-  const y = 1800;
+    const cardX = (canvas.width - cardWidth) / 2;
+    const cardY = 2000;  // slightly adjusted
+    const midX = cardX + (cardWidth / 2);
 
-  // BLACK 50% TRANSPARENT
-  ctx.fillStyle = "rgba(0,0,0,0.5)";
-  roundRect(ctx, x, y, boxWidth, boxHeight, 40, true, false);
+    // Dark Box
+    ctx.fillStyle = "#660033";
+    roundRect(ctx, cardX, cardY, cardWidth, cardHeight, 28, true, false);
 
-  // YELLOW BORDER
-  ctx.strokeStyle = "#ffff00";
-  ctx.lineWidth = 10;
-  roundRect(ctx, x, y, boxWidth, boxHeight, 40, false, true);
+    // Center Line (thinner)
+    ctx.beginPath();
+    ctx.moveTo(midX, cardY + 30);
+    ctx.lineTo(midX, cardY + cardHeight - 30);
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
 
-  // TEXT ALIGN CENTER
-  ctx.textAlign = "center";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#EAF1F1";
 
-  // TOP TEXT → 1 PAVAN
-  ctx.fillStyle = "#eaeaea";
-  ctx.font = "bold 110px Arial";
-  ctx.fillText("1 PAVAN", canvas.width/2, y + 115);
+    // LEFT SIDE (1 GRAM)
+    ctx.font = "bold 70px Arial";
+    ctx.fillText("1 GRAM", cardX + (cardWidth * 0.25), cardY + 110);
 
-  // BIG VALUE (₹ added)
-  ctx.fillStyle = "#ffff00";
-  ctx.font = "bold 260px Arial";
-  ctx.fillText("₹ " + formatRateValue(rate22k_1p), canvas.width/2, y + 320);
+    ctx.font = "bold 130px Arial";
+    ctx.fillText("₹ " + formatRateValue(rate22k_1g), cardX + (cardWidth * 0.25), cardY + 280);
 
-  // BOTTOM TEXT → 1 GRAM (₹ added)
-  ctx.fillStyle = "#eaeaea";
-  ctx.font = "bold 90px Arial";
-  ctx.fillText("1 GRAM ₹ " + formatRateValue(rate22k_1g), canvas.width/2, y + 450);
 
-  ctx.restore();
+    // RIGHT SIDE (1 PAVAN)
+    ctx.font = "bold 70px Arial";
+    ctx.fillText("1 PAVAN", cardX + (cardWidth * 0.75), cardY + 110);
+
+    ctx.font = "bold 130px Arial";
+    ctx.fillText("₹ " + formatRateValue(rate22k_1p), cardX + (cardWidth * 0.75), cardY + 280);
 }
 
-function template4(ctx, canvas, share){
 
-  ctx.save();
 
-  const startX = 200;
-  let y = 1600;
+function template3(ctx, canvas){
 
-  // ===== 1 GRAM =====
-  ctx.textAlign = "left";
+    const centerX = canvas.width / 2;
 
-  // TITLE
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 80px Arial";
-  ctx.fillText("1 GRAM", startX, y);
+    // Smaller + tighter layout
+    const mainBoxWidth = canvas.width - 1000;   // reduced
+    const mainBoxHeight = 260;                  // reduced
+    const mainX = (canvas.width - mainBoxWidth) / 2;
 
-  y += 40;
+    const topY = 1940;   // adjusted
+    const gap = 30;      // reduced gap
 
-  // VALUE BOX
-  const boxHeight1 = 180;
-  const paddingX = 80;
+    function drawBar(y, title, value, bgColor){
 
-  ctx.font = "bold 140px Arial";
-  const text1 = "₹ " + formatRateValue(rate22k_1g);
-  const textWidth1 = ctx.measureText(text1).width;
+        ctx.save();
 
-  const boxWidth1 = textWidth1 + paddingX * 2;
+        // Rounded box (more premium)
+        ctx.fillStyle = bgColor;
+        roundRect(ctx, mainX, y, mainBoxWidth, mainBoxHeight, 24, true, false);
 
-  ctx.fillStyle = "#c0003b"; // pink/red
-  ctx.fillRect(startX, y, boxWidth1, boxHeight1);
+        // Title (smaller & tighter)
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#F5F5F5";
+        ctx.font = "bold 55px Arial";
+        ctx.fillText(title, centerX, y + 80);
 
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(text1, startX + paddingX, y + 135);
+        // Price (balanced size)
+        ctx.shadowColor = "rgba(0,0,0,0.6)";
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetY = 3;
 
-  // ===== 1 PAVAN =====
-  y += 350;
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "bold 110px Arial";
+        ctx.fillText("₹ " + formatRateValue(value), centerX, y + 185);
 
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 90px Arial";
-  ctx.fillText("1 PAVAN", startX, y);
+        ctx.restore();
+    }
 
-  y += 60;
-
-  const boxHeight2 = 230;
-
-  ctx.font = "bold 180px Arial";
-  const text2 = "₹ " + formatRateValue(rate22k_1p);
-  const textWidth2 = ctx.measureText(text2).width;
-
-  const boxWidth2 = textWidth2 + paddingX * 2;
-
-  ctx.fillStyle = "#c0003b";
-  ctx.fillRect(startX, y, boxWidth2, boxHeight2);
-
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(text2, startX + paddingX, y + 170);
-
-  ctx.restore();
+    // Colors tuned for premium look
+    drawBar(topY, "GOLD 1 GRAM", rate22k_1g, "rgba(120,90,0,0.85)");
+    drawBar(topY + mainBoxHeight + gap, "GOLD 8 GRAM (1 PAVAN)", rate22k_1p, "rgba(120,0,0,0.85)");
 }
 
-function template5(ctx, canvas, share){
 
-  ctx.save();
 
-  const centerX = canvas.width / 2;
-  let y = 1500; //
+function template4(ctx, canvas){
 
-  // ===== TOP TAG (1 PAVAN) =====
-  const tagPaddingX = 60;
-  const tagHeight = 130;
+    const centerX = canvas.width / 2;
 
-  ctx.font = "bold 110px Arial";
-  const tagText = "1 Pavan";
-  const tagWidth = ctx.measureText(tagText).width + tagPaddingX * 2;
+    const mainBoxWidth = canvas.width - 1000;
+    const mainBoxHeight = 260;
+    const mainX = (canvas.width - mainBoxWidth) / 2;
 
-  ctx.fillStyle = "#1fa34a";
-  roundRect(ctx, centerX - tagWidth/2, y, tagWidth, tagHeight, 25, true, false);
+    const topY = 1920;
+    const gap = 30;
 
-  ctx.fillStyle = "#ffffff";
-  ctx.textAlign = "center";
-  ctx.fillText(tagText, centerX, y + 95);
+    function drawBar(y, title, value, bgColor){
 
-  // ===== BIG VALUE BOX =====
-  y += 180;
+        ctx.save();
 
-  const mainPaddingX = 120;
-  const mainHeight = 260;
+        // Rounded box
+        ctx.fillStyle = bgColor;
+        roundRect(ctx, mainX, y, mainBoxWidth, mainBoxHeight, 24, true, false);
 
-  ctx.font = "bold 200px Arial"; // 🔥 BIG FONT
-  const mainText = "₹ " + formatRateValue(rate22k_1p);
-  const mainWidth = ctx.measureText(mainText).width + mainPaddingX * 2;
+        // Title
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#F5F5F5";
+        ctx.font = "bold 55px Arial";
+        ctx.fillText(title, centerX, y + 80);
 
-  ctx.fillStyle = "#052f2d";
-  roundRect(ctx, centerX - mainWidth/2, y, mainWidth, mainHeight, 35, true, false);
+        // Price
+        ctx.shadowColor = "rgba(0,0,0,0.6)";
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetY = 3;
 
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(mainText, centerX, y + 190);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "bold 110px Arial";
+        ctx.fillText("₹ " + formatRateValue(value), centerX, y + 185);
 
-  // ===== SMALL TAG (1 GRAM) =====
-  y += 320;
+        ctx.restore();
+    }
 
-  ctx.font = "bold 90px Arial";
-  const smallTag = "1 Gram";
-  const smallTagWidth = ctx.measureText(smallTag).width + 40 * 2;
+    // 🔥 NEW COLORS
+    drawBar(topY, "GOLD 1 GRAM", rate22k_1g, "#004d00");   // Dark Gold
+    drawBar(topY + mainBoxHeight + gap, "GOLD 8 GRAM (1 PAVAN)", rate22k_1p, "#003300"); // Deep Maroon
+}
 
-  ctx.fillStyle = "#1fa34a";
-  roundRect(ctx, centerX - smallTagWidth/2, y, smallTagWidth, 100, 20, true, false);
+function template5(ctx, canvas){
 
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(smallTag, centerX, y + 70);
+    const centerX = canvas.width / 2;
 
-  // ===== SMALL VALUE BOX =====
-  y += 140;
+    const mainBoxWidth = canvas.width - 1000;
+    const mainBoxHeight = 260;
+    const mainX = (canvas.width - mainBoxWidth) / 2;
 
-  ctx.font = "bold 130px Arial";
-  const smallText = "₹ " + formatRateValue(rate22k_1g);
-  const smallWidth = ctx.measureText(smallText).width + 80 * 2;
+    const topY = 1920;
+    const gap = 30;
 
-  ctx.fillStyle = "#052f2d";
-  roundRect(ctx, centerX - smallWidth/2, y, smallWidth, 180, 25, true, false);
+    function drawBar(y, title, value, bgColor){
 
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(smallText, centerX, y + 125);
+        ctx.save();
 
-  ctx.restore();
+        // Rounded box
+        ctx.fillStyle = bgColor;
+        roundRect(ctx, mainX, y, mainBoxWidth, mainBoxHeight, 24, true, false);
+
+        // Title
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#F5F5F5";
+        ctx.font = "bold 55px Arial";
+        ctx.fillText(title, centerX, y + 80);
+
+        // Price
+        ctx.shadowColor = "rgba(0,0,0,0.6)";
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetY = 3;
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "bold 110px Arial";
+        ctx.fillText("₹ " + formatRateValue(value), centerX, y + 185);
+
+        ctx.restore();
+    }
+
+    // 🔥 NEW COLORS
+    drawBar(topY, "GOLD 1 GRAM", rate22k_1g, "#660033");   // Dark Gold
+    drawBar(topY + mainBoxHeight + gap, "GOLD 8 GRAM (1 PAVAN)", rate22k_1p, "#4d0026"); // Deep Maroon
 }
 
 
@@ -1493,32 +1447,368 @@ function template6(ctx, canvas, share){
 
   ctx.save();
 
-  const gap = 120;
+  // 🔽 Reduced size
+  const boxWidth = canvas.width - 1150;  // before -950
+  const boxHeight = 380;                 // before 500
+  const x = (canvas.width - boxWidth) / 2;
+  const y = 2000;  // slightly adjusted
 
-  // 🔥 BIG SIZE
-  const boxWidth = (canvas.width - 600 - gap) / 2;
-  const boxHeight = 300;
+  // Dark transparent box
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  roundRect(ctx, x, y, boxWidth, boxHeight, 30, true, false);
+
+  // Border (thinner)
+  ctx.strokeStyle = "#FFD700"; // gold instead of yellow
+  ctx.lineWidth = 6;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 30, false, true);
+
+  ctx.textAlign = "center";
+
+  // TOP TEXT → 1 PAVAN
+  ctx.fillStyle = "#eaeaea";
+  ctx.font = "bold 75px Arial";   // reduced
+  ctx.fillText("1 PAVAN", canvas.width/2, y + 90);
+
+  // BIG VALUE
+  ctx.fillStyle = "#FFD700";
+  ctx.font = "bold 180px Arial";  // reduced
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), canvas.width/2, y + 230);
+
+  // BOTTOM TEXT → 1 GRAM
+  ctx.fillStyle = "#eaeaea";
+  ctx.font = "bold 60px Arial";   // reduced
+  ctx.fillText("1 GRAM ₹ " + formatRateValue(rate22k_1g), canvas.width/2, y + 320);
+
+  ctx.restore();
+}
+
+
+function template7(ctx, canvas, share){
+
+  ctx.save();
+
+  // 🔽 Reduced size
+  const boxWidth = canvas.width - 1150;  // before -950
+  const boxHeight = 380;                 // before 500
+  const x = (canvas.width - boxWidth) / 2;
+  const y = 2000;  // slightly adjusted
+
+  // Dark transparent box
+  ctx.fillStyle = "#111a00";
+  roundRect(ctx, x, y, boxWidth, boxHeight, 30, true, false);
+
+  // Border (thinner)
+  ctx.strokeStyle = "#88cc00"; // gold instead of yellow
+  ctx.lineWidth = 6;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 30, false, true);
+
+  ctx.textAlign = "center";
+
+  // TOP TEXT → 1 PAVAN
+  ctx.fillStyle = "#eaeaea";
+  ctx.font = "bold 75px Arial";   // reduced
+  ctx.fillText("1 PAVAN", canvas.width/2, y + 90);
+
+  // BIG VALUE
+  ctx.fillStyle = "#FFD700";
+  ctx.font = "bold 180px Arial";  // reduced
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), canvas.width/2, y + 230);
+
+  // BOTTOM TEXT → 1 GRAM
+  ctx.fillStyle = "#eaeaea";
+  ctx.font = "bold 60px Arial";   // reduced
+  ctx.fillText("1 GRAM ₹ " + formatRateValue(rate22k_1g), canvas.width/2, y + 320);
+
+  ctx.restore();
+}
+
+
+
+function template8(ctx, canvas, share){
+
+  ctx.save();
+
+  // 🔽 Reduced size
+  const boxWidth = canvas.width - 1150;  // before -950
+  const boxHeight = 380;                 // before 500
+  const x = (canvas.width - boxWidth) / 2;
+  const y = 2000;  // slightly adjusted
+
+  // Dark transparent box
+  ctx.fillStyle = "#660066";
+  roundRect(ctx, x, y, boxWidth, boxHeight, 30, true, false);
+
+  // Border (thinner)
+  ctx.strokeStyle = "#88cc00"; // gold instead of yellow
+  ctx.lineWidth = 6;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 30, false, true);
+
+  ctx.textAlign = "center";
+
+  // TOP TEXT → 1 PAVAN
+  ctx.fillStyle = "#eaeaea";
+  ctx.font = "bold 75px Arial";   // reduced
+  ctx.fillText("1 PAVAN", canvas.width/2, y + 90);
+
+  // BIG VALUE
+  ctx.fillStyle = "#FFD700";
+  ctx.font = "bold 180px Arial";  // reduced
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), canvas.width/2, y + 230);
+
+  // BOTTOM TEXT → 1 GRAM
+  ctx.fillStyle = "#eaeaea";
+  ctx.font = "bold 60px Arial";   // reduced
+  ctx.fillText("1 GRAM ₹ " + formatRateValue(rate22k_1g), canvas.width/2, y + 320);
+
+  ctx.restore();
+}
+
+
+function template9(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerY = 2050;
+
+  // Positions
+  const leftX = 500;
+  const rightX = canvas.width / 2 + 10;
+
+  const paddingX = 60;
+
+  ctx.textAlign = "left";
+
+  // ===== LEFT → 1 GRAM =====
+  let y1 = centerY;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 70px Arial";
+  ctx.fillText("1 GRAM", leftX, y1);
+
+  y1 += 40;
+
+  ctx.font = "bold 120px Arial";
+  const text1 = "₹ " + formatRateValue(rate22k_1g);
+  const textWidth1 = ctx.measureText(text1).width;
+
+  const boxHeight1 = 150;
+  const boxWidth1 = textWidth1 + paddingX * 2;
+
+  ctx.fillStyle = "#c0003b";
+  ctx.fillRect(leftX, y1, boxWidth1, boxHeight1);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text1, leftX + paddingX, y1 + 110);
+
+
+  // ===== RIGHT → 1 PAVAN =====
+  let y2 = centerY;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 70px Arial";
+  ctx.fillText("1 PAVAN", rightX, y2);
+
+  y2 += 40;
+
+  ctx.font = "bold 150px Arial";
+  const text2 = "₹ " + formatRateValue(rate22k_1p);
+  const textWidth2 = ctx.measureText(text2).width;
+
+  const boxHeight2 = 180;
+  const boxWidth2 = textWidth2 + paddingX * 2;
+
+  ctx.fillStyle = "#c0003b";
+  ctx.fillRect(rightX, y2, boxWidth2, boxHeight2);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text2, rightX + paddingX, y2 + 135);
+
+  ctx.restore();
+}
+
+
+function template10(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerY = 2050;
+
+  // Positions
+  const leftX = 500;
+  const rightX = canvas.width / 2 + 10;
+
+  const paddingX = 60;
+
+  ctx.textAlign = "centerY";
+
+  // ===== LEFT → 1 GRAM =====
+  let y1 = centerY;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 70px Arial";
+  ctx.fillText("1 GRAM", leftX, y1);
+
+  y1 += 40;
+
+  ctx.font = "bold 120px Arial";
+  const text1 = "₹ " + formatRateValue(rate22k_1g);
+  const textWidth1 = ctx.measureText(text1).width;
+
+  const boxHeight1 = 150;
+  const boxWidth1 = textWidth1 + paddingX * 2;
+
+  ctx.fillStyle = "#006600";
+  ctx.fillRect(leftX, y1, boxWidth1, boxHeight1);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text1, leftX + paddingX, y1 + 110);
+
+
+  // ===== RIGHT → 1 PAVAN =====
+  let y2 = centerY;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 70px Arial";
+  ctx.fillText("1 PAVAN", rightX, y2);
+
+  y2 += 40;
+
+  ctx.font = "bold 150px Arial";
+  const text2 = "₹ " + formatRateValue(rate22k_1p);
+  const textWidth2 = ctx.measureText(text2).width;
+
+  const boxHeight2 = 180;
+  const boxWidth2 = textWidth2 + paddingX * 2;
+
+  ctx.fillStyle = "#004d00";
+  ctx.fillRect(rightX, y2, boxWidth2, boxHeight2);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text2, rightX + paddingX, y2 + 135);
+
+  ctx.restore();
+}
+
+
+function template11(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerX = canvas.width / 2;
+  let y = 1950; // slightly adjusted
+
+  // ===== TOP TAG (1 PAVAN) =====
+  const tagPaddingX = 40;
+  const tagHeight = 90;
+
+  ctx.font = "bold 70px Arial";
+  const tagText = "1 Pavan";
+  const tagWidth = ctx.measureText(tagText).width + tagPaddingX * 2;
+
+  ctx.fillStyle = "#1fa34a";
+  roundRect(ctx, centerX - tagWidth/2, y, tagWidth, tagHeight, 18, true, false);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "center";
+  ctx.fillText(tagText, centerX, y + 65);
+
+  // ===== BIG VALUE BOX =====
+  y += tagHeight + 15; // 🔥 very small gap
+
+  const mainPaddingX = 80;
+  const mainHeight = 170;
+
+  ctx.font = "bold 140px Arial";
+  const mainText = "₹ " + formatRateValue(rate22k_1p);
+  const mainWidth = ctx.measureText(mainText).width + mainPaddingX * 2;
+
+  ctx.fillStyle = "#052f2d";
+  roundRect(ctx, centerX - mainWidth/2, y, mainWidth, mainHeight, 22, true, false);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(mainText, centerX, y + 120);
+
+  // ===== SMALL TAG (1 GRAM) =====
+  y += mainHeight + 15; // 🔥 tight gap
+
+  ctx.font = "bold 60px Arial";
+  const smallTag = "1 Gram";
+  const smallTagWidth = ctx.measureText(smallTag).width + 30 * 2;
+
+  ctx.fillStyle = "#1fa34a";
+  roundRect(ctx, centerX - smallTagWidth/2, y, smallTagWidth, 70, 16, true, false);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(smallTag, centerX, y + 50);
+
+  // ===== SMALL VALUE BOX =====
+  y += 70 + 10; // 🔥 almost attached
+
+  ctx.font = "bold 100px Arial";
+  const smallText = "₹ " + formatRateValue(rate22k_1g);
+  const smallWidth = ctx.measureText(smallText).width + 60 * 2;
+
+  ctx.fillStyle = "#052f2d";
+  roundRect(ctx, centerX - smallWidth/2, y, smallWidth, 130, 20, true, false);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(smallText, centerX, y + 95);
+
+  ctx.restore();
+}
+
+
+function template12(ctx, canvas, share){
+
+  ctx.save();
+
+  const gap = 80;
+
+  const boxWidth = (canvas.width - 700 - gap) / 2;
+  const boxHeight = 240;
 
   const startX = (canvas.width - (boxWidth*2 + gap)) / 2;
-  const y = 2000;
+  const y = 2050;
+
+  // 🔥 RADIAL GOLD BOX
+  function drawGoldRadialBox(x, y, w, h, radius){
+
+    const centerX = x + w / 2;
+    const centerY = y + h / 2;
+
+    const gradient = ctx.createRadialGradient(
+      centerX, centerY, 20,
+      centerX, centerY, w
+    );
+
+    gradient.addColorStop(0, "#fff8cc");   // light gold center
+    gradient.addColorStop(0.4, "#ffd700"); // gold
+    gradient.addColorStop(1, "#b89600");   // dark edge
+
+    ctx.fillStyle = gradient;
+    roundRect(ctx, x, y, w, h, radius, true, false);
+
+    // subtle border
+    ctx.strokeStyle = "rgba(184,150,0,0.8)";
+    ctx.lineWidth = 2;
+    roundRect(ctx, x, y, w, h, radius, false, true);
+  }
 
   function drawBox(x, title, value){
 
-    // DARK BOX
-    ctx.fillStyle = "#052f2d";
-    roundRect(ctx, x, y, boxWidth, boxHeight, 35, true, false);
+    drawGoldRadialBox(x, y, boxWidth, boxHeight, 25);
 
     ctx.textAlign = "left";
 
     // TITLE
-    ctx.fillStyle = "#eaeaea";
-    ctx.font = "bold 90px Arial";
-    ctx.fillText(title, x + 60, y + 110);
+    ctx.fillStyle = "#000000";
+    ctx.font = "bold 60px Arial";
+    ctx.fillText(title, x + 40, y + 85);
 
-    // VALUE (BIG)
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 150px Arial";
-    ctx.fillText("₹ " + formatRateValue(value), x + 60, y + 230);
+    // VALUE (proper spacing)
+    ctx.fillStyle = "#000000";
+    ctx.font = "bold 110px Arial";
+    ctx.fillText("₹ " + formatRateValue(value), x + 40, y + 195);
   }
 
   // LEFT → 1 PAVAN
@@ -1530,15 +1820,88 @@ function template6(ctx, canvas, share){
   ctx.restore();
 }
 
+function template13(ctx, canvas, share){
 
-function template7(ctx, canvas, share){
+  ctx.save();
+
+  const gap = 80;
+
+  const boxWidth = (canvas.width - 700 - gap) / 2;
+  const boxHeight = 240;
+
+  const startX = (canvas.width - (boxWidth*2 + gap)) / 2;
+  const y = 2050;
+
+  function drawBox(x, title, value){
+
+    // 🔴 Maroon box
+    ctx.fillStyle = "#4d0000";
+    roundRect(ctx, x, y, boxWidth, boxHeight, 25, true, false);
+
+    ctx.textAlign = "left";
+
+    // Title
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 60px Arial";
+    ctx.fillText(title, x + 40, y + 85);
+
+    // Value
+    ctx.font = "bold 110px Arial";
+    ctx.fillText("₹ " + formatRateValue(value), x + 40, y + 195);
+  }
+
+  drawBox(startX, "1 Pavan", rate22k_1p);
+  drawBox(startX + boxWidth + gap, "1 Gram", rate22k_1g);
+
+  ctx.restore();
+}
+
+
+function template14(ctx, canvas, share){
+
+  ctx.save();
+
+  const gap = 80;
+
+  const boxWidth = (canvas.width - 700 - gap) / 2;
+  const boxHeight = 240;
+
+  const startX = (canvas.width - (boxWidth*2 + gap)) / 2;
+  const y = 2050;
+
+  function drawBox(x, title, value){
+
+    // 🟢 Teal box
+    ctx.fillStyle = "#003333";
+    roundRect(ctx, x, y, boxWidth, boxHeight, 25, true, false);
+
+    ctx.textAlign = "left";
+
+    // Title
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 60px Arial";
+    ctx.fillText(title, x + 40, y + 85);
+
+    // Value
+    ctx.font = "bold 110px Arial";
+    ctx.fillText("₹ " + formatRateValue(value), x + 40, y + 195);
+  }
+
+  drawBox(startX, "1 Pavan", rate22k_1p);
+  drawBox(startX + boxWidth + gap, "1 Gram", rate22k_1g);
+
+  ctx.restore();
+}
+
+
+function template15(ctx, canvas, share){
 
   ctx.save();
 
   const boxWidth = canvas.width - 300;
   const boxHeight = 300;
   const x = (canvas.width - boxWidth) / 2;
-  const y = 1800;
+  const y = 2000;
 
   // ONLY BORDER (NO FILL)
   ctx.strokeStyle = "#ffffff";
@@ -1578,11 +1941,142 @@ function template7(ctx, canvas, share){
   ctx.restore();
 }
 
-function template8(ctx, canvas, share){
+
+function template15(ctx, canvas, share){
 
   ctx.save();
 
-  const centerY = 1800;
+  // 🔽 Width reduced
+  const boxWidth = canvas.width - 700;   // before -300
+  const boxHeight = 300;
+
+  const x = (canvas.width - boxWidth) / 2;
+  const y = 2000;
+
+  // BORDER ONLY
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 5;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 35, false, true);
+
+  ctx.textAlign = "center";
+
+  // SHADOW
+  ctx.shadowColor = "rgba(0,0,0,0.8)";
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 3;
+
+  // ===== LEFT =====
+  const leftX = x + boxWidth * 0.25;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 110px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), leftX, y + 120);
+
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("Per Gram", leftX, y + 200);
+
+  // ===== RIGHT =====
+  const rightX = x + boxWidth * 0.75;
+
+  ctx.font = "bold 110px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), rightX, y + 120);
+
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("Per Pavan", rightX, y + 200);
+
+  // REMOVE SHADOW
+  ctx.shadowColor = "transparent";
+
+  ctx.restore();
+}
+
+
+function template16(ctx, canvas, share){
+
+  ctx.save();
+
+  const boxWidth = canvas.width - 700;
+  const boxHeight = 300;
+
+  const x = (canvas.width - boxWidth) / 2;
+  const y = 2000;
+
+  const centerX = x + boxWidth / 2;
+  const centerY = y + boxHeight / 2;
+
+  // 🔥 RADIAL BASE
+  const gradient = ctx.createRadialGradient(
+    centerX, centerY, 20,
+    centerX, centerY, boxWidth
+  );
+  gradient.addColorStop(0, "#006666");
+  gradient.addColorStop(0.5, "#004d4d");
+  gradient.addColorStop(1, "#002626");
+
+  ctx.fillStyle = gradient;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 35, true, false);
+
+  // 🔥 3D TOP LIGHT
+  const topLight = ctx.createLinearGradient(x, y, x, y + boxHeight);
+  topLight.addColorStop(0, "rgba(255,255,255,0.25)");
+  topLight.addColorStop(0.4, "rgba(255,255,255,0.08)");
+  topLight.addColorStop(1, "rgba(255,255,255,0)");
+
+  ctx.fillStyle = topLight;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 35, true, false);
+
+  // 🔥 3D BOTTOM SHADOW
+  const bottomShadow = ctx.createLinearGradient(x, y, x, y + boxHeight);
+  bottomShadow.addColorStop(0, "rgba(0,0,0,0)");
+  bottomShadow.addColorStop(1, "rgba(0,0,0,0.45)");
+
+  ctx.fillStyle = bottomShadow;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 35, true, false);
+
+  // BORDER
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 4;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 35, false, true);
+
+  ctx.textAlign = "center";
+
+  // SHADOW FOR TEXT
+  ctx.shadowColor = "rgba(0,0,0,0.7)";
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 3;
+
+  // ===== LEFT =====
+  const leftX = x + boxWidth * 0.25;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 110px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), leftX, y + 150); // 🔽 moved down
+
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("Per Gram", leftX, y + 230); // 🔽 moved down
+
+  // ===== RIGHT =====
+  const rightX = x + boxWidth * 0.75;
+
+  ctx.font = "bold 110px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), rightX, y + 150); // 🔽 moved down
+
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("Per Pavan", rightX, y + 230); // 🔽 moved down
+
+  // REMOVE SHADOW
+  ctx.shadowColor = "transparent";
+
+  ctx.restore();
+}
+
+function template17(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerY = 2000;
 
   // ===== TITLE (ABOVE BOXES) =====
   ctx.textAlign = "center";
@@ -1687,86 +2181,81 @@ function template8(ctx, canvas, share){
   ctx.restore();
 }
 
-function template9(ctx, canvas, share){
+function template18(ctx, canvas, share){
 
   ctx.save();
 
   const centerX = canvas.width / 2;
-  let y = 1500;
+  let y = 1680;
 
-  // 🔥 GLOBAL SHADOW (STRONG)
+  // SHADOW
   ctx.shadowColor = "rgba(0,0,0,0.95)";
   ctx.shadowBlur = 18;
   ctx.shadowOffsetX = 5;
   ctx.shadowOffsetY = 5;
 
-  // ===== TITLE =====
-  ctx.textAlign = "center";
+  ctx.textAlign = "left"; // important
 
-  ctx.fillStyle = "#ffee00";
-  ctx.font = "bold 140px Arial";
-
-  y += 160;
-
-
-  // ===== FUNCTION: DOTTED BOX =====
   function drawDottedBox(x, y, w, h){
-    ctx.shadowColor = "transparent"; // ❗ borderക്ക് shadow വേണ്ട
+    ctx.shadowColor = "transparent";
     ctx.setLineDash([12, 10]);
     ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 4;
     roundRect(ctx, x, y, w, h, 25, false, true);
     ctx.setLineDash([]);
-
-    // വീണ്ടും shadow ON
     ctx.shadowColor = "rgba(0,0,0,0.95)";
   }
-
-
-  // ===== 1GM BOX =====
-  y += 180;
 
   const boxWidth = 1400;
   const boxHeight = 180;
   const x = centerX - boxWidth/2;
 
+  // ===== COMMON FONT =====
+  ctx.font = "bold 110px Arial";
+
+  // ===== FUNCTION (MULTI COLOR CENTER) =====
+  function drawCenteredLine(label, value, yPos){
+
+    const text1 = label + "   ";
+    const text2 = "₹ " + formatRateValue(value);
+
+    const width1 = ctx.measureText(text1).width;
+    const width2 = ctx.measureText(text2).width;
+
+    const totalWidth = width1 + width2;
+
+    let startX = centerX - totalWidth / 2;
+
+    // 🔸 Yellow label
+    ctx.fillStyle = "#ffcc00";
+    ctx.fillText(text1, startX, yPos);
+
+    // 🔸 White value
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(text2, startX + width1, yPos);
+  }
+
+  // ===== 1GM =====
+  y += 340;
   drawDottedBox(x, y, boxWidth, boxHeight);
 
-  ctx.textAlign = "left";
+  drawCenteredLine("1gm", rate22k_1g, y + 115);
 
-  // 1gm text
-  ctx.fillStyle = "#ffcc00";
-  ctx.font = "bold 110px Arial";
-  ctx.fillText("1gm", x + 60, y + 125);
-
-  // value
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 120px Arial";
-  ctx.fillText("₹ " + formatRateValue(rate22k_1g), x + 300, y + 125);
-
-
-  // ===== 8GM BOX =====
+  // ===== 8GM =====
   y += 260;
-
   drawDottedBox(x, y, boxWidth, boxHeight);
 
-  ctx.fillStyle = "#ffcc00";
-  ctx.font = "bold 110px Arial";
-  ctx.fillText("8gm", x + 60, y + 125);
-
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 120px Arial";
-  ctx.fillText("₹ " + formatRateValue(rate22k_1p), x + 300, y + 125);
+  drawCenteredLine("8gm", rate22k_1p, y + 115);
 
   ctx.restore();
-}
 
-function template10(ctx, canvas, share){
+
+function template19(ctx, canvas, share){
 
   ctx.save();
 
   const centerX = canvas.width / 2;
-  let y = 1800;
+  let y = 1900;
 
   // ===== TITLE =====
   ctx.textAlign = "center";
@@ -1843,40 +2332,16 @@ function template10(ctx, canvas, share){
   ctx.restore();
 }
 
-function template11(ctx, canvas, share){
+
+function template20(ctx, canvas, share){
 
   ctx.save();
 
   const centerX = canvas.width / 2;
-  let y = 1600;
-
-  // ===== TITLE BOX =====
-  const titleW = canvas.width - 400;
-  const titleH = 200;
-  const tx = (canvas.width - titleW) / 2;
-
-  // 🔥 BLACK TRANSPARENT
-  ctx.fillStyle = "rgba(0,0,0,0.5)";
-  roundRect(ctx, tx, y, titleW, titleH, 30, true, false);
-
-  // BORDER
-  ctx.strokeStyle = "#5fd3a3";
-  ctx.lineWidth = 6;
-  roundRect(ctx, tx, y, titleW, titleH, 30, false, true);
-
-  // TITLE TEXT
-  ctx.textAlign = "center";
-  ctx.shadowColor = "rgba(0,0,0,0.9)";
-  ctx.shadowBlur = 12;
-
-  ctx.fillStyle = "#ffee00";
-  ctx.font = "bold 130px Arial";
-
+  let y = 2000;
 
   // ===== MAIN BOX =====
-  y += 260;
-
-  const boxW = canvas.width - 400;
+  const boxW = canvas.width - 600;
   const boxH = 350;
   const bx = (canvas.width - boxW) / 2;
 
@@ -1889,8 +2354,9 @@ function template11(ctx, canvas, share){
   ctx.lineWidth = 6;
   roundRect(ctx, bx, y, boxW, boxH, 35, false, true);
 
-
   // ===== VALUES =====
+  ctx.textAlign = "center";
+
   ctx.shadowColor = "rgba(0,0,0,0.9)";
   ctx.shadowBlur = 15;
 
@@ -1915,88 +2381,173 @@ function template11(ctx, canvas, share){
   ctx.restore();
 }
 
-function template12(ctx, canvas, share){
+function template21(ctx, canvas, share){
 
   ctx.save();
 
   const centerX = canvas.width / 2;
-  let y = 1600;
+  let y = 2000;
 
-  const boxW = canvas.width - 500;
-  const x = (canvas.width - boxW) / 2;
+  // ===== MAIN BOX =====
+  const boxW = canvas.width - 600;
+  const boxH = 350;
+  const bx = (canvas.width - boxW) / 2;
 
-  const borderColor = "#5fd3d0";
+  // 🔥 MAROON TRANSPARENT
+  ctx.fillStyle = "rgba(128,0,0,0.5)"; // #800000 with transparency
+  roundRect(ctx, bx, y, boxW, boxH, 35, true, false);
 
-  // ===== TITLE BOX =====
-  const titleH = 160;
+  // BORDER
+  ctx.strokeStyle = "#5fd3a3";
+  ctx.lineWidth = 6;
+  roundRect(ctx, bx, y, boxW, boxH, 35, false, true);
 
-  ctx.fillStyle = "rgba(0,0,0,0.55)"; // 🔥 DARK GLASS
-  roundRect(ctx, x, y, boxW, titleH, 25, true, false);
-
-  ctx.strokeStyle = borderColor;
-  ctx.lineWidth = 5;
-  roundRect(ctx, x, y, boxW, titleH, 25, false, true);
-
+  // ===== VALUES =====
   ctx.textAlign = "center";
 
-  ctx.fillStyle = "#00CCff";
-  ctx.font = "bold 110px Arial";
+  ctx.shadowColor = "rgba(0,0,0,0.9)";
+  ctx.shadowBlur = 15;
 
-
-  // ===== 1 GRAM =====
-  y += 220;
-
-  const rowH = 160;
-
-  ctx.fillStyle = "rgba(0,0,0,0.55)";
-  roundRect(ctx, x, y, boxW, rowH, 25, true, false);
-
-  ctx.strokeStyle = borderColor;
-  roundRect(ctx, x, y, boxW, rowH, 25, false, true);
-
+  // LEFT
   ctx.fillStyle = "#ffcc00";
-  ctx.font = "bold 90px Arial";
-  ctx.fillText("1 Gram", centerX - 250, y + 105);
+  ctx.font = "bold 140px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), centerX - 400, y + 150);
 
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 110px Arial";
-  ctx.fillText("₹ " + formatRateValue(rate22k_1g), centerX + 200, y + 105);
+  ctx.font = "bold 100px Arial";
+  ctx.fillText("1 Gram", centerX - 400, y + 280);
 
-
-  // ===== 1 PAVAN =====
-  y += 200;
-
-  ctx.fillStyle = "rgba(0,0,0,0.55)";
-  roundRect(ctx, x, y, boxW, rowH, 25, true, false);
-
-  ctx.strokeStyle = borderColor;
-  roundRect(ctx, x, y, boxW, rowH, 25, false, true);
-
+  // RIGHT
   ctx.fillStyle = "#ffcc00";
-  ctx.font = "bold 90px Arial";
-  ctx.fillText("1 Pavan", centerX - 250, y + 105);
+  ctx.font = "bold 140px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), centerX + 400, y + 150);
 
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 110px Arial";
-  ctx.fillText("₹ " + formatRateValue(rate22k_1p), centerX + 200, y + 105);
+  ctx.font = "bold 100px Arial";
+  ctx.fillText("1 Pavan", centerX + 400, y + 280);
 
   ctx.restore();
 }
 
-function template13(ctx, canvas, share){
+
+function template22(ctx, canvas, share){
 
   ctx.save();
 
-  let y = 1300;
-  const startX = 200;
+  const centerX = canvas.width / 2;
+  let y = 2000;
 
-  // ===== TITLE =====
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#eaeaea";
-  ctx.font = "bold 120px Arial";
+  // ===== MAIN BOX =====
+  const boxW = canvas.width - 600;
+  const boxH = 350;
+  const bx = (canvas.width - boxW) / 2;
 
-  y += 140;
+  // 🔥 MAROON TRANSPARENT
+  ctx.fillStyle = "rgba(128,26,0,0.5)"; // #800000 with transparency
+  roundRect(ctx, bx, y, boxW, boxH, 35, true, false);
 
+  // BORDER
+  ctx.strokeStyle = "#5fd3a3";
+  ctx.lineWidth = 6;
+  roundRect(ctx, bx, y, boxW, boxH, 35, false, true);
+
+  // ===== VALUES =====
+  ctx.textAlign = "center";
+
+  ctx.shadowColor = "rgba(0,0,0,0.9)";
+  ctx.shadowBlur = 15;
+
+  // LEFT
+  ctx.fillStyle = "#ffcc00";
+  ctx.font = "bold 140px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), centerX - 400, y + 150);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 100px Arial";
+  ctx.fillText("1 Gram", centerX - 400, y + 280);
+
+  // RIGHT
+  ctx.fillStyle = "#ffcc00";
+  ctx.font = "bold 140px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), centerX + 400, y + 150);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 100px Arial";
+  ctx.fillText("1 Pavan", centerX + 400, y + 280);
+
+  ctx.restore();
+}
+
+
+function template23(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerX = canvas.width / 2;
+  let y = 2000;
+
+  const boxW = canvas.width - 900;
+  const x = (canvas.width - boxW) / 2;
+
+  const borderColor = "#5fd3d0";
+
+  ctx.textAlign = "center";
+
+  // 🔥 AUTO FIT FUNCTION
+  function drawAutoText(text, maxWidth, centerX, yPos, maxFont, minFont){
+    let fontSize = maxFont;
+
+    do {
+      ctx.font = "bold " + fontSize + "px Arial";
+      var width = ctx.measureText(text).width;
+      fontSize--;
+    } while (width > maxWidth && fontSize > minFont);
+
+    ctx.fillText(text, centerX, yPos);
+  }
+
+  // ===== COMMON ROW =====
+  function drawRow(y, label, value){
+
+    const rowH = 150;
+
+    // BOX
+    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    roundRect(ctx, x, y, boxW, rowH, 25, true, false);
+
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 4;
+    roundRect(ctx, x, y, boxW, rowH, 25, false, true);
+
+    // LABEL
+    ctx.fillStyle = "#ffcc00";
+    ctx.font = "bold 80px Arial";
+    ctx.fillText(label, centerX - 200, y + 95);
+
+    // VALUE (AUTO FIT 🔥)
+    ctx.fillStyle = "#ffffff";
+    const text = "₹ " + formatRateValue(value);
+
+    drawAutoText(text, 350, centerX + 200, y + 95, 110, 70);
+  }
+
+  // ===== 1 GRAM =====
+  drawRow(y, "1 Gram", rate22k_1g);
+
+  // ===== 1 PAVAN =====
+  y += 180;
+  drawRow(y, "1 Pavan", rate22k_1p);
+
+  ctx.restore();
+
+
+function template24(ctx, canvas, share){
+
+  ctx.save();
+
+  let y = 1800;
+
+  const centerX = canvas.width / 2;
 
   // ===== FUNCTION =====
   function drawRow(y, label, value){
@@ -2005,18 +2556,20 @@ function template13(ctx, canvas, share){
     const boxW = 900;
     const boxH = 180;
 
-    const x = startX;
+    const totalW = labelW + boxW;
 
-    // 🔥 RIGHT MAIN BOX FIRST (FULL SHAPE)
+    // 🔥 CENTER X CALCULATION
+    const x = centerX - totalW / 2;
+
+    // ===== MAIN BOX =====
     ctx.fillStyle = "rgba(0,0,0,0.6)";
-    roundRect(ctx, x, y, labelW + boxW, boxH, 90, true, false);
+    roundRect(ctx, x, y, totalW, boxH, 90, true, false);
 
     ctx.strokeStyle = "#ffcc00";
     ctx.lineWidth = 5;
-    roundRect(ctx, x, y, labelW + boxW, boxH, 90, false, true);
+    roundRect(ctx, x, y, totalW, boxH, 90, false, true);
 
-
-    // 🔥 LEFT YELLOW PART OVERLAY (CUT EFFECT)
+    // ===== LEFT YELLOW PART =====
     ctx.fillStyle = "#ffcc00";
     ctx.beginPath();
     ctx.moveTo(x, y);
@@ -2028,22 +2581,20 @@ function template13(ctx, canvas, share){
     ctx.closePath();
     ctx.fill();
 
-
     // ===== TEXT =====
-    ctx.textAlign = "center";
 
-    // LABEL TEXT
+    // LABEL (center in yellow)
+    ctx.textAlign = "center";
     ctx.fillStyle = "#6a0080";
     ctx.font = "bold 90px Arial";
     ctx.fillText(label, x + labelW/2, y + 115);
 
-    // VALUE TEXT
+    // VALUE (left inside right box)
     ctx.textAlign = "left";
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 110px Arial";
     ctx.fillText("₹ " + formatRateValue(value), x + labelW + 60, y + 120);
   }
-
 
   // ===== ROWS =====
   y += 200;
@@ -2055,12 +2606,13 @@ function template13(ctx, canvas, share){
   ctx.restore();
 }
 
-function template14(ctx, canvas, share){
+
+function template25(ctx, canvas, share){
 
   ctx.save();
 
   const centerX = canvas.width / 2;
-  let y = 1600;
+  let y = 1750;
 
   // ===== TITLE =====
   ctx.textAlign = "center";
@@ -2120,13 +2672,13 @@ function template14(ctx, canvas, share){
   ctx.fillText("₹ " + formatRateValue(rate22k_1p), x + boxW * 0.75, y + 260);
 
   ctx.restore();
-}
 
-function template15(ctx, canvas, share){
+
+function template26(ctx, canvas, share){
 
   ctx.save();
 
-  let y = 1800;
+  let y = 2000;
 
   const boxW = canvas.width - 400;
   const boxH = 500;
@@ -2194,119 +2746,18 @@ function template15(ctx, canvas, share){
   ctx.restore();
 }
 
-function template16(ctx, canvas, share){
-
-  ctx.save();
-
-  let startX = 600;
-  let y = 1500;
-
-  function drawBox(y, label, value){
-
-    const boxW = 1100;
-    const boxH = 320;   // 🔥 increased height
-
-    // ===== MAIN BOX =====
-    ctx.fillStyle = "rgba(0,0,0,0.5)";
-    roundRect(ctx, startX, y, boxW, boxH, 30, true, false);
-
-    ctx.strokeStyle = "#ffee00";
-    ctx.lineWidth = 6;
-    roundRect(ctx, startX, y, boxW, boxH, 30, false, true);
-
-    // ===== VALUE TEXT =====
-    ctx.textAlign = "left";
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 170px Arial";
-    ctx.fillText("₹ " + formatRateValue(value), startX + 80, y + 220); // 🔥 centered
-
-
-    // ===== TOP CENTER LABEL =====
-    const labelW = 320;
-    const labelH = 110;
-
-    const lx = startX + (boxW - labelW) / 2; // center align
-    const ly = y - 70;
-
-    ctx.fillStyle = "#ffffff";
-    roundRect(ctx, lx, ly, labelW, labelH, 20, true, false);
-
-    ctx.strokeStyle = "#ffee00";
-    roundRect(ctx, lx, ly, labelW, labelH, 20, false, true);
-
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#000";
-    ctx.font = "bold 80px Arial";
-    ctx.fillText(label, lx + labelW/2, ly + 75);
-  }
-
-  // ===== DRAW =====
-  drawBox(y, "1 gram", rate22k_1g);
-
-  y += 450; // 🔥 spacing increased
-  drawBox(y, "1 Pavan", rate22k_1p);
-
-  ctx.restore();
-}
-
-function template17(ctx, canvas, share){
+function template27(ctx, canvas, share){
 
   ctx.save();
 
   const centerX = canvas.width / 2;
+  const centerY = 2050;
 
-  // 🔥 4.75 cm ≈ 560px (A4 300dpi)
-  const boxW = canvas.width - 400;
-  const boxH = 560;
-
-  let y = 1500;
-  const x = (canvas.width - boxW) / 2;
-
-  // ===== MAIN BOX =====
-  ctx.fillStyle = "rgba(0,0,0,0.5)";
-  roundRect(ctx, x, y, boxW, boxH, 40, true, false);
-
-  ctx.strokeStyle = "#ffee00";
-  ctx.lineWidth = 6;
-  roundRect(ctx, x, y, boxW, boxH, 40, false, true);
-
-
-  // ===== CONTENT =====
-  const leftX = x + boxW * 0.25;
-  const rightX = x + boxW * 0.75;
-
-  ctx.shadowColor = "rgba(0,0,0,0.9)";
-  ctx.shadowBlur = 12;
-
-  // LEFT
-  ctx.font = "bold 160px Arial";
-  ctx.fillText("₹ " + formatRateValue(rate22k_1g), leftX, y + 260);
-
-  ctx.font = "bold 100px Arial";
-  ctx.fillText("Gold per gram", leftX, y + 400);
-
-  // RIGHT
-  ctx.font = "bold 160px Arial";
-  ctx.fillText("₹ " + formatRateValue(rate22k_1p), rightX, y + 260);
-
-  ctx.font = "bold 100px Arial";
-  ctx.fillText("Gold per pavan", rightX, y + 400);
-
-  ctx.restore();
-}
-
-function template18  (ctx, canvas, share){
-
-  ctx.save();
-
-  const centerX = canvas.width / 2;
-  const centerY = 1700;
-
-  const radius = 590; // 🔥 10cm diameter / 2 (1180 / 2)
+  const radius = 400; // 🔽 reduced (before 590)
 
   // ===== GOLD GRADIENT =====
   const grad = ctx.createRadialGradient(
-    centerX, centerY - 100, 100,
+    centerX, centerY - 80, 80,
     centerX, centerY, radius
   );
 
@@ -2321,7 +2772,7 @@ function template18  (ctx, canvas, share){
 
   // ===== BORDER =====
   ctx.strokeStyle = "#c9a227";
-  ctx.lineWidth = 20;
+  ctx.lineWidth = 12; // reduced
   ctx.stroke();
 
 
@@ -2330,23 +2781,22 @@ function template18  (ctx, canvas, share){
 
   // TOP TEXT
   ctx.fillStyle = "#663300";
-  ctx.font = "bold 90px Arial";
-  ctx.fillText("Gold per gram", centerX, centerY - 220);
+  ctx.font = "bold 60px Arial"; // reduced
+  ctx.fillText("Gold per gram", centerX, centerY - 150);
 
   // PRICE 1
-  ctx.font = "bold 160px Arial";
-  ctx.fillText("₹ " + formatRateValue(rate22k_1g), centerX, centerY - 70);
+  ctx.font = "bold 110px Arial"; // reduced
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), centerX, centerY - 40);
 
 
   // MID TEXT
   ctx.fillStyle = "#a00000";
-  ctx.font = "bold 90px Arial";
-  ctx.fillText("Gold per pavan", centerX, centerY + 80);
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("Gold per pavan", centerX, centerY + 60);
 
   // PRICE 2
-  ctx.font = "bold 200px Arial";
-  ctx.fillText("₹ " + formatRateValue(rate22k_1p), centerX, centerY + 260);
-
+  ctx.font = "bold 140px Arial"; // reduced
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), centerX, centerY + 170);
 
   ctx.restore();
 }
@@ -2439,31 +2889,30 @@ function drawBottomRateCard(ctx, x, y, title, value, kind){
   const w = OPTIONAL_RATE_BOX_WIDTH;
   const h = OPTIONAL_RATE_BOX_HEIGHT;
   const isSilver = kind === "silver";
-  const label = isSilver ? "Silver (1G)" : "18K(1G)";
-  const tagColor = isSilver ? "rgba(166,178,178,0.88)" : "rgba(214,197,117,0.95)";
+  const label = isSilver ? "Silver 1G" : "18K 1G";
 
-  // Outer rate box (black transparent)
-  ctx.fillStyle = "rgba(0,0,0,0.50)";
-  roundRect(ctx, x, y, w, h, 16, true, false);
-  ctx.strokeStyle = "rgba(210,240,225,0.75)";
-  ctx.lineWidth = 4;
-  roundRect(ctx, x, y, w, h, 16, false, true);
+  // Compact dark transparent box (reference style)
+  ctx.fillStyle = "rgba(0,0,0,0.42)";
+  roundRect(ctx, x, y, w, h, 8, true, false);
+  ctx.strokeStyle = "rgba(122,180,188,0.35)";
+  ctx.lineWidth = 2;
+  roundRect(ctx, x, y, w, h, 8, false, true);
 
-  // Left colored tag area
-  const tagW = isSilver ? 350 : 290;
-  ctx.fillStyle = tagColor;
-  roundRect(ctx, x + 4, y + 4, tagW, h - 8, 10, true, false);
-
-  // Tag text
+  // Single-line text: label muted, amount bright
   ctx.textAlign = "left";
-  ctx.fillStyle = "#000000";
-  ctx.font = "bold 66px Arial";
-  ctx.fillText(label, x + 20, y + 96);
+  ctx.font = "bold 56px Arial";
 
-  // Amount text
-  ctx.fillStyle = "#f2f315";
-  ctx.font = "bold 92px Arial";
-  ctx.fillText("\u20B9 " + value, x + tagW + 28, y + 106);
+  const labelPart = label + " ";
+  const labelWidth = ctx.measureText(labelPart).width;
+
+  const textX = x + 26;
+  const textY = y + 68;
+
+  ctx.fillStyle = "#a7afb3";
+  ctx.fillText(labelPart, textX, textY);
+
+  ctx.fillStyle = "#f4f7f8";
+  ctx.fillText("\u20B9 " + value, textX + labelWidth, textY);
 }
 
 function drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY){
