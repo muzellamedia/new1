@@ -1230,6 +1230,7 @@ const maxHeight = (ratio >= 1.3 ? 620 : 970) * scaleReduce;
 // template 1
 
 function template1(ctx, canvas) {
+    ctx.save();
 
     // Reduced size
     const cardWidth = 1800;   // before 2200
@@ -1268,10 +1269,12 @@ function template1(ctx, canvas) {
 
     ctx.font = "bold 130px Arial";
     ctx.fillText("₹ " + formatRateValue(rate22k_1p), cardX + (cardWidth * 0.75), cardY + 280);
+    ctx.restore();
 }
 
 
 function template2(ctx, canvas) {
+    ctx.save();
 
     // Reduced size
     const cardWidth = 1800;   // before 2200
@@ -1310,6 +1313,7 @@ function template2(ctx, canvas) {
 
     ctx.font = "bold 130px Arial";
     ctx.fillText("₹ " + formatRateValue(rate22k_1p), cardX + (cardWidth * 0.75), cardY + 280);
+    ctx.restore();
 }
 
 
@@ -2249,7 +2253,7 @@ function template19(ctx, canvas, share){
   drawCenteredLine("8gm", rate22k_1p, y + 115);
 
   ctx.restore();
-}
+
 
 function template20(ctx, canvas, share){
 
