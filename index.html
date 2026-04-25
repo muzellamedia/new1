@@ -481,6 +481,7 @@ const OPTIONAL_RATE_BOX_WIDTH = 820;
 const OPTIONAL_RATE_BOX_HEIGHT = 145;
 const OPTIONAL_RATE_BOX_GAP_FROM_FOOTER = 80;
 const OPTIONAL_RATE_GAP_FROM_MAIN = 40;
+const OPTIONAL_RATE_PAIR_GAP = 110;
 
 function parseRateDate(rawDate){
   if(!rawDate) return null;
@@ -2442,8 +2443,9 @@ const showSilver =  true;
   const maxY = canvas.height - FOOTER_DRAW_HEIGHT - OPTIONAL_RATE_BOX_GAP_FROM_FOOTER - OPTIONAL_RATE_BOX_HEIGHT;
   const y = Math.min(targetY, maxY);
 
-  const leftX = 70;
-  const rightX = canvas.width - OPTIONAL_RATE_BOX_WIDTH - 70;
+  const pairWidth = (OPTIONAL_RATE_BOX_WIDTH * 2) + OPTIONAL_RATE_PAIR_GAP;
+  const leftX = Math.round((canvas.width - pairWidth) / 2);
+  const rightX = leftX + OPTIONAL_RATE_BOX_WIDTH + OPTIONAL_RATE_PAIR_GAP;
 
   if(items.length === 2){
     const leftItem = items.find((item) => item.kind === "18k") || items[0];
