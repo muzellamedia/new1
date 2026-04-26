@@ -480,6 +480,8 @@ const FOOTER_DRAW_HEIGHT = 659;
 const OPTIONAL_RATE_BOX_WIDTH = 820;
 const OPTIONAL_RATE_BOX_HEIGHT = 145;
 const OPTIONAL_RATE_BOX_GAP_FROM_FOOTER = 80;
+const OPTIONAL_RATE_GAP_FROM_MAIN = 18;
+const OPTIONAL_RATE_PAIR_GAP = 40;
 
 function parseRateDate(rawDate){
   if(!rawDate) return null;
@@ -503,6 +505,16 @@ function withCacheBust(url){
   if(!raw) return "";
   const sep = raw.includes("?") ? "&" : "?";
   return raw + sep + "t=" + Date.now();
+}
+
+function getTemplateMainRateBottomY(){
+  const map = {
+    0: 2350, 1: 2320, 2: 2300, 3: 2280, 4: 2320, 5: 2300, 6: 2100, 7: 1980,
+    8: 2280, 9: 2270, 10: 2210, 11: 2180, 12: 2060, 13: 2230, 14: 2300, 15: 2270,
+    16: 2060, 17: 2290, 18: 2460, 19: 2380, 20: 2350, 21: 2350, 22: 2350, 23: 2330,
+    24: 2420, 25: 2380, 26: 2500, 27: 2450
+  };
+  return map[lastTemplate] || 2250;
 }
 
 function normalizeProductEntry(entry){
@@ -2835,10 +2847,10 @@ const showSilver =  true;
     return canvas.height - FOOTER_DRAW_HEIGHT;
   }
 
-  const y = canvas.height - FOOTER_DRAW_HEIGHT - OPTIONAL_RATE_BOX_GAP_FROM_FOOTER - OPTIONAL_RATE_BOX_HEIGHT + 59;
-
-  const leftX = 70;
-  const rightX = canvas.width - OPTIONAL_RATE_BOX_WIDTH - 70;
+  const y = getTemplateMainRateBottomY() + OPTIONAL_RATE_GAP_FROM_MAIN;
+  const pairWidth = (OPTIONAL_RATE_BOX_WIDTH * 2) + OPTIONAL_RATE_PAIR_GAP;
+  const leftX = Math.round((canvas.width - pairWidth) / 2);
+  const rightX = leftX + OPTIONAL_RATE_BOX_WIDTH + OPTIONAL_RATE_PAIR_GAP;
 
   if(items.length === 2){
     const leftItem = items.find((item) => item.kind === "18k") || items[0];
@@ -2850,7 +2862,7 @@ const showSilver =  true;
   }
 
   const onlyItem = items[0];
-  const singleX = onlyItem.kind === "silver" ? rightX : leftX;
+  const singleX = Math.round((canvas.width - OPTIONAL_RATE_BOX_WIDTH) / 2);
   drawBottomRateCard(ctx, singleX, y, onlyItem.title, onlyItem.value, onlyItem.kind);
 
   ctx.restore();
