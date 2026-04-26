@@ -1,0 +1,3158 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Gold Rate Poster Service</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@700&display=swap" rel="stylesheet">
+<style>
+
+body{
+font-family: Arial;
+background: linear-gradient(135deg,#b8860b,#ffd700);
+margin:0;
+padding:15px;
+display:flex;
+flex-direction:column;
+align-items:center;
+}
+
+.card{
+background:white;
+width:100%;
+max-width:400px;
+border-radius:15px;
+padding:22px;
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
+text-align:center;
+margin-bottom:40px;
+}
+
+.logo{
+width:110px;
+height:110px;
+margin:auto;
+border-radius:50%;
+border:2px solid #ddd;
+display:flex;
+align-items:center;
+justify-content:center;
+overflow:hidden;
+}
+
+.logo img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+h2{
+margin:10px 0 5px;
+font-size:20px;
+}
+
+.info{
+font-size:13px;
+color:#444;
+margin:3px 0;
+word-break:break-word;
+}
+.status-box{
+width:100%;
+max-width:400px;
+border:5px solid #6b1d1d;
+margin-bottom:25px;
+font-weight:bold;
+text-align:center;
+overflow:hidden;
+}
+
+.status-header{
+padding:15px;
+font-size:22px;
+color:white;
+}
+
+.status-row{
+display:flex;
+justify-content:space-between;
+background:#0a6b3c;
+color:white;
+padding:12px 20px;
+font-size:20px;
+border-top:5px solid #6b1d1d;
+border-bottom:5px solid #6b1d1d;
+}
+
+.status-plan{
+padding:15px;
+font-size:22px;
+}
+.status{
+margin-top:15px;
+font-weight:bold;
+font-size:15px;
+}
+
+.updated{
+color:green;
+}
+
+.not-updated{
+color:red;
+}
+
+.plan-active{
+color:green;
+}
+
+.plan-warning{
+color:orange;
+}
+
+.plan-expired{
+color:red;
+}
+
+/* Download button */
+
+.download-btn{
+width:100%;
+padding:18px;
+font-size:20px;
+font-weight:bold;
+border-radius:10px;
+background:#00590c;
+color:white;
+border:none;
+margin-top:35px;
+cursor:pointer;
+}
+
+.download-btn:hover{
+background:#026c04;
+}
+
+/* Edit button */
+
+.edit-btn{
+width:100%;
+padding:14px;
+background:#b8860b;
+color:white;
+border:none;
+border-radius:10px;
+font-weight:bold;
+cursor:pointer;
+margin-top:30px;
+font-size:16px;
+}
+
+/* Bottom buttons */
+
+.bottom-actions{
+display:flex;
+gap:15px;
+margin-top:40px;
+}
+
+.bottom-actions button{
+flex:1;
+padding:14px;
+border:none;
+border-radius:10px;
+font-weight:bold;
+cursor:pointer;
+font-size:15px;
+}
+
+.whatsapp-btn{
+background:#25D366;
+color:white;
+}
+
+.logout-btn{
+background:#cc0000;
+color:white;
+}
+
+/* Loading animation */
+
+.loading-btn{
+position:relative;
+pointer-events:none;
+opacity:0.8;
+}
+
+.loading-btn::after{
+content:"";
+width:18px;
+height:18px;
+border:3px solid white;
+border-top:3px solid transparent;
+border-radius:50%;
+position:absolute;
+right:15px;
+top:50%;
+transform:translateY(-50%);
+animation:spin 0.8s linear infinite;
+}
+
+@keyframes spin{
+0%{transform:translateY(-50%) rotate(0deg);}
+100%{transform:translateY(-50%) rotate(360deg);}
+}
+
+/* Full screen loader */
+
+#loadingScreen{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:white;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:9999;
+}
+
+.loader{
+width:40px;
+height:40px;
+border:4px solid #ddd;
+border-top:4px solid #b8860b;
+border-radius:50%;
+animation:spin 1s linear infinite;
+margin-bottom:10px;
+}
+
+/* Footer */
+
+.site-footer{
+margin-top:30px;
+background:#111;
+color:#eee;
+padding:25px;
+border-radius:12px;
+max-width:400px;
+width:100%;
+font-size:14px;
+line-height:1.6;
+}
+
+.site-footer h3{
+margin-top:10px;
+color:#ffd700;
+font-size:16px;
+}
+.share-wrapper{
+margin-top:30px;
+display:flex;
+justify-content:center;
+}
+
+.share-circle{
+width:220px;
+height:220px;
+border-radius:50%;
+background:linear-gradient(135deg,#2ecc71,#27ae60);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:32px;
+font-weight:bold;
+color:#000;
+cursor:pointer;
+transition:0.3s;
+box-shadow:0 10px 30px rgba(0,0,0,0.3);
+position:relative;
+overflow:hidden;
+}
+
+/* CLICK EFFECT */
+.share-circle:active{
+transform:scale(0.95);
+}
+.status-row span{
+margin-right:10px;
+}
+/* LOADING ANIMATION */
+.share-loading{
+animation:none;
+}
+
+.share-loading::before{
+content:none;
+}
+.share-disabled{
+background: #cc0000 !important;
+background-image: none !important;
+color: white;
+pointer-events: none;
+opacity: 1;
+}
+
+.tap-share-mode{
+background:#0b57d0 !important;
+color:#ffffff !important;
+}
+
+.countdown-mode{
+font-size:56px !important;
+letter-spacing:2px;
+}
+  
+@keyframes pulse{
+0%{transform:scale(1);}
+50%{transform:scale(1.08);}
+100%{transform:scale(1);}
+}
+
+@keyframes ripple{
+0%{transform:scale(1);opacity:0.5;}
+100%{transform:scale(1.8);opacity:0;}
+}
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+/* Mobile optimization */
+
+@media(max-width:480px){
+
+.download-btn{
+font-size:22px;
+padding:22px;
+}
+
+.card{
+padding:20px;
+}
+
+.bottom-actions{
+gap:10px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="loadingScreen">
+  <div class="loader"></div>
+  <p>Loading...</p>
+</div>
+
+<div class="card">
+
+  <!-- LOGO -->
+  <div class="logo" id="logoBox">
+    No Logo
+  </div>
+
+  <!-- SHOP DETAILS -->
+  <h2 id="shopName">Shop Name</h2>
+
+  <div class="info" id="place"></div>
+  <div class="info" id="district"></div>
+  <div class="info" id="email"></div>
+  <div class="info" id="contact"></div>
+
+  <!-- STATUS BOX -->
+  <div id="statusBox" class="status-box">
+
+    <div id="statusHeader" class="status-header">
+      Checking...
+    </div>
+
+   <div class="status-row">
+  <span>Last Updated:</span>
+  <span id="statusDate">--</span>
+  <span id="statusTime">--</span>
+</div>
+    <div id="statusPlan" class="status-plan">
+      Checking plan...
+    </div>
+
+  </div>
+
+  <!-- SHARE BUTTON -->
+  <div class="share-wrapper">
+    <div id="shareBtn" class="share-circle">
+      Share
+    </div>
+  </div>
+
+</div>
+
+<button class="edit-btn" onclick="location.href='edit.html'">
+Edit Details
+</button>
+
+<button id="rechargeBtn" onclick="location.href='recharge.html'" style="background:#444;margin-top:20px;color:white;padding:14px;border:none;border-radius:10px;width:100%;">
+Recharge Now
+</button>
+
+<div class="bottom-actions">
+
+<button class="whatsapp-btn" onclick="openWhatsApp()">
+💬 Chat
+</button>
+
+<button class="logout-btn" onclick="localStorage.removeItem('userPhone'); window.location.href='./login.html';">
+Logout
+</button>
+
+</div>
+
+<footer class="site-footer">
+
+<h3>About</h3>
+
+<p>
+Gold Poster Downloading System is an online tool designed for jewellery shops to quickly create and download professional gold rate posters.
+Users can generate high-quality A4 posters with today's gold rate, shop details and logo.
+This system helps jewellery businesses easily share daily gold rate updates on social media and WhatsApp.
+</p>
+
+<h3>Contact Us</h3>
+
+<p>
+Ph: 9656100346 (WhatsApp Only)<br>
+Email: muzellamedia@gmail.com
+</p>
+
+<h3>Corporate Office</h3>
+
+<p>
+AbcOne<br>
+NC Complex, Near Karassery Medicals<br>
+Mukkam, Kozhikode, Kerala 673602
+</p>
+
+</footer>
+
+<script>
+// Module script fail aayalum loader stick aakathirikkan global fallback
+(function(){
+  function hideLoaderSafe(){
+    var el = document.getElementById("loadingScreen");
+    if(el) el.style.display = "none";
+  }
+  setTimeout(hideLoaderSafe, 5000);
+  window.addEventListener("load", hideLoaderSafe, { once: true });
+})();
+</script>
+
+ <script type="module">
+
+// =====================
+// GLOBAL
+// =====================
+let backgrounds = [];
+let lastBg = -1;
+let logoUrl = "";  
+let footerUrl = "";  
+ let products = [];
+   let rateDate = ""; 
+let rateDateObj = null;
+   let rate22k_1g = 0;
+let rate22k_1p = 0;
+let rate18k_1g = 0;
+let rateSilver_1g = 0;
+   let diff = 0;
+let lastTemplate = -1;
+let currentRateSignature = "";
+let shareCount = 0;
+let generatingInterval = null;
+let pendingShareFile = null;
+let shareInProgress = false;
+const MOBILE_SHARE_LIMIT = 4;
+const DESKTOP_DOWNLOAD_LIMIT = 2;
+const FOOTER_DRAW_WIDTH = 2484;
+const FOOTER_DRAW_HEIGHT = 659;
+const OPTIONAL_RATE_BOX_WIDTH = 820;
+const OPTIONAL_RATE_BOX_HEIGHT = 145;
+const OPTIONAL_RATE_BOX_GAP_FROM_FOOTER = 80;
+const OPTIONAL_RATE_GAP_FROM_MAIN = 18;
+const OPTIONAL_RATE_PAIR_GAP = 40;
+
+function parseRateDate(rawDate){
+  if(!rawDate) return null;
+
+  if(typeof rawDate === "object" && typeof rawDate.toDate === "function"){
+    return rawDate.toDate();
+  }
+
+  if(typeof rawDate === "string" && /^\d{2}-\d{2}-\d{4}$/.test(rawDate)){
+    const [dd, mm, yyyy] = rawDate.split("-").map(Number);
+    const d = new Date(yyyy, mm - 1, dd);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  const d = new Date(rawDate);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function withCacheBust(url){
+  const raw = String(url || "").trim();
+  if(!raw) return "";
+  const sep = raw.includes("?") ? "&" : "?";
+  return raw + sep + "t=" + Date.now();
+}
+
+function getTemplateMainRateBottomY(){
+  const map = {
+    0: 2350, 1: 2320, 2: 2300, 3: 2280, 4: 2320, 5: 2300, 6: 2100, 7: 1980,
+    8: 2280, 9: 2270, 10: 2210, 11: 2180, 12: 2060, 13: 2230, 14: 2300, 15: 2270,
+    16: 2060, 17: 2290, 18: 2460, 19: 2380, 20: 2350, 21: 2350, 22: 2350, 23: 2330,
+    24: 2420, 25: 2380, 26: 2500, 27: 2450
+  };
+  return map[lastTemplate] || 2250;
+}
+
+function normalizeProductEntry(entry){
+  if(entry == null) return "";
+  if(typeof entry === "string") return entry.trim();
+  if(typeof entry === "number" || typeof entry === "boolean") return String(entry).trim();
+  if(Array.isArray(entry)){
+    return entry.map(normalizeProductEntry).filter(Boolean).join(" ").trim();
+  }
+  if(typeof entry === "object"){
+    if(typeof entry.name === "string") return entry.name.trim();
+    if(typeof entry.label === "string") return entry.label.trim();
+    if(typeof entry.product === "string") return entry.product.trim();
+    const fromTrueKeys = Object.entries(entry)
+      .filter(([k, v]) => typeof k === "string" && v === true)
+      .map(([k]) => k.trim());
+    const fromValues = Object.values(entry).map(normalizeProductEntry).filter(Boolean);
+    return [...fromTrueKeys, ...fromValues].join(" ").trim();
+  }
+  return String(entry).trim();
+}
+
+function normalizeProducts(rawProducts){
+  if(Array.isArray(rawProducts)){
+    return rawProducts
+      .map(normalizeProductEntry)
+      .filter(Boolean);
+  }
+
+  if(typeof rawProducts === "string"){
+    return rawProducts
+      .split(",")
+      .map((item) => normalizeProductEntry(item))
+      .filter(Boolean);
+  }
+
+  if(rawProducts && typeof rawProducts === "object"){
+    const list = [];
+    Object.entries(rawProducts).forEach(([k, v]) => {
+      if(v === true && k) list.push(String(k).trim());
+      const parsed = normalizeProductEntry(v);
+      if(parsed) list.push(parsed);
+    });
+    return list.filter(Boolean);
+  }
+
+  return [];
+}
+
+function normalizeProductToken(value){
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function parseRateNumber(value){
+  if(typeof value === "number"){
+    return Number.isFinite(value) ? value : 0;
+  }
+  if(typeof value === "string"){
+    const cleaned = value.replace(/[^0-9.-]/g, "");
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  }
+  const n = Number(value || 0);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function hasProduct(keyword){
+  const aliases = {
+    "18k": ["18k", "18kgold", "18kt", "18", "18gold", "750"],
+    "22k": ["22k", "22kgold", "22kt", "22", "22gold", "916", "916gold"],
+    "silver": ["silver", "ag", "silver1g"]
+  };
+
+  const keys = aliases[String(keyword || "").toLowerCase()] || [String(keyword || "").toLowerCase()];
+  const normalizedProducts = products.map(normalizeProductToken);
+  return keys.some((key) => {
+    const normalizedKey = normalizeProductToken(key);
+    return normalizedProducts.some((item) => item.includes(normalizedKey));
+  });
+}
+
+function formatRateValue(value){
+  const n = parseRateNumber(value);
+  return n.toLocaleString("en-IN");
+}
+
+function getShareLimitKey(){
+  const modeKey = isMobileDevice() ? "mobile" : "desktop";
+  return "shareLimit_" + String(phone || "__preview__") + "_" + modeKey;
+}
+
+function getCurrentLimit(){
+  return isMobileDevice() ? MOBILE_SHARE_LIMIT : DESKTOP_DOWNLOAD_LIMIT;
+}
+
+function getLimitReachedText(){
+  return isMobileDevice() ? "Share Limited" : "Download Limited";
+}
+
+function buildRateSignature(){
+  return [
+    rateDate || "--",
+    parseRateNumber(rate22k_1g),
+    parseRateNumber(rate22k_1p),
+    parseRateNumber(rate18k_1g),
+    parseRateNumber(rateSilver_1g),
+    Number(diff || 0)
+  ].join("|");
+}
+
+function loadShareLimitState(){
+  currentRateSignature = buildRateSignature();
+  let saved = null;
+
+  try{
+    const raw = localStorage.getItem(getShareLimitKey());
+    saved = raw ? JSON.parse(raw) : null;
+  }catch(err){
+    saved = null;
+  }
+
+  if(saved && saved.signature === currentRateSignature){
+    shareCount = Number(saved.count || 0);
+  }else{
+    shareCount = 0;
+    saveShareLimitState();
+  }
+}
+
+function saveShareLimitState(){
+  const data = {
+    signature: currentRateSignature,
+    count: shareCount
+  };
+  localStorage.setItem(getShareLimitKey(), JSON.stringify(data));
+}
+
+function isShareLimited(){
+  return shareCount >= getCurrentLimit();
+}
+
+function applyShareLimitUi(){
+  if(isShareLimited()){
+    disableShareBtn(getLimitReachedText());
+  }
+}
+
+function recordShareClick(){
+  currentRateSignature = buildRateSignature();
+  shareCount += 1;
+  saveShareLimitState();
+}
+
+function onPosterDownloadSuccess(){
+  shareInProgress = false;
+
+  if(isShareLimited()){
+    disableShareBtn(getLimitReachedText());
+    return;
+  }
+  resetBtn();
+}
+
+function isMobileDevice(){
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
+
+function clearPendingShare(){
+  pendingShareFile = null;
+}
+
+async function trySharePendingFile(){
+  if(!pendingShareFile) return false;
+  const shareData = {
+    files:[pendingShareFile],
+    title:"Gold Rate Poster"
+  };
+
+  if(!navigator.share || (navigator.canShare && !navigator.canShare(shareData))){
+    downloadFile(pendingShareFile, pendingShareFile.name);
+    clearPendingShare();
+    shareInProgress = false;
+    return true;
+  }
+  try{
+    await navigator.share(shareData);
+    clearPendingShare();
+    onPosterDownloadSuccess();
+    return true;
+  }catch(err){
+    // User cancelled share sheet -> keep tap-share state.
+    if(err && err.name === "AbortError"){
+      const btn = document.getElementById("shareBtn");
+      if(btn){
+        btn.classList.remove("share-loading","countdown-mode");
+        btn.classList.add("tap-share-mode");
+        btn.innerText = "Tap Share";
+        btn.style.pointerEvents = "auto";
+      }
+      return false;
+    }
+
+    // Browsers like Firefox Android may not support file-share.
+    // Fallback to download so action is not silent.
+    downloadFile(pendingShareFile, pendingShareFile.name);
+    clearPendingShare();
+    shareInProgress = false;
+    return true;
+  }
+}
+
+function startGeneratingCountdown(){
+  const btn = document.getElementById("shareBtn");
+  if(!btn) return;
+
+  if(generatingInterval){
+    clearInterval(generatingInterval);
+    generatingInterval = null;
+  }
+
+  let count = 8;
+  btn.classList.add("countdown-mode");
+  btn.innerText = String(count);
+
+  generatingInterval = setInterval(() => {
+    count = count <= 0 ? 8 : count - 1;
+    btn.innerText = String(count);
+  }, 1000);
+}
+
+function stopGeneratingCountdown(){
+  if(generatingInterval){
+    clearInterval(generatingInterval);
+    generatingInterval = null;
+  }
+}
+
+function hideLoadingScreen(){
+  const loading = document.getElementById("loadingScreen");
+  if(loading){
+    loading.style.display = "none";
+  }
+}
+
+// =====================
+// FIREBASE
+// =====================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBxnjf4XDfnr4kj6mb-bR_wHW_3ZT0e9BU",
+  authDomain: "gold-5735f.firebaseapp.com",
+  projectId: "gold-5735f",
+  storageBucket: "gold-5735f.firebasestorage.app",
+  messagingSenderId: "5295731508",
+  appId: "1:5295731508:web:07d5430da5ebaaf6886b61"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const phone = localStorage.getItem("userPhone");
+let activeUserId = String(phone || "").trim();
+
+if(!phone){
+  location.href = "login.html";
+}
+
+function getPhoneCandidates(rawPhone){
+  const raw = String(rawPhone || "").trim();
+  const digits = raw.replace(/\D/g, "");
+  const last10 = digits.length >= 10 ? digits.slice(-10) : digits;
+  const plus91 = last10 ? ("+91" + last10) : "";
+
+  return [...new Set([raw, digits, last10, plus91].filter(Boolean))];
+}
+
+async function fetchUserSnapshotByPhone(rawPhone){
+  const candidates = getPhoneCandidates(rawPhone);
+  for(const id of candidates){
+    const snap = await getDoc(doc(db, "users", id));
+    if(snap.exists()){
+      return { id, snap };
+    }
+  }
+  return null;
+}
+
+// =====================
+// MAIN LOAD
+// =====================
+window.addEventListener("DOMContentLoaded", async () => {
+const loadingFailSafe = setTimeout(() => {
+  hideLoadingScreen();
+}, 6000);
+// =====================
+// LOAD USER + RATES
+// =====================
+try{
+
+  const userResult = await fetchUserSnapshotByPhone(phone);
+
+  if(userResult && userResult.snap.exists()){
+    activeUserId = userResult.id;
+    const userSnap = userResult.snap;
+
+    const user = userSnap.data();
+    logoUrl = user.logoURL || ""; 
+    footerUrl = user.footerURL || "";  
+    products = normalizeProducts(user.products || user.productList || user.selectedProducts);
+
+    // SHOP DETAILS
+    document.getElementById("shopName").innerText = user.shop || "";
+    document.getElementById("place").innerText = user.place || "";
+    document.getElementById("district").innerText = user.district || "";
+
+    // LOGO
+    if(user.logoURL){
+      document.getElementById("logoBox").innerHTML =
+        `<img src="${user.logoURL}">`;
+    }
+
+    // =====================
+    // PLAN CHECK
+    // =====================
+    const statusPlan = document.getElementById("statusPlan");
+
+    if(!user.planExpiry){
+      statusPlan.innerText = "No Plan";
+      statusPlan.style.background = "red";
+    }else{
+
+      const expiry = new Date(user.planExpiry);
+      const today = new Date();
+
+      if(expiry < today){
+        statusPlan.innerText = "Plan Expired";
+        statusPlan.style.background = "red";
+      }else{
+        const days = Math.ceil((expiry - today)/(1000*60*60*24));
+        statusPlan.innerText = "Plan Active - " + days + " Days";
+        statusPlan.style.background = "green";
+      }
+
+    }
+
+  }else{
+    disableShareBtn("Login Required");
+  }
+
+  // =====================
+  // LOAD RATES
+  // =====================
+  const rateRef = doc(db,"rates","today");
+const rateSnap = await getDoc(rateRef);
+
+if(rateSnap.exists()){
+
+  const rates = rateSnap.data();
+  rate22k_1g = parseRateNumber(rates.gold22_1g);
+rate22k_1p = parseRateNumber(rates.gold22_1p);
+rate18k_1g = parseRateNumber(rates.gold18_1g);
+rateSilver_1g = parseRateNumber(rates.silver_1g);
+  diff = rates.diff || 0;
+
+
+  const statusHeader = document.getElementById("statusHeader");
+  const statusDate = document.getElementById("statusDate");
+  const statusTime = document.getElementById("statusTime");
+
+  let rawDate = rates.date || "";
+  let rawTime = rates.time || "";
+  
+  // TEST MODE: skip date/rate update validation
+  const d = parseRateDate(rawDate);
+  if(d){
+    rateDateObj = d;
+    rateDate =
+      String(d.getDate()).padStart(2,'0') + "-" +
+      String(d.getMonth()+1).padStart(2,'0') + "-" +
+      d.getFullYear();
+  }else{
+    const now = new Date();
+    rateDateObj = now;
+    rateDate =
+      String(now.getDate()).padStart(2,'0') + "-" +
+      String(now.getMonth()+1).padStart(2,'0') + "-" +
+      now.getFullYear();
+  }
+
+  statusDate.innerText = rateDate;
+  statusTime.innerText = rawTime || "--";
+  statusHeader.innerText = "Gold Rate Updated";
+  statusHeader.style.background = "#0a6b3c";
+  resetBtn();
+
+  loadShareLimitState();
+  applyShareLimitUi();
+
+}
+  
+}catch(err){
+  console.log("Init load error:", err);
+  const statusHeader = document.getElementById("statusHeader");
+  const statusPlan = document.getElementById("statusPlan");
+  if(statusHeader){
+    statusHeader.innerText = "Load Error";
+    statusHeader.style.background = "red";
+  }
+  if(statusPlan){
+    statusPlan.innerText = "Check Internet / Login";
+    statusPlan.style.background = "#8b0000";
+    statusPlan.style.color = "#fff";
+  }
+  disableShareBtn("Retry");
+}
+  const shareBtn = document.getElementById("shareBtn");
+  const rechargeBtn = document.getElementById("rechargeBtn");
+  clearTimeout(loadingFailSafe);
+
+  // REMOVE LOADING
+  hideLoadingScreen();
+
+  // =====================
+  // SHARE BUTTON
+  // =====================
+  shareBtn.onclick = async () => {
+
+  if(shareInProgress) return; // 🔥 BLOCK DOUBLE CLICK
+
+  if(isShareLimited()){
+    disableShareBtn(getLimitReachedText());
+    return;
+  }
+
+  // Count every click (mobile/desktop)
+  recordShareClick();
+
+  shareInProgress = true; // 🔥 LOCK
+
+     
+
+    if(isMobileDevice() && pendingShareFile){
+  await trySharePendingFile();
+  shareInProgress = false; // 🔥 ADD THIS
+  return;
+}
+
+    clearPendingShare();
+
+    shareBtn.classList.add("share-loading");
+    shareBtn.style.pointerEvents = "none";
+    startGeneratingCountdown();
+
+    try{
+      const userResult = await fetchUserSnapshotByPhone(activeUserId || phone);
+      if(!userResult || !userResult.snap.exists()){
+        alert("User not found");
+        resetBtn();
+        shareInProgress = false;
+        return;
+      }
+
+      activeUserId = userResult.id;
+      const userData = userResult.snap.data();
+      products = normalizeProducts(userData.products || userData.productList || userData.selectedProducts);
+
+      const bgRef = doc(db,"settings","backgrounds");
+      const bgSnap = await getDoc(bgRef);
+      backgrounds = bgSnap.exists() ? bgSnap.data().list || [] : [];
+
+      if(!backgrounds.length){
+        alert("Background not available");
+        resetBtn();
+        shareInProgress = false;
+        return;
+      }
+
+      lastBg = Math.floor(Math.random() * backgrounds.length);
+
+      if(!userData.planExpiry){
+        disableShareBtn("No Plan");
+        shareInProgress = false;
+        return;
+      }
+
+      const expiry = new Date(userData.planExpiry);
+      if(expiry < new Date()){
+        disableShareBtn("Plan Expired");
+        rechargeBtn.style.display = "block";
+        shareInProgress = false;
+        return;
+      }
+
+      generatePoster();
+    }catch(err){
+      console.log(err);
+      alert("Network error");
+      shareInProgress = false;
+      resetBtn();
+    }
+
+  };
+
+});
+   
+
+   
+  function generatePoster(){
+  const bgUrl = withCacheBust(backgrounds[lastBg]);
+  createPoster(bgUrl, true);
+  return;
+}
+
+function drawActiveTemplate(ctx, canvas){
+  // Kept for backward compatibility with older call paths.
+  template1(ctx, canvas);
+}
+
+  // =====================
+  // CREATE POSTER
+  // =====================
+  function createPoster(bgUrl, share){
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = 2480;
+  canvas.height = 3508;
+
+  const bg = new Image();
+  bg.crossOrigin = "anonymous";
+  bg.src = bgUrl;
+
+  bg.onload = function(){
+    ctx.drawImage(bg, 0, 0, 2480, 3508);
+    drawHeader(ctx, canvas);
+
+     drawLogo(ctx, canvas, function(){
+      const templateList = [
+        template1,
+        template2,
+        template3,
+        template4,
+        template5,
+        template6,
+        template7,
+        template8,
+        template9,
+        template10,
+        template11,
+        template12,
+        template13,
+        template14,
+        template15,
+        template16,
+        template17,
+        template18,
+        template19,
+        template20,
+        template21,
+        template22,
+        template23,
+        template24,
+        template25,
+        template26,
+        template27,
+        template28
+      ];
+
+      let index;
+      if(templateList.length <= 1){
+        index = 0;
+      }else{
+        do{
+          index = Math.floor(Math.random() * templateList.length);
+        }while(index === lastTemplate);
+      }
+
+      lastTemplate = index;
+      // Protect subsequent layers from template-specific canvas state leaks
+      // (clip/composite/transform), which can break rendering on Android.
+      ctx.save();
+      templateList[index](ctx, canvas, share);
+      ctx.restore();
+
+      const finalizePoster = () => {
+        // Compose footer + optional rates + diff on a fresh canvas so that
+        // template-specific context state leaks (clip/composite) won't hide
+        // these layers on Android Chrome.
+        const finalCanvas = document.createElement("canvas");
+        finalCanvas.width = canvas.width;
+        finalCanvas.height = canvas.height;
+        const finalCtx = finalCanvas.getContext("2d");
+
+        finalCtx.drawImage(canvas, 0, 0);
+
+        const optionalRateTopY = drawOptionalBottomRates(finalCtx, finalCanvas);
+
+drawFooter(finalCtx, finalCanvas, function(){
+  drawCommonDiffAboveFooter(finalCtx, finalCanvas, optionalRateTopY);
+  save(finalCanvas, share);
+});
+      };
+
+      // On Android devices, give template drawing a small buffer to avoid
+      // race conditions before exporting the canvas.
+      if(isMobileDevice()){
+        setTimeout(finalizePoster,1200);
+      }else{
+        finalizePoster();
+      }
+    });
+  };
+
+  bg.onerror = function(){
+    alert("Background failed to load");
+    resetBtn();
+  };
+}
+ 
+function drawHeader(ctx, canvas){
+
+  // BLACK TRANSPARENT BACKGROUND
+  ctx.fillStyle = "rgba(0,0,0,0.45)";
+  roundRect(ctx, 80, 120, 900, 200, 30, true, false);
+
+  // WHITE BORDER
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 8;
+  roundRect(ctx, 80, 120, 900, 200, 30, false, true);
+
+  // TITLE
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("TODAY'S GOLD RATE", 120, 210);
+
+  // DATE
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 100px Arial";
+  ctx.fillText(rateDate || "--", 120, 300);
+
+}
+
+   function drawLogo(ctx, canvas, callback){
+
+  if(!logoUrl){
+    callback();
+    return;
+  }
+
+  const logo = new Image();
+  logo.crossOrigin="anonymous";
+  logo.src = withCacheBust(logoUrl);
+
+  logo.onload = function(){
+
+    const ratio = logo.width / logo.height;
+
+const scaleReduce = 0.95; // 🔥 5% smaller (approx 5mm feel)
+
+const maxWidth = (ratio >= 1.3 ? 1260 : 970) * scaleReduce;
+const maxHeight = (ratio >= 1.3 ? 620 : 970) * scaleReduce;
+    let w = logo.width;
+    let h = logo.height;
+
+    const scale = Math.min(maxWidth / w, maxHeight / h);
+    w = w * scale;
+    h = h * scale;
+
+    const gap = 90;
+    const x = canvas.width - w - gap;
+    const y = gap;
+
+    ctx.drawImage(logo, x, y, w, h);
+
+    callback(); // ✅ IMPORTANT
+  };
+
+}
+   // =====================
+// TEMPLATE
+// =====================
+// template 1
+
+function template1(ctx, canvas) {
+    ctx.save();
+
+    // Reduced size
+    const cardWidth = 1800;   // before 2200
+    const cardHeight = 400;   // before 520
+
+    const cardX = (canvas.width - cardWidth) / 2;
+    const cardY = 2000;  // slightly adjusted
+    const midX = cardX + (cardWidth / 2);
+
+    // Dark Box
+    ctx.fillStyle = "rgba(5,43,48,0.95)";
+    roundRect(ctx, cardX, cardY, cardWidth, cardHeight, 28, true, false);
+
+    // Center Line (thinner)
+    ctx.beginPath();
+    ctx.moveTo(midX, cardY + 30);
+    ctx.lineTo(midX, cardY + cardHeight - 30);
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#EAF1F1";
+
+    // LEFT SIDE (1 GRAM)
+    ctx.font = "bold 70px Arial";
+    ctx.fillText("1 GRAM", cardX + (cardWidth * 0.25), cardY + 110);
+
+    ctx.font = "bold 130px Arial";
+    ctx.fillText("₹ " + formatRateValue(rate22k_1g), cardX + (cardWidth * 0.25), cardY + 280);
+
+
+    // RIGHT SIDE (1 PAVAN)
+    ctx.font = "bold 70px Arial";
+    ctx.fillText("1 PAVAN", cardX + (cardWidth * 0.75), cardY + 110);
+
+    ctx.font = "bold 130px Arial";
+    ctx.fillText("₹ " + formatRateValue(rate22k_1p), cardX + (cardWidth * 0.75), cardY + 280);
+    ctx.restore();
+}
+
+
+function template2(ctx, canvas) {
+    ctx.save();
+
+    // Reduced size
+    const cardWidth = 1800;   // before 2200
+    const cardHeight = 400;   // before 520
+
+    const cardX = (canvas.width - cardWidth) / 2;
+    const cardY = 2000;  // slightly adjusted
+    const midX = cardX + (cardWidth / 2);
+
+    // Dark Box
+    ctx.fillStyle = "#660033";
+    roundRect(ctx, cardX, cardY, cardWidth, cardHeight, 28, true, false);
+
+    // Center Line (thinner)
+    ctx.beginPath();
+    ctx.moveTo(midX, cardY + 30);
+    ctx.lineTo(midX, cardY + cardHeight - 30);
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#EAF1F1";
+
+    // LEFT SIDE (1 GRAM)
+    ctx.font = "bold 70px Arial";
+    ctx.fillText("1 GRAM", cardX + (cardWidth * 0.25), cardY + 110);
+
+    ctx.font = "bold 130px Arial";
+    ctx.fillText("₹ " + formatRateValue(rate22k_1g), cardX + (cardWidth * 0.25), cardY + 280);
+
+
+    // RIGHT SIDE (1 PAVAN)
+    ctx.font = "bold 70px Arial";
+    ctx.fillText("1 PAVAN", cardX + (cardWidth * 0.75), cardY + 110);
+
+    ctx.font = "bold 130px Arial";
+    ctx.fillText("₹ " + formatRateValue(rate22k_1p), cardX + (cardWidth * 0.75), cardY + 280);
+    ctx.restore();
+}
+
+
+
+function template3(ctx, canvas){
+
+    const centerX = canvas.width / 2;
+
+    // Smaller + tighter layout
+    const mainBoxWidth = canvas.width - 1000;   // reduced
+    const mainBoxHeight = 260;                  // reduced
+    const mainX = (canvas.width - mainBoxWidth) / 2;
+
+    const topY = 1940;   // adjusted
+    const gap = 30;      // reduced gap
+
+    function drawBar(y, title, value, bgColor){
+
+        ctx.save();
+
+        // Rounded box (more premium)
+        ctx.fillStyle = bgColor;
+        roundRect(ctx, mainX, y, mainBoxWidth, mainBoxHeight, 24, true, false);
+
+        // Title (smaller & tighter)
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#F5F5F5";
+        ctx.font = "bold 55px Arial";
+        ctx.fillText(title, centerX, y + 80);
+
+        // Price (balanced size)
+        ctx.shadowColor = "rgba(0,0,0,0.6)";
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetY = 3;
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "bold 110px Arial";
+        ctx.fillText("₹ " + formatRateValue(value), centerX, y + 185);
+
+        ctx.restore();
+    }
+
+    // Colors tuned for premium look
+    drawBar(topY, "GOLD 1 GRAM", rate22k_1g, "rgba(120,90,0,0.85)");
+    drawBar(topY + mainBoxHeight + gap, "GOLD 8 GRAM (1 PAVAN)", rate22k_1p, "rgba(120,0,0,0.85)");
+}
+
+
+
+function template4(ctx, canvas){
+
+    const centerX = canvas.width / 2;
+
+    const mainBoxWidth = canvas.width - 1000;
+    const mainBoxHeight = 260;
+    const mainX = (canvas.width - mainBoxWidth) / 2;
+
+    const topY = 1920;
+    const gap = 30;
+
+    function drawBar(y, title, value, bgColor){
+
+        ctx.save();
+
+        // Rounded box
+        ctx.fillStyle = bgColor;
+        roundRect(ctx, mainX, y, mainBoxWidth, mainBoxHeight, 24, true, false);
+
+        // Title
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#F5F5F5";
+        ctx.font = "bold 55px Arial";
+        ctx.fillText(title, centerX, y + 80);
+
+        // Price
+        ctx.shadowColor = "rgba(0,0,0,0.6)";
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetY = 3;
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "bold 110px Arial";
+        ctx.fillText("₹ " + formatRateValue(value), centerX, y + 185);
+
+        ctx.restore();
+    }
+
+    // 🔥 NEW COLORS
+    drawBar(topY, "GOLD 1 GRAM", rate22k_1g, "#004d00");   // Dark Gold
+    drawBar(topY + mainBoxHeight + gap, "GOLD 8 GRAM (1 PAVAN)", rate22k_1p, "#003300"); // Deep Maroon
+}
+
+function template5(ctx, canvas){
+
+    const centerX = canvas.width / 2;
+
+    const mainBoxWidth = canvas.width - 1000;
+    const mainBoxHeight = 260;
+    const mainX = (canvas.width - mainBoxWidth) / 2;
+
+    const topY = 1920;
+    const gap = 30;
+
+    function drawBar(y, title, value, bgColor){
+
+        ctx.save();
+
+        // Rounded box
+        ctx.fillStyle = bgColor;
+        roundRect(ctx, mainX, y, mainBoxWidth, mainBoxHeight, 24, true, false);
+
+        // Title
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#F5F5F5";
+        ctx.font = "bold 55px Arial";
+        ctx.fillText(title, centerX, y + 80);
+
+        // Price
+        ctx.shadowColor = "rgba(0,0,0,0.6)";
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetY = 3;
+
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "bold 110px Arial";
+        ctx.fillText("₹ " + formatRateValue(value), centerX, y + 185);
+
+        ctx.restore();
+    }
+
+    // 🔥 NEW COLORS
+    drawBar(topY, "GOLD 1 GRAM", rate22k_1g, "#660033");   // Dark Gold
+    drawBar(topY + mainBoxHeight + gap, "GOLD 8 GRAM (1 PAVAN)", rate22k_1p, "#4d0026"); // Deep Maroon
+}
+
+
+function template6(ctx, canvas, share){
+
+  ctx.save();
+
+  // 🔽 Reduced size
+  const boxWidth = canvas.width - 1150;  // before -950
+  const boxHeight = 380;                 // before 500
+  const x = (canvas.width - boxWidth) / 2;
+  const y = 2000;  // slightly adjusted
+
+  // Dark transparent box
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  roundRect(ctx, x, y, boxWidth, boxHeight, 30, true, false);
+
+  // Border (thinner)
+  ctx.strokeStyle = "#FFD700"; // gold instead of yellow
+  ctx.lineWidth = 6;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 30, false, true);
+
+  ctx.textAlign = "center";
+
+  // TOP TEXT → 1 PAVAN
+  ctx.fillStyle = "#eaeaea";
+  ctx.font = "bold 75px Arial";   // reduced
+  ctx.fillText("1 PAVAN", canvas.width/2, y + 90);
+
+  // BIG VALUE
+  ctx.fillStyle = "#FFD700";
+  ctx.font = "bold 180px Arial";  // reduced
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), canvas.width/2, y + 230);
+
+  // BOTTOM TEXT → 1 GRAM
+  ctx.fillStyle = "#eaeaea";
+  ctx.font = "bold 60px Arial";   // reduced
+  ctx.fillText("1 GRAM ₹ " + formatRateValue(rate22k_1g), canvas.width/2, y + 320);
+
+  ctx.restore();
+}
+
+
+function template7(ctx, canvas, share){
+
+  ctx.save();
+
+  // 🔽 Reduced size
+  const boxWidth = canvas.width - 1150;  // before -950
+  const boxHeight = 380;                 // before 500
+  const x = (canvas.width - boxWidth) / 2;
+  const y = 2000;  // slightly adjusted
+
+  // Dark transparent box
+  ctx.fillStyle = "#111a00";
+  roundRect(ctx, x, y, boxWidth, boxHeight, 30, true, false);
+
+  // Border (thinner)
+  ctx.strokeStyle = "#88cc00"; // gold instead of yellow
+  ctx.lineWidth = 6;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 30, false, true);
+
+  ctx.textAlign = "center";
+
+  // TOP TEXT → 1 PAVAN
+  ctx.fillStyle = "#eaeaea";
+  ctx.font = "bold 75px Arial";   // reduced
+  ctx.fillText("1 PAVAN", canvas.width/2, y + 90);
+
+  // BIG VALUE
+  ctx.fillStyle = "#FFD700";
+  ctx.font = "bold 180px Arial";  // reduced
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), canvas.width/2, y + 230);
+
+  // BOTTOM TEXT → 1 GRAM
+  ctx.fillStyle = "#eaeaea";
+  ctx.font = "bold 60px Arial";   // reduced
+  ctx.fillText("1 GRAM ₹ " + formatRateValue(rate22k_1g), canvas.width/2, y + 320);
+
+  ctx.restore();
+}
+
+
+
+function template8(ctx, canvas, share){
+
+  ctx.save();
+
+  // 🔽 Reduced size
+  const boxWidth = canvas.width - 1150;  // before -950
+  const boxHeight = 380;                 // before 500
+  const x = (canvas.width - boxWidth) / 2;
+  const y = 2000;  // slightly adjusted
+
+  // Dark transparent box
+  ctx.fillStyle = "#660066";
+  roundRect(ctx, x, y, boxWidth, boxHeight, 30, true, false);
+
+  // Border (thinner)
+  ctx.strokeStyle = "#88cc00"; // gold instead of yellow
+  ctx.lineWidth = 6;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 30, false, true);
+
+  ctx.textAlign = "center";
+
+  // TOP TEXT → 1 PAVAN
+  ctx.fillStyle = "#eaeaea";
+  ctx.font = "bold 75px Arial";   // reduced
+  ctx.fillText("1 PAVAN", canvas.width/2, y + 90);
+
+  // BIG VALUE
+  ctx.fillStyle = "#FFD700";
+  ctx.font = "bold 180px Arial";  // reduced
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), canvas.width/2, y + 230);
+
+  // BOTTOM TEXT → 1 GRAM
+  ctx.fillStyle = "#eaeaea";
+  ctx.font = "bold 60px Arial";   // reduced
+  ctx.fillText("1 GRAM ₹ " + formatRateValue(rate22k_1g), canvas.width/2, y + 320);
+
+  ctx.restore();
+}
+
+
+function template9(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerY = 2050;
+
+  // Positions
+  const leftX = 500;
+  const rightX = canvas.width / 2 + 10;
+
+  const paddingX = 60;
+
+  ctx.textAlign = "left";
+
+  // ===== LEFT → 1 GRAM =====
+  let y1 = centerY;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 70px Arial";
+  ctx.fillText("1 GRAM", leftX, y1);
+
+  y1 += 40;
+
+  ctx.font = "bold 120px Arial";
+  const text1 = "₹ " + formatRateValue(rate22k_1g);
+  const textWidth1 = ctx.measureText(text1).width;
+
+  const boxHeight1 = 150;
+  const boxWidth1 = textWidth1 + paddingX * 2;
+
+  ctx.fillStyle = "#c0003b";
+  ctx.fillRect(leftX, y1, boxWidth1, boxHeight1);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text1, leftX + paddingX, y1 + 110);
+
+
+  // ===== RIGHT → 1 PAVAN =====
+  let y2 = centerY;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 70px Arial";
+  ctx.fillText("1 PAVAN", rightX, y2);
+
+  y2 += 40;
+
+  ctx.font = "bold 150px Arial";
+  const text2 = "₹ " + formatRateValue(rate22k_1p);
+  const textWidth2 = ctx.measureText(text2).width;
+
+  const boxHeight2 = 180;
+  const boxWidth2 = textWidth2 + paddingX * 2;
+
+  ctx.fillStyle = "#c0003b";
+  ctx.fillRect(rightX, y2, boxWidth2, boxHeight2);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text2, rightX + paddingX, y2 + 135);
+
+  ctx.restore();
+}
+
+
+function template10(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerY = 2050;
+
+  // Positions
+  const leftX = 500;
+  const rightX = canvas.width / 2 + 10;
+
+  const paddingX = 60;
+
+  ctx.textAlign = "centerY";
+
+  // ===== LEFT → 1 GRAM =====
+  let y1 = centerY;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 70px Arial";
+  ctx.fillText("1 GRAM", leftX, y1);
+
+  y1 += 40;
+
+  ctx.font = "bold 120px Arial";
+  const text1 = "₹ " + formatRateValue(rate22k_1g);
+  const textWidth1 = ctx.measureText(text1).width;
+
+  const boxHeight1 = 150;
+  const boxWidth1 = textWidth1 + paddingX * 2;
+
+  ctx.fillStyle = "#006600";
+  ctx.fillRect(leftX, y1, boxWidth1, boxHeight1);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text1, leftX + paddingX, y1 + 110);
+
+
+  // ===== RIGHT → 1 PAVAN =====
+  let y2 = centerY;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 70px Arial";
+  ctx.fillText("1 PAVAN", rightX, y2);
+
+  y2 += 40;
+
+  ctx.font = "bold 150px Arial";
+  const text2 = "₹ " + formatRateValue(rate22k_1p);
+  const textWidth2 = ctx.measureText(text2).width;
+
+  const boxHeight2 = 180;
+  const boxWidth2 = textWidth2 + paddingX * 2;
+
+  ctx.fillStyle = "#004d00";
+  ctx.fillRect(rightX, y2, boxWidth2, boxHeight2);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text2, rightX + paddingX, y2 + 135);
+
+  ctx.restore();
+}
+
+
+function template11(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerX = canvas.width / 2;
+  let y = 1950; // slightly adjusted
+
+  // ===== TOP TAG (1 PAVAN) =====
+  const tagPaddingX = 40;
+  const tagHeight = 90;
+
+  ctx.font = "bold 70px Arial";
+  const tagText = "1 Pavan";
+  const tagWidth = ctx.measureText(tagText).width + tagPaddingX * 2;
+
+  ctx.fillStyle = "#1fa34a";
+  roundRect(ctx, centerX - tagWidth/2, y, tagWidth, tagHeight, 18, true, false);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "center";
+  ctx.fillText(tagText, centerX, y + 65);
+
+  // ===== BIG VALUE BOX =====
+  y += tagHeight + 15; // 🔥 very small gap
+
+  const mainPaddingX = 80;
+  const mainHeight = 170;
+
+  ctx.font = "bold 140px Arial";
+  const mainText = "₹ " + formatRateValue(rate22k_1p);
+  const mainWidth = ctx.measureText(mainText).width + mainPaddingX * 2;
+
+  ctx.fillStyle = "#052f2d";
+  roundRect(ctx, centerX - mainWidth/2, y, mainWidth, mainHeight, 22, true, false);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(mainText, centerX, y + 120);
+
+  // ===== SMALL TAG (1 GRAM) =====
+  y += mainHeight + 15; // 🔥 tight gap
+
+  ctx.font = "bold 60px Arial";
+  const smallTag = "1 Gram";
+  const smallTagWidth = ctx.measureText(smallTag).width + 30 * 2;
+
+  ctx.fillStyle = "#1fa34a";
+  roundRect(ctx, centerX - smallTagWidth/2, y, smallTagWidth, 70, 16, true, false);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(smallTag, centerX, y + 50);
+
+  // ===== SMALL VALUE BOX =====
+  y += 70 + 10; // 🔥 almost attached
+
+  ctx.font = "bold 100px Arial";
+  const smallText = "₹ " + formatRateValue(rate22k_1g);
+  const smallWidth = ctx.measureText(smallText).width + 60 * 2;
+
+  ctx.fillStyle = "#052f2d";
+  roundRect(ctx, centerX - smallWidth/2, y, smallWidth, 130, 20, true, false);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(smallText, centerX, y + 95);
+
+  ctx.restore();
+}
+
+
+function template12(ctx, canvas, share){
+
+  ctx.save();
+
+  const gap = 80;
+
+  const boxWidth = (canvas.width - 700 - gap) / 2;
+  const boxHeight = 240;
+
+  const startX = (canvas.width - (boxWidth*2 + gap)) / 2;
+  const y = 2050;
+
+  // 🔥 RADIAL GOLD BOX
+  function drawGoldRadialBox(x, y, w, h, radius){
+
+    const centerX = x + w / 2;
+    const centerY = y + h / 2;
+
+    const gradient = ctx.createRadialGradient(
+      centerX, centerY, 20,
+      centerX, centerY, w
+    );
+
+    gradient.addColorStop(0, "#fff8cc");   // light gold center
+    gradient.addColorStop(0.4, "#ffd700"); // gold
+    gradient.addColorStop(1, "#b89600");   // dark edge
+
+    ctx.fillStyle = gradient;
+    roundRect(ctx, x, y, w, h, radius, true, false);
+
+    // subtle border
+    ctx.strokeStyle = "rgba(184,150,0,0.8)";
+    ctx.lineWidth = 2;
+    roundRect(ctx, x, y, w, h, radius, false, true);
+  }
+
+  function drawBox(x, title, value){
+
+    drawGoldRadialBox(x, y, boxWidth, boxHeight, 25);
+
+    ctx.textAlign = "left";
+
+    // TITLE
+    ctx.fillStyle = "#000000";
+    ctx.font = "bold 60px Arial";
+    ctx.fillText(title, x + 40, y + 85);
+
+    // VALUE (proper spacing)
+    ctx.fillStyle = "#000000";
+    ctx.font = "bold 110px Arial";
+    ctx.fillText("₹ " + formatRateValue(value), x + 40, y + 195);
+  }
+
+  // LEFT → 1 PAVAN
+  drawBox(startX, "1 Pavan", rate22k_1p);
+
+  // RIGHT → 1 GRAM
+  drawBox(startX + boxWidth + gap, "1 Gram", rate22k_1g);
+
+  ctx.restore();
+}
+
+function template13(ctx, canvas, share){
+
+  ctx.save();
+
+  const gap = 80;
+
+  const boxWidth = (canvas.width - 700 - gap) / 2;
+  const boxHeight = 240;
+
+  const startX = (canvas.width - (boxWidth*2 + gap)) / 2;
+  const y = 2050;
+
+  function drawBox(x, title, value){
+
+    // 🔴 Maroon box
+    ctx.fillStyle = "#4d0000";
+    roundRect(ctx, x, y, boxWidth, boxHeight, 25, true, false);
+
+    ctx.textAlign = "left";
+
+    // Title
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 60px Arial";
+    ctx.fillText(title, x + 40, y + 85);
+
+    // Value
+    ctx.font = "bold 110px Arial";
+    ctx.fillText("₹ " + formatRateValue(value), x + 40, y + 195);
+  }
+
+  drawBox(startX, "1 Pavan", rate22k_1p);
+  drawBox(startX + boxWidth + gap, "1 Gram", rate22k_1g);
+
+  ctx.restore();
+}
+
+
+function template14(ctx, canvas, share){
+
+  ctx.save();
+
+  const gap = 80;
+
+  const boxWidth = (canvas.width - 700 - gap) / 2;
+  const boxHeight = 240;
+
+  const startX = (canvas.width - (boxWidth*2 + gap)) / 2;
+  const y = 2050;
+
+  function drawBox(x, title, value){
+
+    // 🟢 Teal box
+    ctx.fillStyle = "#003333";
+    roundRect(ctx, x, y, boxWidth, boxHeight, 25, true, false);
+
+    ctx.textAlign = "left";
+
+    // Title
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 60px Arial";
+    ctx.fillText(title, x + 40, y + 85);
+
+    // Value
+    ctx.font = "bold 110px Arial";
+    ctx.fillText("₹ " + formatRateValue(value), x + 40, y + 195);
+  }
+
+  drawBox(startX, "1 Pavan", rate22k_1p);
+  drawBox(startX + boxWidth + gap, "1 Gram", rate22k_1g);
+
+  ctx.restore();
+}
+
+
+function template15(ctx, canvas, share){
+
+  ctx.save();
+
+  const boxWidth = canvas.width - 300;
+  const boxHeight = 300;
+  const x = (canvas.width - boxWidth) / 2;
+  const y = 2000;
+
+  // ONLY BORDER (NO FILL)
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 6;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 40, false, true);
+
+  ctx.textAlign = "center";
+
+  // 🔥 SHADOW SETTINGS
+  ctx.shadowColor = "rgba(0,0,0,0.8)";
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetX = 4;
+  ctx.shadowOffsetY = 4;
+
+  // ===== LEFT SIDE =====
+  const leftX = x + boxWidth * 0.25;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 120px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), leftX, y + 130);
+
+  ctx.font = "bold 70px Arial";
+  ctx.fillText("Per Gram", leftX, y + 220);
+
+  // ===== RIGHT SIDE =====
+  const rightX = x + boxWidth * 0.75;
+
+  ctx.font = "bold 120px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), rightX, y + 130);
+
+  ctx.font = "bold 70px Arial";
+  ctx.fillText("Per Pavan", rightX, y + 220);
+
+  // REMOVE SHADOW (important)
+  ctx.shadowColor = "transparent";
+
+  ctx.restore();
+}
+
+
+function template16(ctx, canvas, share){
+
+  ctx.save();
+
+  // 🔽 Width reduced
+  const boxWidth = canvas.width - 700;   // before -300
+  const boxHeight = 300;
+
+  const x = (canvas.width - boxWidth) / 2;
+  const y = 2000;
+
+  // BORDER ONLY
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 5;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 35, false, true);
+
+  ctx.textAlign = "center";
+
+  // SHADOW
+  ctx.shadowColor = "rgba(0,0,0,0.8)";
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 3;
+
+  // ===== LEFT =====
+  const leftX = x + boxWidth * 0.25;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 110px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), leftX, y + 120);
+
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("Per Gram", leftX, y + 200);
+
+  // ===== RIGHT =====
+  const rightX = x + boxWidth * 0.75;
+
+  ctx.font = "bold 110px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), rightX, y + 120);
+
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("Per Pavan", rightX, y + 200);
+
+  // REMOVE SHADOW
+  ctx.shadowColor = "transparent";
+
+  ctx.restore();
+}
+
+
+function template17(ctx, canvas, share){
+
+  ctx.save();
+
+  const boxWidth = canvas.width - 700;
+  const boxHeight = 300;
+
+  const x = (canvas.width - boxWidth) / 2;
+  const y = 2000;
+
+  const centerX = x + boxWidth / 2;
+  const centerY = y + boxHeight / 2;
+
+  // 🔥 RADIAL BASE
+  const gradient = ctx.createRadialGradient(
+    centerX, centerY, 20,
+    centerX, centerY, boxWidth
+  );
+  gradient.addColorStop(0, "#006666");
+  gradient.addColorStop(0.5, "#004d4d");
+  gradient.addColorStop(1, "#002626");
+
+  ctx.fillStyle = gradient;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 35, true, false);
+
+  // 🔥 3D TOP LIGHT
+  const topLight = ctx.createLinearGradient(x, y, x, y + boxHeight);
+  topLight.addColorStop(0, "rgba(255,255,255,0.25)");
+  topLight.addColorStop(0.4, "rgba(255,255,255,0.08)");
+  topLight.addColorStop(1, "rgba(255,255,255,0)");
+
+  ctx.fillStyle = topLight;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 35, true, false);
+
+  // 🔥 3D BOTTOM SHADOW
+  const bottomShadow = ctx.createLinearGradient(x, y, x, y + boxHeight);
+  bottomShadow.addColorStop(0, "rgba(0,0,0,0)");
+  bottomShadow.addColorStop(1, "rgba(0,0,0,0.45)");
+
+  ctx.fillStyle = bottomShadow;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 35, true, false);
+
+  // BORDER
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 4;
+  roundRect(ctx, x, y, boxWidth, boxHeight, 35, false, true);
+
+  ctx.textAlign = "center";
+
+  // SHADOW FOR TEXT
+  ctx.shadowColor = "rgba(0,0,0,0.7)";
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 3;
+
+  // ===== LEFT =====
+  const leftX = x + boxWidth * 0.25;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 110px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), leftX, y + 150); // 🔽 moved down
+
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("Per Gram", leftX, y + 230); // 🔽 moved down
+
+  // ===== RIGHT =====
+  const rightX = x + boxWidth * 0.75;
+
+  ctx.font = "bold 110px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), rightX, y + 150); // 🔽 moved down
+
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("Per Pavan", rightX, y + 230); // 🔽 moved down
+
+  // REMOVE SHADOW
+  ctx.shadowColor = "transparent";
+
+  ctx.restore();
+}
+
+function template18(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerY = 2000;
+
+  // ===== TITLE (ABOVE BOXES) =====
+  ctx.textAlign = "center";
+
+  ctx.shadowColor = "rgba(0,0,0,0.9)";
+  ctx.shadowBlur = 15;
+  ctx.shadowOffsetX = 4;
+  ctx.shadowOffsetY = 4;
+
+  ctx.fillStyle = "#ff66cc";
+  ctx.font = "bold 140px Arial";
+
+  // remove shadow for shapes if needed later
+  ctx.shadowColor = "transparent";
+
+
+  // ===== LEFT SMALL BOX (1GM) =====
+  const smallW = 250;
+  const smallH = 180;
+
+  let x1 = 150;
+  let y1 = centerY;
+
+  ctx.fillStyle = "#d4af37";
+  ctx.fillRect(x1, y1, smallW, smallH);
+
+  ctx.fillStyle = "#000";
+  ctx.font = "bold 90px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("1GM", x1 + smallW/2, y1 + 120);
+
+
+  // ===== MAIN LEFT (₹ 15,000) =====
+  let mainX = x1 + smallW + 30;
+  let mainW = 800;
+  let mainH = 180;
+
+  ctx.beginPath();
+  ctx.moveTo(mainX, y1);
+  ctx.lineTo(mainX + mainW - 120, y1);
+  ctx.lineTo(mainX + mainW, y1 + mainH/2);
+  ctx.lineTo(mainX + mainW - 120, y1 + mainH);
+  ctx.lineTo(mainX, y1 + mainH);
+  ctx.closePath();
+
+  // 🔥 50% BLACK FILL
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  ctx.fill();
+
+  // BORDER
+  ctx.strokeStyle = "#d4af37";
+  ctx.lineWidth = 6;
+  ctx.stroke();
+
+  // TEXT WITH SHADOW
+  ctx.shadowColor = "rgba(0,0,0,0.8)";
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 3;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 120px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g),
+    mainX + mainW/2 - 40, y1 + 125);
+
+
+  // ===== RIGHT MAIN (₹ 1,20,000) =====
+  let main2X = mainX + mainW + 40;
+  let main2W = 800;
+
+  ctx.beginPath();
+  ctx.moveTo(main2X + 120, y1);
+  ctx.lineTo(main2X + main2W, y1);
+  ctx.lineTo(main2X + main2W, y1 + mainH);
+  ctx.lineTo(main2X + 120, y1 + mainH);
+  ctx.lineTo(main2X, y1 + mainH/2);
+  ctx.closePath();
+
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  ctx.fill();
+
+  ctx.strokeStyle = "#d4af37";
+  ctx.stroke();
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p),
+    main2X + main2W/2 + 40, y1 + 125);
+
+
+  // ===== RIGHT SMALL BOX (8GM) =====
+  let x2 = main2X + main2W + 30;
+
+  ctx.shadowColor = "transparent"; // remove shadow
+
+  ctx.fillStyle = "#d4af37";
+  ctx.fillRect(x2, y1, smallW, smallH);
+
+  ctx.fillStyle = "#000";
+  ctx.font = "bold 90px Arial";
+  ctx.fillText("8GM", x2 + smallW/2, y1 + 120);
+
+  ctx.restore();
+}
+
+function template19(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerX = canvas.width / 2;
+  let y = 1680;
+
+  // SHADOW
+  ctx.shadowColor = "rgba(0,0,0,0.95)";
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetX = 5;
+  ctx.shadowOffsetY = 5;
+
+  ctx.textAlign = "left"; // important
+
+  function drawDottedBox(x, y, w, h){
+    ctx.shadowColor = "transparent";
+    ctx.setLineDash([12, 10]);
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 4;
+    roundRect(ctx, x, y, w, h, 25, false, true);
+    ctx.setLineDash([]);
+    ctx.shadowColor = "rgba(0,0,0,0.95)";
+  }
+
+  const boxWidth = 1400;
+  const boxHeight = 180;
+  const x = centerX - boxWidth/2;
+
+  // ===== COMMON FONT =====
+  ctx.font = "bold 110px Arial";
+
+  // ===== FUNCTION (MULTI COLOR CENTER) =====
+  function drawCenteredLine(label, value, yPos){
+
+    const text1 = label + "   ";
+    const text2 = "₹ " + formatRateValue(value);
+
+    const width1 = ctx.measureText(text1).width;
+    const width2 = ctx.measureText(text2).width;
+
+    const totalWidth = width1 + width2;
+
+    let startX = centerX - totalWidth / 2;
+
+    // 🔸 Yellow label
+    ctx.fillStyle = "#ffcc00";
+    ctx.fillText(text1, startX, yPos);
+
+    // 🔸 White value
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(text2, startX + width1, yPos);
+  }
+
+  // ===== 1GM =====
+  y += 340;
+  drawDottedBox(x, y, boxWidth, boxHeight);
+
+  drawCenteredLine("1gm", rate22k_1g, y + 115);
+
+  // ===== 8GM =====
+  y += 260;
+  drawDottedBox(x, y, boxWidth, boxHeight);
+
+  drawCenteredLine("8gm", rate22k_1p, y + 115);
+
+  ctx.restore();
+}
+
+
+function template20(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerX = canvas.width / 2;
+  let y = 1900;
+
+  // ===== TITLE =====
+  ctx.textAlign = "center";
+
+  ctx.shadowColor = "rgba(0,0,0,0.9)";
+  ctx.shadowBlur = 15;
+  ctx.shadowOffsetX = 10;
+  ctx.shadowOffsetY = 4;
+
+  ctx.fillStyle = "#ffee00";
+  ctx.font = "bold 160px Arial";
+
+  // ===== TOP DASH LINE =====
+  y += 120;
+
+  ctx.shadowColor = "transparent"; // line shadow ഇല്ല
+
+  ctx.setLineDash([40, 20]);
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 6;
+
+  ctx.beginPath();
+  ctx.moveTo(200, y);
+  ctx.lineTo(canvas.width - 200, y);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+
+
+  // ===== CENTER DIVIDER =====
+  const dividerTop = y + 40;
+  const dividerBottom = dividerTop + 350;
+
+  ctx.setLineDash([20, 15]);
+
+  ctx.beginPath();
+  ctx.moveTo(centerX, dividerTop);
+  ctx.lineTo(centerX, dividerBottom);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+
+
+  // ===== VALUES =====
+  let contentY = dividerTop + 140;
+
+  ctx.shadowColor = "rgba(0,0,0,0.9)";
+  ctx.shadowBlur = 15;
+  ctx.shadowOffsetX = 4;
+  ctx.shadowOffsetY = 4;
+
+  // LEFT (1 GRAM)
+  ctx.textAlign = "center";
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 140px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), centerX - 400, contentY);
+
+  ctx.fillStyle = "#ffcc00";
+  ctx.font = "bold 100px Arial";
+  ctx.fillText("1 Gram", centerX - 400, contentY + 120);
+
+
+  // RIGHT (1 PAVAN)
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 140px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), centerX + 400, contentY);
+
+  ctx.fillStyle = "#ffcc00";
+  ctx.font = "bold 100px Arial";
+  ctx.fillText("1 Pavan", centerX + 400, contentY + 120);
+
+
+  ctx.restore();
+}
+
+
+function template21(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerX = canvas.width / 2;
+  let y = 2000;
+
+  // ===== MAIN BOX =====
+  const boxW = canvas.width - 600;
+  const boxH = 350;
+  const bx = (canvas.width - boxW) / 2;
+
+  // 🔥 BLACK TRANSPARENT
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  roundRect(ctx, bx, y, boxW, boxH, 35, true, false);
+
+  // BORDER
+  ctx.strokeStyle = "#5fd3a3";
+  ctx.lineWidth = 6;
+  roundRect(ctx, bx, y, boxW, boxH, 35, false, true);
+
+  // ===== VALUES =====
+  ctx.textAlign = "center";
+
+  ctx.shadowColor = "rgba(0,0,0,0.9)";
+  ctx.shadowBlur = 15;
+
+  // LEFT
+  ctx.fillStyle = "#ffcc00";
+  ctx.font = "bold 140px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), centerX - 400, y + 150);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 100px Arial";
+  ctx.fillText("1 Gram", centerX - 400, y + 280);
+
+  // RIGHT
+  ctx.fillStyle = "#ffcc00";
+  ctx.font = "bold 140px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), centerX + 400, y + 150);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 100px Arial";
+  ctx.fillText("1 Pavan", centerX + 400, y + 280);
+
+  ctx.restore();
+}
+
+function template22(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerX = canvas.width / 2;
+  let y = 2000;
+
+  // ===== MAIN BOX =====
+  const boxW = canvas.width - 600;
+  const boxH = 350;
+  const bx = (canvas.width - boxW) / 2;
+
+  // 🔥 MAROON TRANSPARENT
+  ctx.fillStyle = "rgba(128,0,0,0.5)"; // #800000 with transparency
+  roundRect(ctx, bx, y, boxW, boxH, 35, true, false);
+
+  // BORDER
+  ctx.strokeStyle = "#5fd3a3";
+  ctx.lineWidth = 6;
+  roundRect(ctx, bx, y, boxW, boxH, 35, false, true);
+
+  // ===== VALUES =====
+  ctx.textAlign = "center";
+
+  ctx.shadowColor = "rgba(0,0,0,0.9)";
+  ctx.shadowBlur = 15;
+
+  // LEFT
+  ctx.fillStyle = "#ffcc00";
+  ctx.font = "bold 140px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), centerX - 400, y + 150);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 100px Arial";
+  ctx.fillText("1 Gram", centerX - 400, y + 280);
+
+  // RIGHT
+  ctx.fillStyle = "#ffcc00";
+  ctx.font = "bold 140px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), centerX + 400, y + 150);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 100px Arial";
+  ctx.fillText("1 Pavan", centerX + 400, y + 280);
+
+  ctx.restore();
+}
+
+
+function template23(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerX = canvas.width / 2;
+  let y = 2000;
+
+  // ===== MAIN BOX =====
+  const boxW = canvas.width - 600;
+  const boxH = 350;
+  const bx = (canvas.width - boxW) / 2;
+
+  // 🔥 MAROON TRANSPARENT
+  ctx.fillStyle = "rgba(128,26,0,0.5)"; // #800000 with transparency
+  roundRect(ctx, bx, y, boxW, boxH, 35, true, false);
+
+  // BORDER
+  ctx.strokeStyle = "#5fd3a3";
+  ctx.lineWidth = 6;
+  roundRect(ctx, bx, y, boxW, boxH, 35, false, true);
+
+  // ===== VALUES =====
+  ctx.textAlign = "center";
+
+  ctx.shadowColor = "rgba(0,0,0,0.9)";
+  ctx.shadowBlur = 15;
+
+  // LEFT
+  ctx.fillStyle = "#ffcc00";
+  ctx.font = "bold 140px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), centerX - 400, y + 150);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 100px Arial";
+  ctx.fillText("1 Gram", centerX - 400, y + 280);
+
+  // RIGHT
+  ctx.fillStyle = "#ffcc00";
+  ctx.font = "bold 140px Arial";
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), centerX + 400, y + 150);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 100px Arial";
+  ctx.fillText("1 Pavan", centerX + 400, y + 280);
+
+  ctx.restore();
+}
+
+
+function template24(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerX = canvas.width / 2;
+  let y = 2000;
+
+  const boxW = canvas.width - 900;
+  const x = (canvas.width - boxW) / 2;
+
+  const borderColor = "#5fd3d0";
+
+  ctx.textAlign = "center";
+
+  // 🔥 AUTO FIT FUNCTION
+  function drawAutoText(text, maxWidth, centerX, yPos, maxFont, minFont){
+    let fontSize = maxFont;
+
+    do {
+      ctx.font = "bold " + fontSize + "px Arial";
+      var width = ctx.measureText(text).width;
+      fontSize--;
+    } while (width > maxWidth && fontSize > minFont);
+
+    ctx.fillText(text, centerX, yPos);
+  }
+
+  // ===== COMMON ROW =====
+  function drawRow(y, label, value){
+
+    const rowH = 150;
+
+    // BOX
+    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    roundRect(ctx, x, y, boxW, rowH, 25, true, false);
+
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 4;
+    roundRect(ctx, x, y, boxW, rowH, 25, false, true);
+
+    // LABEL
+    ctx.fillStyle = "#ffcc00";
+    ctx.font = "bold 80px Arial";
+    ctx.fillText(label, centerX - 200, y + 95);
+
+    // VALUE (AUTO FIT 🔥)
+    ctx.fillStyle = "#ffffff";
+    const text = "₹ " + formatRateValue(value);
+
+    drawAutoText(text, 350, centerX + 200, y + 95, 110, 70);
+  }
+
+  // ===== 1 GRAM =====
+  drawRow(y, "1 Gram", rate22k_1g);
+
+  // ===== 1 PAVAN =====
+  y += 180;
+  drawRow(y, "1 Pavan", rate22k_1p);
+
+  ctx.restore();
+}
+
+
+function template25(ctx, canvas, share){
+
+  ctx.save();
+
+  let y = 1800;
+
+  const centerX = canvas.width / 2;
+
+  // ===== FUNCTION =====
+  function drawRow(y, label, value){
+
+    const labelW = 420;
+    const boxW = 900;
+    const boxH = 180;
+
+    const totalW = labelW + boxW;
+
+    // 🔥 CENTER X CALCULATION
+    const x = centerX - totalW / 2;
+
+    // ===== MAIN BOX =====
+    ctx.fillStyle = "rgba(0,0,0,0.6)";
+    roundRect(ctx, x, y, totalW, boxH, 90, true, false);
+
+    ctx.strokeStyle = "#ffcc00";
+    ctx.lineWidth = 5;
+    roundRect(ctx, x, y, totalW, boxH, 90, false, true);
+
+    // ===== LEFT YELLOW PART =====
+    ctx.fillStyle = "#ffcc00";
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + labelW, y);
+    ctx.lineTo(x + labelW, y + boxH);
+    ctx.lineTo(x, y + boxH);
+    ctx.quadraticCurveTo(x, y + boxH, x - 1, y + boxH/2);
+    ctx.quadraticCurveTo(x, y, x, y);
+    ctx.closePath();
+    ctx.fill();
+
+    // ===== TEXT =====
+
+    // LABEL (center in yellow)
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#6a0080";
+    ctx.font = "bold 90px Arial";
+    ctx.fillText(label, x + labelW/2, y + 115);
+
+    // VALUE (left inside right box)
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 110px Arial";
+    ctx.fillText("₹ " + formatRateValue(value), x + labelW + 60, y + 120);
+  }
+
+  // ===== ROWS =====
+  y += 200;
+  drawRow(y, "1 Gram", rate22k_1g);
+
+  y += 240;
+  drawRow(y, "8 Gram", rate22k_1p);
+
+  ctx.restore();
+}
+
+
+function template26(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerX = canvas.width / 2;
+  let y = 1750;
+
+  // ===== TITLE =====
+  ctx.textAlign = "center";
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 120px Arial";
+
+  y += 130;
+
+  ctx.fillStyle = "#ffcc00";
+
+  ctx.fillStyle = "#ffffff";
+
+
+  // ===== TABLE BOX =====
+  y += 150;
+
+  const boxW = canvas.width - 500;
+  const boxH = 350;
+  const x = (canvas.width - boxW) / 2;
+
+  // 🔥 BLACK TRANSPARENT
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
+  ctx.fillRect(x, y, boxW, boxH);
+
+  // BORDER
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(x, y, boxW, boxH);
+
+  // ===== GRID LINES =====
+  const midX = x + boxW / 2;
+  const midY = y + 140;
+
+  ctx.beginPath();
+  ctx.moveTo(midX, y);
+  ctx.lineTo(midX, y + boxH);
+
+  ctx.moveTo(x, midY);
+  ctx.lineTo(x + boxW, midY);
+
+  ctx.stroke();
+
+
+  // ===== HEADINGS =====
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 70px Arial";
+
+  ctx.fillText("Gold per gram", x + boxW * 0.25, y + 90);
+  ctx.fillText("Gold per Pavan", x + boxW * 0.75, y + 90);
+
+
+  // ===== VALUES =====
+  ctx.font = "bold 120px Arial";
+
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), x + boxW * 0.25, y + 260);
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), x + boxW * 0.75, y + 260);
+
+  ctx.restore();
+}
+
+
+function template27(ctx, canvas, share){
+
+  ctx.save();
+
+  let y = 2000;
+
+  const boxW = canvas.width - 400;
+  const boxH = 500;
+  const x = (canvas.width - boxW) / 2;
+
+  // 🔥 30% BLACK TRANSPARENT BACKGROUND
+  ctx.fillStyle = "rgba(0,0,0,0.8)";
+  ctx.fillRect(x, y, boxW, boxH);
+
+  // ===== BORDER =====
+  ctx.strokeStyle = "#ffee00";
+  ctx.lineWidth = 5;
+  ctx.strokeRect(x, y, boxW, boxH);
+
+  // ===== GRID =====
+  const col1 = x + boxW * 0.25;
+  const col2 = x + boxW * 0.55;
+
+  const rowLine1 = y + 150;
+  const rowLine2 = y + 320;
+
+  ctx.beginPath();
+
+  ctx.moveTo(col1, y + 150);
+  ctx.lineTo(col1, y + boxH);
+
+  ctx.moveTo(col2, y);
+  ctx.lineTo(col2, y + boxH);
+
+  ctx.moveTo(x, rowLine1);
+  ctx.lineTo(x + boxW, rowLine1);
+
+  ctx.moveTo(x, rowLine2);
+  ctx.lineTo(x + boxW, rowLine2);
+
+  ctx.stroke();
+
+
+  // ===== TEXT =====
+  ctx.textAlign = "center";
+
+  ctx.shadowColor = "rgba(0,0,0,0.9)";
+  ctx.shadowBlur = 12;
+
+  // HEADERS
+  ctx.fillStyle = "#ffee00";
+  ctx.font = "bold 90px Arial";
+
+  ctx.fillText("Gold Rate", x + boxW * 0.22, y + 100);
+  ctx.fillText("Price", x + boxW * 0.75, y + 100);
+
+  // ROW 1
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 110px Arial";
+
+  ctx.fillText("22K", x + boxW * 0.12, y + 260);
+  ctx.fillText("1 gram", x + boxW * 0.40, y + 260);
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), x + boxW * 0.75, y + 260);
+
+  // ROW 2
+  ctx.fillText("22K", x + boxW * 0.12, y + 440);
+  ctx.fillText("8 gram", x + boxW * 0.40, y + 440);
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), x + boxW * 0.75, y + 440);
+
+  ctx.restore();
+}
+
+function template28(ctx, canvas, share){
+
+  ctx.save();
+
+  const centerX = canvas.width / 2;
+  const centerY = 2050;
+
+  const radius = 400; // 🔽 reduced (before 590)
+
+  // ===== GOLD GRADIENT =====
+  const grad = ctx.createRadialGradient(
+    centerX, centerY - 80, 80,
+    centerX, centerY, radius
+  );
+
+  grad.addColorStop(0, "#fff6cc");
+  grad.addColorStop(0.5, "#f5d76e");
+  grad.addColorStop(1, "#d4af37");
+
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ===== BORDER =====
+  ctx.strokeStyle = "#c9a227";
+  ctx.lineWidth = 12; // reduced
+  ctx.stroke();
+
+
+  // ===== TEXT =====
+  ctx.textAlign = "center";
+
+  // TOP TEXT
+  ctx.fillStyle = "#663300";
+  ctx.font = "bold 60px Arial"; // reduced
+  ctx.fillText("Gold per gram", centerX, centerY - 150);
+
+  // PRICE 1
+  ctx.font = "bold 110px Arial"; // reduced
+  ctx.fillText("₹ " + formatRateValue(rate22k_1g), centerX, centerY - 40);
+
+
+  // MID TEXT
+  ctx.fillStyle = "#a00000";
+  ctx.font = "bold 60px Arial";
+  ctx.fillText("Gold per pavan", centerX, centerY + 60);
+
+  // PRICE 2
+  ctx.font = "bold 140px Arial"; // reduced
+  ctx.fillText("₹ " + formatRateValue(rate22k_1p), centerX, centerY + 170);
+
+  ctx.restore();
+}
+function drawOptionalBottomRates(ctx, canvas){
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalAlpha = 1;
+  ctx.filter = "none";
+  ctx.globalCompositeOperation = "source-over";
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+
+  const items = [];
+  const hasProductConfig = Array.isArray(products) && products.length > 0;
+  const rate18 = parseRateNumber(rate18k_1g);
+  const rateSilver = parseRateNumber(rateSilver_1g);
+ const show18k =  true;
+const showSilver =  true;
+
+  if(show18k){
+    items.push({
+      kind: "18k",
+      title: "1 Gram 18K",
+      value: formatRateValue(rate18k_1g)
+    });
+  }
+
+  if(showSilver){
+    items.push({
+      kind: "silver",
+      title: "1 Gram Silver",
+      value: formatRateValue(rateSilver_1g)
+    });
+  }
+
+  // Android-specific hard fallback:
+  // if products parsing still fails, render by available rate values.
+  if(!items.length && isMobileDevice()){
+    items.push({
+      kind: "18k",
+      title: "1 Gram 18K",
+      value: formatRateValue(rate18k_1g)
+    });
+    items.push({
+      kind: "silver",
+      title: "1 Gram Silver",
+      value: formatRateValue(rateSilver_1g)
+    });
+  }
+
+  if(!items.length){
+    ctx.restore();
+    return canvas.height - FOOTER_DRAW_HEIGHT;
+  }
+
+  const y = getTemplateMainRateBottomY() + OPTIONAL_RATE_GAP_FROM_MAIN;
+  const pairWidth = (OPTIONAL_RATE_BOX_WIDTH * 2) + OPTIONAL_RATE_PAIR_GAP;
+  const leftX = Math.round((canvas.width - pairWidth) / 2);
+  const rightX = leftX + OPTIONAL_RATE_BOX_WIDTH + OPTIONAL_RATE_PAIR_GAP;
+
+  if(items.length === 2){
+    const leftItem = items.find((item) => item.kind === "18k") || items[0];
+    const rightItem = items.find((item) => item.kind === "silver") || items[1];
+    drawBottomRateCard(ctx, leftX, y, leftItem.title, leftItem.value, leftItem.kind);
+    drawBottomRateCard(ctx, rightX, y, rightItem.title, rightItem.value, rightItem.kind);
+    ctx.restore();
+    return y;
+  }
+
+  const onlyItem = items[0];
+  const singleX = Math.round((canvas.width - OPTIONAL_RATE_BOX_WIDTH) / 2);
+  drawBottomRateCard(ctx, singleX, y, onlyItem.title, onlyItem.value, onlyItem.kind);
+
+  ctx.restore();
+  return y;
+}
+
+// Backward compatibility for older cached call sites.
+function drawOptionalBottoomRates(ctx, canvas){
+  return drawOptionalBottomRates(ctx, canvas);
+}
+
+function drawBottomRateCard(ctx, x, y, title, value, kind){
+  const w = OPTIONAL_RATE_BOX_WIDTH;
+  const h = OPTIONAL_RATE_BOX_HEIGHT;
+  const isSilver = kind === "silver";
+  const label = isSilver ? "Silver (1G)" : "18K(1G)";
+  const tagColor = isSilver ? "rgba(166,178,178,0.88)" : "rgba(214,197,117,0.95)";
+
+  // Outer rate box (black transparent)
+  ctx.fillStyle = "rgba(0,0,0,0.50)";
+  roundRect(ctx, x, y, w, h, 16, true, false);
+  ctx.strokeStyle = "rgba(210,240,225,0.75)";
+  ctx.lineWidth = 4;
+  roundRect(ctx, x, y, w, h, 16, false, true);
+
+  // Left colored tag area
+  const tagW = isSilver ? 350 : 290;
+  ctx.fillStyle = tagColor;
+  roundRect(ctx, x + 4, y + 4, tagW, h - 8, 10, true, false);
+
+  // Tag text
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#000000";
+  ctx.font = "bold 66px Arial";
+  ctx.fillText(label, x + 20, y + 96);
+
+  // Amount text
+  ctx.fillStyle = "#f2f315";
+  ctx.font = "bold 92px Arial";
+  ctx.fillText("\u20B9 " + value, x + tagW + 28, y + 106);
+}
+
+function drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY){
+
+  let text = "";
+  const raw = diff;
+  let direction = 0; // 1 => up, -1 => down
+  let amount = 0;
+  let isRepeat = false;
+
+  if(typeof raw === "string"){
+    const s = raw.trim();
+    isRepeat = s.startsWith("++") || s.startsWith("--");
+
+    const numeric = Number(s.replace(/[^0-9.+-]/g, ""));
+    if(!Number.isNaN(numeric)){
+      amount = Math.abs(numeric);
+      if(s.startsWith("-")) direction = -1;
+      else if(s.startsWith("+")) direction = 1;
+      else direction = numeric === 0 ? 0 : (numeric > 0 ? 1 : -1);
+    }
+  }else{
+    const n = Number(raw || 0);
+    if(!Number.isNaN(n)){
+      amount = Math.abs(n);
+      direction = n === 0 ? 0 : (n > 0 ? 1 : -1);
+    }
+  }
+
+  if(direction === 0){
+    text = "ഇന്ന് വിലയിൽ മാറ്റമില്ല";
+  }else if(direction > 0){
+    text = "ഇന്ന് പവന് " + formatRateValue(amount) + " രൂപ " + (isRepeat ? "വീണ്ടും " : "") + "കൂടി";
+  }else{
+    text = "ഇന്ന് പവന് " + formatRateValue(amount) + " രൂപ " + (isRepeat ? "വീണ്ടും " : "") + "കുറഞ്ഞു";
+  }
+
+  const y = (optionalRateTopY || (canvas.height - FOOTER_DRAW_HEIGHT)) - 110;
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 100px 'Noto Sans Malayalam', Arial";
+  ctx.shadowColor = "rgba(0,0,0,0.95)";
+  ctx.shadowBlur = 22;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 8;
+  ctx.fillText(text, canvas.width/2, y);
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+
+}
+   
+function roundRect(ctx,x,y,width,height,radius,fill,stroke){
+
+ctx.beginPath();
+ctx.moveTo(x+radius,y);
+ctx.lineTo(x+width-radius,y);
+ctx.quadraticCurveTo(x+width,y,x+width,y+radius);
+ctx.lineTo(x+width,y+height-radius);
+ctx.quadraticCurveTo(x+width,y+height,x+width-radius,y+height);
+ctx.lineTo(x+radius,y+height);
+ctx.quadraticCurveTo(x,y+height,x,y+height-radius);
+ctx.lineTo(x,y+radius);
+ctx.quadraticCurveTo(x,y,x+radius,y);
+ctx.closePath();
+
+if(fill) ctx.fill();
+if(stroke) ctx.stroke();
+
+}
+
+   function drawRateBox(ctx, title, value, y){
+
+  const x = 80;
+  const width = 1050;
+  const height = 250;
+
+  // background
+  ctx.fillStyle = "rgba(0,0,0,0.6)";
+  roundRect(ctx, x, y, width, height, 30, true, false);
+
+  // border
+  ctx.strokeStyle = "#FFD700";
+  ctx.lineWidth = 6;
+  roundRect(ctx, x, y, width, height, 30, false, true);
+
+  // title
+  ctx.fillStyle = "#FFD700";
+  ctx.font = "bold 180px Arial";
+  ctx.textAlign = "left";
+  ctx.fillText(title, x + 40, y + 100);
+
+  // value
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 180px Arial";
+  ctx.textAlign = "right";
+  ctx.fillText("₹ " + value, x + width - 40, y + 180);
+
+}
+   
+   
+   function save(canvas, share=false){
+
+const mobileShare = share && isMobileDevice();
+const outputType = mobileShare ? "image/jpeg" : "image/png";
+const fileExt = mobileShare ? ".jpg" : ".png";
+
+const exportBlob = () => canvas.toBlob(async function(blob){
+if(!blob){
+  alert("Poster creation failed");
+  resetBtn();
+  return;
+}
+
+const now = new Date();
+const fileName =
+  String(now.getDate()).padStart(2,"0") + "." +
+  String(now.getMonth() + 1).padStart(2,"0") + "." +
+  now.getFullYear() + fileExt;
+
+if(mobileShare && navigator.share){
+  pendingShareFile = new File([blob], fileName, {type:outputType});
+  const btn = document.getElementById("shareBtn");
+  stopGeneratingCountdown();
+  shareInProgress = false;
+  if(btn){
+    btn.classList.remove("share-loading","countdown-mode");
+    btn.classList.add("tap-share-mode");
+    btn.innerText = "Tap Share";
+    btn.style.pointerEvents = "auto";
+  }
+  return;
+}
+
+downloadFile(blob,fileName);
+
+}, outputType, 0.92);
+
+// Android Chrome sometimes exports before late canvas draws are committed.
+// Wait two frames on mobile before blob export.
+if(isMobileDevice()){
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      exportBlob();
+    });
+  });
+}else{
+  exportBlob();
+}
+
+}
+   
+function downloadFile(blob, fileName){
+
+  const link = document.createElement("a");
+  const objectUrl = URL.createObjectURL(blob);
+  link.download = fileName;
+  link.href = objectUrl;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+
+  onPosterDownloadSuccess();
+
+}
+   
+// =====================
+// BUTTON FUNCTIONS
+// =====================
+function resetBtn(){
+  const btn = document.getElementById("shareBtn");
+  stopGeneratingCountdown();
+  clearPendingShare();
+  btn.classList.remove("share-loading","share-disabled","countdown-mode","tap-share-mode");
+  btn.innerText = "Share";
+  btn.style.pointerEvents = "auto";
+}
+
+   function drawFooter(ctx, canvas, callback){
+
+  let doneCalled = false;
+
+  const done = () => {
+    if(doneCalled) return;
+    doneCalled = true;
+    callback();
+  };
+
+  // ❌ footer ഇല്ലെങ്കിൽ skip
+  if(!footerUrl){
+    done();
+    return;
+  }
+
+  const footer = new Image();
+
+  // ✅ IMPORTANT (Android fix)
+  footer.crossOrigin = "anonymous";
+  footer.decoding = "async";
+
+  // ⏱ fallback timeout (Android safety)
+  const timeoutId = setTimeout(() => {
+    console.log("Footer timeout fallback");
+    done();
+  }, 10000);
+
+  footer.onload = function(){
+  try{
+    const x = Math.floor((canvas.width - FOOTER_DRAW_WIDTH) / 2);
+    const y = canvas.height - FOOTER_DRAW_HEIGHT;
+
+    // 🔥 ADD THIS (Android fix)
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = 1;
+
+    ctx.drawImage(footer, x, y, FOOTER_DRAW_WIDTH, FOOTER_DRAW_HEIGHT);
+
+  }catch(err){
+    console.log("Footer draw failed", err);
+  }
+
+  clearTimeout(timeoutId);
+  done();
+};
+
+  footer.onerror = function(){
+    console.log("Footer load error");
+    clearTimeout(timeoutId);
+    done();
+  };
+
+  footer.src = withCacheBust(footerUrl);
+}
+   
+function disableShareBtn(text){
+  const btn = document.getElementById("shareBtn");
+  stopGeneratingCountdown();
+  clearPendingShare();
+  btn.classList.remove("countdown-mode","tap-share-mode");
+  btn.innerText = text;
+  btn.classList.add("share-disabled");
+  btn.style.pointerEvents = "none";
+}
+
+  
+// =====================
+// EXTRA
+// =====================
+function logoutUser(){
+  localStorage.removeItem("userPhone");
+  location.href = "login.html";
+}
+
+function openWhatsApp(){
+  window.open("https://wa.me/919656100346","_blank");
+}
+
+</script>
+</body>
+</html>
