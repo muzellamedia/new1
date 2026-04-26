@@ -1151,15 +1151,6 @@ drawFooter(finalCtx, finalCanvas, function(){
  
 function drawHeader(ctx, canvas){
 
-  // BLACK TRANSPARENT BACKGROUND
-  ctx.fillStyle = "rgba(0,0,0,0.45)";
-  roundRect(ctx, 80, 120, 900, 200, 30, true, false);
-
-  // WHITE BORDER
-  ctx.strokeStyle = "white";
-  ctx.lineWidth = 8;
-  roundRect(ctx, 80, 120, 900, 200, 30, false, true);
-
   // TITLE
   ctx.textAlign = "left";
   ctx.fillStyle = "#FFFFFF";
@@ -2940,7 +2931,8 @@ function drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY){
     text = "ഇന്ന് പവന് " + formatRateValue(amount) + " രൂപ " + (isRepeat ? "വീണ്ടും " : "") + "കുറഞ്ഞു";
   }
 
-  const y = (optionalRateTopY || (canvas.height - FOOTER_DRAW_HEIGHT)) - 110;
+  const footerTopY = canvas.height - FOOTER_DRAW_HEIGHT;
+  const y = footerTopY - 22;
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#FFFFFF";
