@@ -480,7 +480,7 @@ const FOOTER_DRAW_HEIGHT = 659;
 const OPTIONAL_RATE_BOX_WIDTH = 820;
 const OPTIONAL_RATE_BOX_HEIGHT = 145;
 const OPTIONAL_RATE_BOX_GAP_FROM_FOOTER = 80;
-const OPTIONAL_RATE_GAP_FROM_MAIN = 18;
+const OPTIONAL_RATE_GAP_MM = 2;
 const OPTIONAL_RATE_PAIR_GAP = 40;
 
 function parseRateDate(rawDate){
@@ -507,6 +507,10 @@ function withCacheBust(url){
   return raw + sep + "t=" + Date.now();
 }
 
+function mmToCanvasPx(mm){
+  return Math.round((300 / 25.4) * Number(mm || 0));
+}
+
 function getTemplateMainRateBottomY(){
   const map = {
     0: 2350, 1: 2320, 2: 2300, 3: 2280, 4: 2320, 5: 2300, 6: 2100, 7: 1980,
@@ -515,6 +519,13 @@ function getTemplateMainRateBottomY(){
     24: 2420, 25: 2380, 26: 2500, 27: 2450
   };
   return map[lastTemplate] || 2250;
+}
+
+function getOptionalRateTopY(canvas){
+  const gapPx = mmToCanvasPx(OPTIONAL_RATE_GAP_MM); // 2mm
+  const desiredY = getTemplateMainRateBottomY() + gapPx;
+  const maxY = canvas.height - FOOTER_DRAW_HEIGHT - OPTIONAL_RATE_BOX_HEIGHT - 10;
+  return Math.min(desiredY, maxY);
 }
 
 function normalizeProductEntry(entry){
@@ -1179,7 +1190,7 @@ function drawHeader(ctx, canvas){
 
     const ratio = logo.width / logo.height;
 
-const scaleReduce = 0.95; // 🔥 5% smaller (approx 5mm feel)
+const scaleReduce = 0.82; // smaller logo size
 
 const maxWidth = (ratio >= 1.3 ? 1260 : 970) * scaleReduce;
 const maxHeight = (ratio >= 1.3 ? 620 : 970) * scaleReduce;
@@ -2838,7 +2849,7 @@ const showSilver =  true;
     return canvas.height - FOOTER_DRAW_HEIGHT;
   }
 
-  const y = getTemplateMainRateBottomY() + OPTIONAL_RATE_GAP_FROM_MAIN;
+  const y = getOptionalRateTopY(canvas);
   const pairWidth = (OPTIONAL_RATE_BOX_WIDTH * 2) + OPTIONAL_RATE_PAIR_GAP;
   const leftX = Math.round((canvas.width - pairWidth) / 2);
   const rightX = leftX + OPTIONAL_RATE_BOX_WIDTH + OPTIONAL_RATE_PAIR_GAP;
@@ -2875,9 +2886,6 @@ function drawBottomRateCard(ctx, x, y, title, value, kind){
   // Outer rate box (black transparent)
   ctx.fillStyle = "rgba(0,0,0,0.50)";
   roundRect(ctx, x, y, w, h, 16, true, false);
-  ctx.strokeStyle = "rgba(210,240,225,0.75)";
-  ctx.lineWidth = 4;
-  roundRect(ctx, x, y, w, h, 16, false, true);
 
   // Left colored tag area
   const tagW = isSilver ? 350 : 290;
@@ -2891,7 +2899,7 @@ function drawBottomRateCard(ctx, x, y, title, value, kind){
   ctx.fillText(label, x + 20, y + 96);
 
   // Amount text
-  ctx.fillStyle = "#f2f315";
+  ctx.fillStyle = "#ffffff";
   ctx.font = "bold 92px Arial";
   ctx.fillText("\u20B9 " + value, x + tagW + 28, y + 106);
 }
