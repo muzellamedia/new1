@@ -701,7 +701,7 @@ async function trySharePendingFile(){
   if(!pendingShareFile) return false;
   const shareData = {
     files:[pendingShareFile],
-    title:"Gold Rate Poster"
+    title:"Today's Gold Rate"
   };
 
   if(!navigator.share || (navigator.canShare && !navigator.canShare(shareData))){
@@ -2810,8 +2810,8 @@ function drawOptionalBottomRates(ctx, canvas){
   const hasProductConfig = Array.isArray(products) && products.length > 0;
   const rate18 = parseRateNumber(rate18k_1g);
   const rateSilver = parseRateNumber(rateSilver_1g);
- const show18k =  true;
-const showSilver =  true;
+  const show18k = hasProductConfig ? hasProduct("18k") : rate18 > 0;
+  const showSilver = hasProductConfig ? hasProduct("silver") : rateSilver > 0;
 
   if(show18k){
     items.push({
@@ -2832,16 +2832,20 @@ const showSilver =  true;
   // Android-specific hard fallback:
   // if products parsing still fails, render by available rate values.
   if(!items.length && isMobileDevice()){
-    items.push({
-      kind: "18k",
-      title: "1 Gram 18K",
-      value: formatRateValue(rate18k_1g)
-    });
-    items.push({
-      kind: "silver",
-      title: "1 Gram Silver",
-      value: formatRateValue(rateSilver_1g)
-    });
+    if(rate18 > 0){
+      items.push({
+        kind: "18k",
+        title: "1 Gram 18K",
+        value: formatRateValue(rate18k_1g)
+      });
+    }
+    if(rateSilver > 0){
+      items.push({
+        kind: "silver",
+        title: "1 Gram Silver",
+        value: formatRateValue(rateSilver_1g)
+      });
+    }
   }
 
   if(!items.length){
