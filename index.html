@@ -2919,13 +2919,21 @@ function drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY){
   if(typeof raw === "string"){
     const s = raw.trim();
     isRepeat = s.startsWith("++") || s.startsWith("--");
-
-    const numeric = Number(s.replace(/[^0-9.+-]/g, ""));
-    if(!Number.isNaN(numeric)){
-      amount = Math.abs(numeric);
-      if(s.startsWith("-")) direction = -1;
-      else if(s.startsWith("+")) direction = 1;
-      else direction = numeric === 0 ? 0 : (numeric > 0 ? 1 : -1);
+    if(s.startsWith("++") || s.startsWith("--")){
+      const repeatAmount = Number(s.slice(2).replace(/[^0-9.]/g, ""));
+      if(!Number.isNaN(repeatAmount)){
+        amount = Math.abs(repeatAmount);
+        // Business rule: ++520 and --520 both mean "വീണ്ടും കൂടി"
+        direction = amount === 0 ? 0 : 1;
+      }
+    }else{
+      const numeric = Number(s.replace(/[^0-9.+-]/g, ""));
+      if(!Number.isNaN(numeric)){
+        amount = Math.abs(numeric);
+        if(s.startsWith("-")) direction = -1;
+        else if(s.startsWith("+")) direction = 1;
+        else direction = numeric === 0 ? 0 : (numeric > 0 ? 1 : -1);
+      }
     }
   }else{
     const n = Number(raw || 0);
