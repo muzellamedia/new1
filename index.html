@@ -482,6 +482,8 @@ const OPTIONAL_RATE_BOX_HEIGHT = 145;
 const OPTIONAL_RATE_BOX_GAP_FROM_FOOTER = 80;
 const OPTIONAL_RATE_GAP_MM = 2;
 const OPTIONAL_RATE_PAIR_GAP = 40;
+const OPTIONAL_RATE_BOTTOM_GAP = 8;
+const DIFF_TEXT_GAP_ABOVE_OPTIONAL = 18;
 
 function parseRateDate(rawDate){
   if(!rawDate) return null;
@@ -522,10 +524,8 @@ function getTemplateMainRateBottomY(){
 }
 
 function getOptionalRateTopY(canvas){
-  const gapPx = mmToCanvasPx(OPTIONAL_RATE_GAP_MM); // 2mm
-  const desiredY = getTemplateMainRateBottomY() + gapPx;
-  const maxY = canvas.height - FOOTER_DRAW_HEIGHT - OPTIONAL_RATE_BOX_HEIGHT - 10;
-  return Math.min(desiredY, maxY);
+  const footerTopY = canvas.height - FOOTER_DRAW_HEIGHT;
+  return footerTopY - OPTIONAL_RATE_BOX_HEIGHT - OPTIONAL_RATE_BOTTOM_GAP;
 }
 
 function normalizeProductEntry(entry){
@@ -2939,8 +2939,8 @@ function drawCommonDiffAboveFooter(ctx, canvas, optionalRateTopY){
     text = "ഇന്ന് പവന് " + formatRateValue(amount) + " രൂപ " + (isRepeat ? "വീണ്ടും " : "") + "കുറഞ്ഞു";
   }
 
-  const footerTopY = canvas.height - FOOTER_DRAW_HEIGHT;
-  const y = footerTopY - 22;
+  const safeOptionalTopY = optionalRateTopY || getOptionalRateTopY(canvas);
+  const y = safeOptionalTopY - DIFF_TEXT_GAP_ABOVE_OPTIONAL;
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#FFFFFF";
