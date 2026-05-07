@@ -2807,11 +2807,10 @@ function drawOptionalBottomRates(ctx, canvas){
   ctx.shadowOffsetY = 0;
 
   const items = [];
-  const hasProductConfig = Array.isArray(products) && products.length > 0;
   const rate18 = parseRateNumber(rate18k_1g);
   const rateSilver = parseRateNumber(rateSilver_1g);
-  const show18k = hasProductConfig ? hasProduct("18k") : rate18 > 0;
-  const showSilver = hasProductConfig ? hasProduct("silver") : rateSilver > 0;
+  const show18k = true;
+  const showSilver = true;
 
   if(show18k){
     items.push({
