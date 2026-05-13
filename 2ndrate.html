@@ -161,9 +161,10 @@ async function updateRates(){
   try{
 
     const response = await fetch(
-      SCRIPT_URL,
-      {
-        method:"POST",
+  SCRIPT_URL,
+  {
+    method:"POST",
+    mode:"no-cors",
 
         headers:{
           "Content-Type":"application/json"
@@ -175,13 +176,13 @@ async function updateRates(){
       }
     );
 
-    const res = await response.json();
-
     status.className = "status success";
 
-    status.innerText = res.message;
+status.innerText =
+  "✅ Update request sent successfully";
 
-    preview.innerHTML = res.preview;
+preview.innerHTML =
+  "Check Google Sheet / Firebase";
 
   }catch(err){
 
