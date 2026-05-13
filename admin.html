@@ -202,6 +202,43 @@ th{background:#f9fafb}
 @media(max-width:900px){
   .grid{grid-template-columns:1fr}
 }
+.gr-card{
+  margin-top:14px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:14px;
+}
+.gr-title{
+  margin:0 0 10px;
+}
+.gr-textarea{
+  width:100%;
+  min-height:240px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  resize:vertical;
+  outline:none;
+}
+.gr-buttons{
+  margin-top:12px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.gr-status{
+  margin-top:10px;
+  font-weight:700;
+}
+.gr-preview{
+  margin-top:12px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:12px;
+  line-height:1.7;
+}
 </style>
 </head>
 <body>
@@ -262,6 +299,17 @@ th{background:#f9fafb}
       </div>
     </div>
   </div>
+
+  <div class="gr-card">
+    <h3 class="gr-title">Gold Rate Admin Panel</h3>
+    <textarea id="grData" class="gr-textarea" placeholder="Paste gold rate message here..."></textarea>
+    <div class="gr-buttons">
+      <button class="btn-brand" id="grUpdateBtn">UPDATE</button>
+      <button class="btn" id="grClearBtn">CLEAR</button>
+    </div>
+    <div class="gr-status" id="grStatus"></div>
+    <div class="gr-preview" id="grPreview"></div>
+  </div>
 </div>
 
 <script type="module">
@@ -315,6 +363,12 @@ const adminAppEl = document.getElementById("adminApp");
 const adminPasswordInputEl = document.getElementById("adminPasswordInput");
 const adminUnlockBtnEl = document.getElementById("adminUnlockBtn");
 const adminLockMsgEl = document.getElementById("adminLockMsg");
+const grDataEl = document.getElementById("grData");
+const grStatusEl = document.getElementById("grStatus");
+const grPreviewEl = document.getElementById("grPreview");
+const grUpdateBtn = document.getElementById("grUpdateBtn");
+const grClearBtn = document.getElementById("grClearBtn");
+const GR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpOW8sNc8fkV2HmQWZvYHmgWgLp-z62ChEZP4MoCtev4eD71gKaP_fNqd4GRD1EWTM/exec";
 
 function formatDate(val){
   if(!val) return "--";
@@ -716,6 +770,38 @@ if(sessionStorage.getItem(ADMIN_SESSION_KEY) === "1"){
     rowsEl.innerHTML = `<tr><td colspan="5" class="muted">Failed to load users: ${err.message || err}</td></tr>`;
   });
 }
+
+function clearGoldRateBox(){
+  if(grDataEl) grDataEl.value = "";
+  if(grStatusEl) grStatusEl.innerText = "";
+  if(grPreviewEl) grPreviewEl.innerHTML = "";
+}
+
+async function updateGoldRates(){
+  const text = grDataEl?.value || "";
+  if(!text.trim()){
+    grStatusEl.innerText = "Paste message first";
+    return;
+  }
+
+  grStatusEl.innerText = "Processing...";
+
+  try{
+    const response = await fetch(GR_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+    const res = await response.json();
+    grStatusEl.innerText = res.message || "Updated";
+    grPreviewEl.innerHTML = res.preview || "";
+  }catch(err){
+    grStatusEl.innerText = "Error: " + (err?.message || "request failed");
+  }
+}
+
+grUpdateBtn?.addEventListener("click", updateGoldRates);
+grClearBtn?.addEventListener("click", clearGoldRateBox);
 </script>
 </body>
 </html>
