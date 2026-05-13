@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Gold Rate Admin Panel</title>
+
+<style>
+
+body{
+  font-family: Arial, sans-serif;
+  padding:20px;
+  background:#f5f7fa;
+  max-width:700px;
+  margin:auto;
+}
+
+h2{
+  margin-bottom:15px;
+  text-align:center;
+}
+
+textarea{
+  width:100%;
+  height:260px;
+  font-size:14px;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  resize:none;
+  outline:none;
+  box-sizing:border-box;
+}
+
+.buttons{
+  margin-top:15px;
+}
+
+button{
+  padding:12px 20px;
+  font-size:15px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+}
+
+.update{
+  background:#0b57d0;
+  color:#fff;
+}
+
+.clear{
+  background:#888;
+  color:#fff;
+  margin-left:10px;
+}
+
+.status{
+  margin-top:15px;
+  font-weight:bold;
+}
+
+.success{
+  color:green;
+}
+
+.error{
+  color:red;
+}
+
+.preview{
+  margin-top:15px;
+  padding:12px;
+  background:#fff;
+  border-radius:10px;
+  border:1px solid #ddd;
+  line-height:1.7;
+}
+
+@media(max-width:600px){
+
+  button{
+    width:100%;
+    margin-left:0 !important;
+    margin-top:10px;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Gold Rate Admin Panel</h2>
+
+<textarea
+  id="data"
+  placeholder="Paste gold rate message here..."
+></textarea>
+
+<div class="buttons">
+  <button class="update" onclick="updateRates()">
+    UPDATE
+  </button>
+
+  <button class="clear" onclick="clearBox()">
+    CLEAR
+  </button>
+</div>
+
+<div class="status" id="status"></div>
+
+<div class="preview" id="preview"></div>
+
+<script>
+
+const SCRIPT_URL =
+"https://script.google.com/macros/s/YOUR_SCRIPT_URL_HERE/exec";
+
+function clearBox(){
+
+  document.getElementById("data").value = "";
+
+  document.getElementById("status").innerHTML = "";
+
+  document.getElementById("preview").innerHTML = "";
+}
+
+async function updateRates(){
+
+  const text =
+    document.getElementById("data").value;
+
+  const status =
+    document.getElementById("status");
+
+  const preview =
+    document.getElementById("preview");
+
+  if(!text.trim()){
+
+    status.className = "status error";
+
+    status.innerText =
+      "❌ Please paste message";
+
+    return;
+  }
+
+  status.className = "status";
+
+  status.innerText = "⏳ Processing...";
+
+  preview.innerHTML = "";
+
+  try{
+
+    const response = await fetch(
+      SCRIPT_URL,
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+          text:text
+        })
+      }
+    );
+
+    const res = await response.json();
+
+    status.className = "status success";
+
+    status.innerText = res.message;
+
+    preview.innerHTML = res.preview;
+
+  }catch(err){
+
+    status.className = "status error";
+
+    status.innerText =
+      "❌ Error: " + err.message;
+  }
+
+}
+
+</script>
+
+</body>
+</html>
