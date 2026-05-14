@@ -188,6 +188,12 @@ padding:14px 12px;
 <option>Karnataka</option>
 </select>
 
+<select id="association">
+<option value="">Select Association</option>
+<option value="AKGSMA">AKGSMA</option>
+<option value="KGSMA">KGSMA</option>
+</select>
+
 <h3 class="products-title">Products</h3>
 <div class="products-grid">
   <label class="product-option">
@@ -256,6 +262,7 @@ const shop = document.getElementById("shop").value.trim();
 const place = document.getElementById("place").value.trim();
 const district = document.getElementById("district").value;
 const state = document.getElementById("state").value;
+const association = document.getElementById("association").value;
 
 const logoFile = document.getElementById("logo").files[0];
 const footerFile = document.getElementById("footer").files[0];
@@ -268,7 +275,7 @@ if(cb.checked) products.push(cb.value);
 });
 
 // validation
-if(!phone || !shop || !place || !district || !state || !logoFile || !footerFile){
+if(!phone || !shop || !place || !district || !state || !association || !logoFile || !footerFile){
 alert("Fill all fields");
 btn.disabled=false;
 btn.innerText="Register";
@@ -329,6 +336,8 @@ createdAt: new Date(),
 planDays: 1,
 planExpiry: expiry.toISOString(),
 status: "active"
+,
+association: association
 });
 
 localStorage.setItem("userPhone",phone);
