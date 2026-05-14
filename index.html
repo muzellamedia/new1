@@ -473,6 +473,7 @@ let shareCount = 0;
 let generatingInterval = null;
 let pendingShareFile = null;
 let shareInProgress = false;
+let userAssociation = "AKGSMA";
 const MOBILE_SHARE_LIMIT = 4;
 const DESKTOP_DOWNLOAD_LIMIT = 2;
 const FOOTER_DRAW_WIDTH = 2484;
@@ -507,6 +508,12 @@ function withCacheBust(url){
   if(!raw) return "";
   const sep = raw.includes("?") ? "&" : "?";
   return raw + sep + "t=" + Date.now();
+}
+
+function getRateDocIdByAssociation(association){
+  const key = String(association || "AKGSMA").trim().toUpperCase();
+  if(key === "KGSMA") return "kgsma";
+  return "today"; // AKGSMA default
 }
 
 function mmToCanvasPx(mm){
@@ -837,6 +844,7 @@ try{
     logoUrl = user.logoURL || ""; 
     footerUrl = user.footerURL || "";  
     products = normalizeProducts(user.products || user.productList || user.selectedProducts);
+    userAssociation = String(user.association || user.organization || "AKGSMA").toUpperCase();
 
     // SHOP DETAILS
     document.getElementById("shopName").innerText = user.shop || "";
@@ -880,7 +888,8 @@ try{
   // =====================
   // LOAD RATES
   // =====================
-  const rateRef = doc(db,"rates","today");
+  const rateDocId = getRateDocIdByAssociation(userAssociation);
+  const rateRef = doc(db,"rates",rateDocId);
 const rateSnap = await getDoc(rateRef);
 
 if(rateSnap.exists()){
@@ -1005,6 +1014,7 @@ rateSilver_1g = parseRateNumber(rates.silver_1g);
       activeUserId = userResult.id;
       const userData = userResult.snap.data();
       products = normalizeProducts(userData.products || userData.productList || userData.selectedProducts);
+      userAssociation = String(userData.association || userData.organization || "AKGSMA").toUpperCase();
 
       const bgRef = doc(db,"settings","backgrounds");
       const bgSnap = await getDoc(bgRef);
