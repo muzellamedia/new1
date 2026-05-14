@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -7,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Gold Rate Admin Panel</title>
+
+<script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
 
@@ -35,6 +36,10 @@ textarea{
   box-sizing:border-box;
 }
 
+input[type="file"]{
+  margin-bottom:15px;
+}
+
 .buttons{
   margin-top:15px;
 }
@@ -54,6 +59,12 @@ button{
 
 .clear{
   background:#888;
+  color:#fff;
+  margin-left:10px;
+}
+
+.ocr{
+  background:#0f9d58;
   color:#fff;
   margin-left:10px;
 }
@@ -80,6 +91,12 @@ button{
   line-height:1.7;
 }
 
+img{
+  width:100%;
+  margin-top:15px;
+  border-radius:10px;
+}
+
 @media(max-width:600px){
 
   button{
@@ -91,19 +108,27 @@ button{
 }
 
 </style>
-
 </head>
 
 <body>
 
 <h2>Gold Rate Admin Panel</h2>
 
+<input type="file" id="imageInput" accept="image/*">
+
+<img id="previewImage" style="display:none;">
+
 <textarea
   id="data"
-  placeholder="Paste gold rate message here..."
+  placeholder="Paste gold rate message here or use image OCR..."
 ></textarea>
 
 <div class="buttons">
+
+  <button class="ocr" onclick="extractText()">
+    OCR IMAGE
+  </button>
+
   <button class="update" onclick="updateRates()">
     UPDATE
   </button>
@@ -111,6 +136,7 @@ button{
   <button class="clear" onclick="clearBox()">
     CLEAR
   </button>
+
 </div>
 
 <div class="status" id="status"></div>
@@ -120,7 +146,39 @@ button{
 <script>
 
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbwm0xlV4LR3MEsUM2I0y5Mu4FvF8sCLAEmBDEK-HIarHaAf8u3QZfoKzWAzkiXRNATC/exec";
+"https://script.google.com/macros/s/AKfycbw1Kp7C2yLMlSfau_Ik97jJ9ODdCzPRbw_dMgyK3On-OZv3NzVN42jrIu_8a47JP8Bm/exec";
+
+// =====================
+// IMAGE PREVIEW
+// =====================
+
+document
+  .getElementById("imageInput")
+  .addEventListener("change", function(e){
+
+    const file = e.target.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(evt){
+
+      const img =
+        document.getElementById("previewImage");
+
+      img.src = evt.target.result;
+
+      img.style.display = "block";
+    };
+
+    reader.readAsDataURL(file);
+
+});
+
+// =====================
+// CLEAR
+// =====================
 
 function clearBox(){
 
@@ -129,7 +187,71 @@ function clearBox(){
   document.getElementById("status").innerHTML = "";
 
   document.getElementById("preview").innerHTML = "";
+
+  document.getElementById("previewImage").style.display =
+    "none";
+
+  document.getElementById("imageInput").value = "";
 }
+
+// =====================
+// OCR IMAGE
+// =====================
+
+async function extractText(){
+
+  const file =
+    document.getElementById("imageInput").files[0];
+
+  const status =
+    document.getElementById("status");
+
+  if(!file){
+
+    status.className = "status error";
+
+    status.innerText =
+      "❌ Please select image";
+
+    return;
+  }
+
+  status.className = "status";
+
+  status.innerText =
+    "⏳ Reading image...";
+
+  try{
+
+    const result =
+      await Tesseract.recognize(
+        file,
+        "eng"
+      );
+
+    const text = result.data.text;
+
+    document.getElementById("data").value =
+      text;
+
+    status.className = "status success";
+
+    status.innerText =
+      "✅ OCR completed";
+
+  }catch(err){
+
+    status.className = "status error";
+
+    status.innerText =
+      "❌ OCR failed";
+  }
+
+}
+
+// =====================
+// UPDATE
+// =====================
 
 async function updateRates(){
 
@@ -154,17 +276,18 @@ async function updateRates(){
 
   status.className = "status";
 
-  status.innerText = "⏳ Processing...";
+  status.innerText =
+    "⏳ Processing...";
 
   preview.innerHTML = "";
 
   try{
 
-    const response = await fetch(
-  SCRIPT_URL,
-  {
-    method:"POST",
-    mode:"no-cors",
+    await fetch(
+      SCRIPT_URL,
+      {
+        method:"POST",
+        mode:"no-cors",
 
         headers:{
           "Content-Type":"application/json"
@@ -178,11 +301,11 @@ async function updateRates(){
 
     status.className = "status success";
 
-status.innerText =
-  "✅ Update request sent successfully";
+    status.innerText =
+      "✅ Update request sent successfully";
 
-preview.innerHTML =
-  "Check Google Sheet / Firebase";
+    preview.innerHTML =
+      "Check Google Sheet / Firebase";
 
   }catch(err){
 
