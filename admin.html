@@ -527,6 +527,7 @@ function checkedAttr(products, value){
 
 function renderDetails(phone, u){
   const products = Array.isArray(u.products) ? u.products : [];
+  const association = String(u.association || u.organization || "AKGSMA").toUpperCase();
   detailsWrap.innerHTML = `
     <div class="row"><label>Phone</label><input id="f_phone" value="${phone}" disabled></div>
     <div class="row"><label>Shop</label><input id="f_shop" value="${u.shop || ""}"></div>
@@ -546,6 +547,13 @@ function renderDetails(phone, u){
 
     <div class="row"><label>Plan Expiry</label><input id="f_planExpiry" value="${u.planExpiry || ""}"></div>
     <div class="row"><label>Status</label><input id="f_status" value="${u.status || ""}"></div>
+    <div class="row">
+      <label>Association</label>
+      <select id="f_association">
+        <option value="AKGSMA" ${association === "AKGSMA" ? "selected" : ""}>AKGSMA</option>
+        <option value="KGSMA" ${association === "KGSMA" ? "selected" : ""}>KGSMA</option>
+      </select>
+    </div>
     <div class="row"><label>Logo URL</label><input id="f_logoURL" value="${u.logoURL || ""}"></div>
     <div class="row asset-row">
       <input id="f_logoFile" type="file" accept="image/*">
@@ -605,6 +613,7 @@ async function saveDetails(){
       code: document.getElementById("f_code").value.trim(),
       planExpiry: document.getElementById("f_planExpiry").value.trim(),
       status: document.getElementById("f_status").value.trim() || "active",
+      association: document.getElementById("f_association").value,
       products: collectProductsFromForm(),
       logoURL: document.getElementById("f_logoURL").value.trim(),
       footerURL: document.getElementById("f_footerURL").value.trim()
