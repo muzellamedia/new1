@@ -239,6 +239,24 @@ th{background:#f9fafb}
   padding:12px;
   line-height:1.7;
 }
+.rates-grid{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.rate-box{
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:10px;
+  background:#fcfcfd;
+}
+.rate-box h4{
+  margin:0 0 10px;
+}
+@media(max-width:900px){
+  .rates-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -310,6 +328,41 @@ th{background:#f9fafb}
     <div class="gr-status" id="grStatus"></div>
     <div class="gr-preview" id="grPreview"></div>
   </div>
+
+  <div class="gr-card">
+    <h3 class="gr-title">Association Rates (Firestore)</h3>
+    <div class="rates-grid">
+      <div class="rate-box">
+        <h4>AKGSMA (rates/today)</h4>
+        <div class="row"><label>Date</label><input id="r_today_date" placeholder="YYYY-MM-DD"></div>
+        <div class="row"><label>Time</label><input id="r_today_time" placeholder="09:27 AM"></div>
+        <div class="row"><label>Diff (Auto)</label><input id="r_today_diff" placeholder="+240" readonly></div>
+        <div class="row"><label>22K 1g</label><input id="r_today_g22_1g" type="number"></div>
+        <div class="row"><label>22K 1p</label><input id="r_today_g22_1p" type="number"></div>
+        <div class="row"><label>18K 1g</label><input id="r_today_g18_1g" type="number"></div>
+        <div class="row"><label>Silver 1g</label><input id="r_today_s1g" type="number"></div>
+        <div class="gr-buttons">
+          <button class="btn" id="loadTodayRatesBtn">Load</button>
+          <button class="btn-brand" id="saveTodayRatesBtn">Save</button>
+        </div>
+      </div>
+      <div class="rate-box">
+        <h4>KGSMA (rates/kgsma)</h4>
+        <div class="row"><label>Date</label><input id="r_kgsma_date" placeholder="YYYY-MM-DD"></div>
+        <div class="row"><label>Time</label><input id="r_kgsma_time" placeholder="01:16 PM"></div>
+        <div class="row"><label>Diff (Auto)</label><input id="r_kgsma_diff" placeholder="-4080" readonly></div>
+        <div class="row"><label>22K 1g</label><input id="r_kgsma_g22_1g" type="number"></div>
+        <div class="row"><label>22K 1p</label><input id="r_kgsma_g22_1p" type="number"></div>
+        <div class="row"><label>18K 1g</label><input id="r_kgsma_g18_1g" type="number"></div>
+        <div class="row"><label>Silver 1g</label><input id="r_kgsma_s1g" type="number"></div>
+        <div class="gr-buttons">
+          <button class="btn" id="loadKgsmaRatesBtn">Load</button>
+          <button class="btn-brand" id="saveKgsmaRatesBtn">Save</button>
+        </div>
+      </div>
+    </div>
+    <div class="gr-status" id="ratesStatus"></div>
+  </div>
 </div>
 
 <script type="module">
@@ -324,6 +377,7 @@ import {
   startAfter,
   doc,
   getDoc,
+  setDoc,
   updateDoc,
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -368,6 +422,7 @@ const grStatusEl = document.getElementById("grStatus");
 const grPreviewEl = document.getElementById("grPreview");
 const grUpdateBtn = document.getElementById("grUpdateBtn");
 const grClearBtn = document.getElementById("grClearBtn");
+const ratesStatusEl = document.getElementById("ratesStatus");
 const GR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpOW8sNc8fkV2HmQWZvYHmgWgLp-z62ChEZP4MoCtev4eD71gKaP_fNqd4GRD1EWTM/exec";
 
 function formatDate(val){
@@ -811,6 +866,87 @@ async function updateGoldRates(){
 
 grUpdateBtn?.addEventListener("click", updateGoldRates);
 grClearBtn?.addEventListener("click", clearGoldRateBox);
+
+function setRatesStatus(text, isError=false){
+  if(!ratesStatusEl) return;
+  ratesStatusEl.textContent = text || "";
+  ratesStatusEl.style.color = isError ? "#b91c1c" : "#0f766e";
+}
+
+function fillRateForm(prefix, data){
+  const setVal = (id, v) => {
+    const el = document.getElementById(id);
+    if(el) el.value = v ?? "";
+  };
+  setVal(`r_${prefix}_date`, data?.date || "");
+  setVal(`r_${prefix}_time`, data?.time || "");
+  setVal(`r_${prefix}_diff`, data?.diff || "");
+  setVal(`r_${prefix}_g22_1g`, data?.gold22_1g ?? "");
+  setVal(`r_${prefix}_g22_1p`, data?.gold22_1p ?? "");
+  setVal(`r_${prefix}_g18_1g`, data?.gold18_1g ?? "");
+  setVal(`r_${prefix}_s1g`, data?.silver_1g ?? "");
+}
+
+function readRateForm(prefix){
+  const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
+  const toNum = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
+  return {
+    date: getVal(`r_${prefix}_date`),
+    time: getVal(`r_${prefix}_time`),
+    gold22_1g: toNum(getVal(`r_${prefix}_g22_1g`)),
+    gold22_1p: toNum(getVal(`r_${prefix}_g22_1p`)),
+    gold18_1g: toNum(getVal(`r_${prefix}_g18_1g`)),
+    silver_1g: toNum(getVal(`r_${prefix}_s1g`))
+  };
+}
+
+async function loadRatesDoc(docId, prefix, label){
+  try{
+    setRatesStatus(`Loading ${label}...`);
+    const snap = await getDoc(doc(db, "rates", docId));
+    if(!snap.exists()){
+      fillRateForm(prefix, {});
+      setRatesStatus(`${label} rate document not found.`);
+      return;
+    }
+    fillRateForm(prefix, snap.data() || {});
+    setRatesStatus(`${label} rates loaded.`);
+  }catch(err){
+    console.error(err);
+    setRatesStatus(`Load failed (${label}): ${err.message || err}`, true);
+  }
+}
+
+async function saveRatesDoc(docId, prefix, label){
+  try{
+    const payload = readRateForm(prefix);
+    setRatesStatus(`Saving ${label}...`);
+
+    // Auto-calculate diff from old vs new 22K (1g) rate
+    const oldSnap = await getDoc(doc(db, "rates", docId));
+    const oldData = oldSnap.exists() ? (oldSnap.data() || {}) : {};
+    const oldRate22 = Number(oldData.gold22_1g || 0);
+    const newRate22 = Number(payload.gold22_1g || 0);
+    const diffNum = newRate22 - oldRate22;
+    const diffText = diffNum > 0 ? `+${diffNum}` : String(diffNum);
+
+    payload.diff = diffText;
+    await setDoc(doc(db, "rates", docId), payload, { merge: true });
+    fillRateForm(prefix, payload);
+    setRatesStatus(`${label} rates saved.`);
+  }catch(err){
+    console.error(err);
+    setRatesStatus(`Save failed (${label}): ${err.message || err}`, true);
+  }
+}
+
+document.getElementById("loadTodayRatesBtn")?.addEventListener("click", () => loadRatesDoc("today", "today", "AKGSMA"));
+document.getElementById("saveTodayRatesBtn")?.addEventListener("click", () => saveRatesDoc("today", "today", "AKGSMA"));
+document.getElementById("loadKgsmaRatesBtn")?.addEventListener("click", () => loadRatesDoc("kgsma", "kgsma", "KGSMA"));
+document.getElementById("saveKgsmaRatesBtn")?.addEventListener("click", () => saveRatesDoc("kgsma", "kgsma", "KGSMA"));
 </script>
 </body>
 </html>
