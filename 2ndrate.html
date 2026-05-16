@@ -69,6 +69,12 @@ button{
   margin-left:10px;
 }
 
+.preview-btn{
+  background:#f4b400;
+  color:#111;
+  margin-left:10px;
+}
+
 .status{
   margin-top:15px;
   font-weight:bold;
@@ -122,6 +128,32 @@ button{
   font-weight:bold;
 }
 
+.edit-grid{
+  display:grid;
+  gap:12px;
+  margin-top:10px;
+}
+
+.edit-field label{
+  display:block;
+  font-size:13px;
+  color:#666;
+  margin-bottom:6px;
+}
+
+.edit-field input{
+  width:100%;
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:15px;
+  box-sizing:border-box;
+}
+
+.update-wrap{
+  margin-top:15px;
+}
+
 .up{
   color:#0f9d58;
 }
@@ -168,7 +200,7 @@ img{
 
 <div class="buttons">
   <button class="ocr" onclick="extractText()">OCR IMAGE</button>
-  <button class="update" onclick="updateRates()">UPDATE</button>
+  <button class="preview-btn" onclick="showPreview()">PREVIEW</button>
   <button class="clear" onclick="clearBox()">CLEAR</button>
 </div>
 
@@ -193,6 +225,10 @@ img{
 </div>
 
 <div class="preview" id="preview"></div>
+
+<div class="update-wrap" id="updateWrap" style="display:none;">
+  <button class="update" onclick="updateRates()">UPDATE</button>
+</div>
 
 <script type="module">
 
@@ -221,12 +257,15 @@ const ui = {
   updatedKgsmaRate:document.getElementById("updatedKgsmaRate"),
   pavanTrend:document.getElementById("pavanTrend"),
   currentRates:document.getElementById("currentRates"),
-  preview:document.getElementById("preview")
+  preview:document.getElementById("preview"),
+  updateWrap:document.getElementById("updateWrap")
 };
 
 let currentSnapshot = null;
+let previewSnapshot = null;
 
 window.extractText = extractText;
+window.showPreview = showPreview;
 window.updateRates = updateRates;
 window.clearBox = clearBox;
 
@@ -440,11 +479,13 @@ function clearBox(){
 
   ui.data.value = "";
   ui.preview.innerHTML = "";
+  ui.updateWrap.style.display = "none";
   ui.updatedKgsmaRate.innerText = "--";
   ui.pavanTrend.className = "rate-subtext same";
   ui.pavanTrend.innerText = "22കെ പവന് സ്റ്റാറ്റസ് ഇവിടെ കാണിക്കും";
   ui.previewImage.style.display = "none";
   ui.imageInput.value = "";
+  previewSnapshot = null;
   setStatus("", "");
 }
 
@@ -472,7 +513,21 @@ async function extractText(){
   }
 }
 
-async function updateRates(){
+function renderPreviewEditor(snapshot){
+
+  ui.preview.innerHTML = [
+    "<b>Preview Parsed Rates</b>",
+    "<div class=\"edit-grid\">",
+    "<div class=\"edit-field\"><label for=\"previewKgsma\">KGSMA / 22K 1 Gram</label><input id=\"previewKgsma\" type=\"number\" inputmode=\"decimal\" value=\"" + (snapshot.kgsma ?? "") + "\"></div>",
+    "<div class=\"edit-field\"><label for=\"preview22g\">22K 1 Gram</label><input id=\"preview22g\" type=\"number\" inputmode=\"decimal\" value=\"" + (snapshot.gold22_1g ?? "") + "\"></div>",
+    "<div class=\"edit-field\"><label for=\"preview22p\">22K 1 Pavan</label><input id=\"preview22p\" type=\"number\" inputmode=\"decimal\" value=\"" + (snapshot.gold22_1p ?? "") + "\"></div>",
+    "<div class=\"edit-field\"><label for=\"preview18g\">18K 1 Gram</label><input id=\"preview18g\" type=\"number\" inputmode=\"decimal\" value=\"" + (snapshot.gold18_1g ?? "") + "\"></div>",
+    "<div class=\"edit-field\"><label for=\"previewSilver\">Silver 1 Gram</label><input id=\"previewSilver\" type=\"number\" inputmode=\"decimal\" value=\"" + (snapshot.silver_1g ?? "") + "\"></div>",
+    "</div>"
+  ].join("");
+}
+
+function showPreview(){
 
   const text = ui.data.value;
 
@@ -481,15 +536,51 @@ async function updateRates(){
     return;
   }
 
-  const previousSnapshot = currentSnapshot;
   const parsed = extractRatesFromText(text);
 
+  previewSnapshot = {
+    kgsma:
+      parsed.kgsma !== null
+        ? parsed.kgsma
+        : parsed.gold22_1g,
+    gold22_1g:parsed.gold22_1g,
+    gold22_1p:parsed.gold22_1p,
+    gold18_1g:parsed.gold18_1g,
+    silver_1g:parsed.silver_1g
+  };
+
+  renderPreviewEditor(previewSnapshot);
+  ui.updateWrap.style.display = "block";
+  setStatus("Preview generated. Edit rates if needed.", "success");
+}
+
+function getPreviewValues(){
+
+  return {
+    kgsma:parseNumber(document.getElementById("previewKgsma")?.value),
+    gold22_1g:parseNumber(document.getElementById("preview22g")?.value),
+    gold22_1p:parseNumber(document.getElementById("preview22p")?.value),
+    gold18_1g:parseNumber(document.getElementById("preview18g")?.value),
+    silver_1g:parseNumber(document.getElementById("previewSilver")?.value)
+  };
+}
+
+async function updateRates(){
+
+  if(!previewSnapshot){
+    setStatus("Preview first, then update", "error");
+    return;
+  }
+
+  const previousSnapshot = currentSnapshot;
+  const edited = getPreviewValues();
+
   if(
-    parsed.gold22_1g === null &&
-    parsed.gold22_1p === null &&
-    parsed.kgsma === null
+    edited.gold22_1g === null &&
+    edited.gold22_1p === null &&
+    edited.kgsma === null
   ){
-    setStatus("Rate not found in text", "error");
+    setStatus("Preview rates are empty", "error");
     return;
   }
 
@@ -502,26 +593,26 @@ async function updateRates(){
       hour12:true
     }),
     kgsma:
-      parsed.kgsma !== null
-        ? parsed.kgsma
-        : parsed.gold22_1g !== null
-          ? parsed.gold22_1g
+      edited.kgsma !== null
+        ? edited.kgsma
+        : edited.gold22_1g !== null
+          ? edited.gold22_1g
           : previousSnapshot?.kgsma ?? null,
     gold22_1g:
-      parsed.gold22_1g !== null
-        ? parsed.gold22_1g
+      edited.gold22_1g !== null
+        ? edited.gold22_1g
         : previousSnapshot?.gold22_1g ?? null,
     gold22_1p:
-      parsed.gold22_1p !== null
-        ? parsed.gold22_1p
+      edited.gold22_1p !== null
+        ? edited.gold22_1p
         : previousSnapshot?.gold22_1p ?? null,
     gold18_1g:
-      parsed.gold18_1g !== null
-        ? parsed.gold18_1g
+      edited.gold18_1g !== null
+        ? edited.gold18_1g
         : previousSnapshot?.gold18_1g ?? null,
     silver_1g:
-      parsed.silver_1g !== null
-        ? parsed.silver_1g
+      edited.silver_1g !== null
+        ? edited.silver_1g
         : previousSnapshot?.silver_1g ?? null
   };
 
@@ -558,12 +649,17 @@ async function updateRates(){
     );
 
     ui.preview.innerHTML = [
+      "<b>Updated Preview</b><br><br>",
       "Previous KGSMA Rate: ₹" + formatRate(previousSnapshot?.kgsma),
       "Updated KGSMA Rate: ₹" + formatRate(nextSnapshot.kgsma),
-      "22K Pavan Rate: ₹" + formatRate(nextSnapshot.gold22_1p)
+      "22K 1 Gram: ₹" + formatRate(nextSnapshot.gold22_1g),
+      "22K Pavan Rate: ₹" + formatRate(nextSnapshot.gold22_1p),
+      "18K 1 Gram: ₹" + formatRate(nextSnapshot.gold18_1g),
+      "Silver 1 Gram: ₹" + formatRate(nextSnapshot.silver_1g)
     ].join("<br>");
 
     setStatus("Update completed successfully", "success");
+    previewSnapshot = nextSnapshot;
 
     await loadCurrentRates();
 
