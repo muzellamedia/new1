@@ -304,8 +304,29 @@ function formatRate(value){
 
 function parseNumber(value){
 
+  let raw = String(value ?? "").trim();
+
+  if(!raw){
+    return null;
+  }
+
+  raw = raw.replace(/[^\d,.\-+]/g, "");
+
+  if(raw.includes(".") && !raw.includes(",")){
+    const parts = raw.split(".");
+
+    if(
+      parts.length > 1 &&
+      parts.slice(1).every(function(part){
+        return /^\d{3}$/.test(part);
+      })
+    ){
+      raw = parts.join("");
+    }
+  }
+
   const numeric =
-    Number(String(value ?? "").replace(/,/g, "").trim());
+    Number(raw.replace(/[,.](?=\d{3}\b)/g, "").replace(/,/g, ""));
 
   return Number.isNaN(numeric) ? null : numeric;
 }
@@ -361,6 +382,92 @@ function extractRatesFromText(text){
 
     return null;
   };
+
+  const ocrRates = {
+    "22": { oneGram:null, onePavan:null },
+    "18": { oneGram:null, onePavan:null },
+    "14": { oneGram:null, onePavan:null },
+    "9": { oneGram:null, onePavan:null }
+  };
+
+  let pendingGram = null;
+  let currentKarat = null;
+
+  const assignGram = function(karat, value){
+    if(ocrRates[karat] && ocrRates[karat].oneGram === null){
+      ocrRates[karat].oneGram = value;
+    }
+  };
+
+  const assignPavan = function(karat, value){
+    if(ocrRates[karat] && ocrRates[karat].onePavan === null){
+      ocrRates[karat].onePavan = value;
+    }
+  };
+
+  for(const line of lines){
+
+    const gramLine =
+      line.match(/(?:^|[\s(])(?:1\s*[gqc]|[i1l]c)\b[^\d]{0,8}([\d,.\s]+)(?!.*\/)/i);
+
+    if(gramLine){
+      const gramValue = parseNumber(gramLine[1]);
+
+      if(gramValue !== null){
+
+        if(currentKarat){
+          assignGram(currentKarat, gramValue);
+        }else{
+          pendingGram = gramValue;
+        }
+
+        continue;
+      }
+    }
+
+    const karatLine =
+      line.match(/\b(22|18|14|9)\s*k\b/i);
+
+    if(karatLine){
+
+      currentKarat = karatLine[1];
+
+      if(pendingGram !== null){
+        assignGram(currentKarat, pendingGram);
+        pendingGram = null;
+      }
+
+      const numbers =
+        (line.match(/[\d,.]+/g) || [])
+          .map(parseNumber)
+          .filter(function(value){
+            return value !== null;
+          });
+
+      for(const value of numbers){
+        if(value >= 30000){
+          assignPavan(currentKarat, value);
+          break;
+        }
+      }
+
+      continue;
+    }
+
+    if(currentKarat){
+      const pavanLine =
+        line.match(/(?:8\s*g(?:m)?|1\s*pavan|[s5]\b)[^\d]{0,8}([\d,.]+)/i);
+
+      if(pavanLine){
+        const pavanValue = parseNumber(pavanLine[1]);
+
+        if(pavanValue !== null){
+          assignPavan(currentKarat, pavanValue);
+          continue;
+        }
+      }
+    }
+  }
 
   const extractBlockRates = function(blockPatterns){
 
@@ -428,24 +535,24 @@ function extractRatesFromText(text){
   ]);
 
   return {
-    gold22_1g:block22.oneGram ?? find([
+    gold22_1g:ocrRates["22"].oneGram ?? block22.oneGram ?? find([
       /22\s*k[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
       /gold22_1g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
       /22\s*carat[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
     ]),
-    gold22_1p:block22.onePavan ?? find([
+    gold22_1p:ocrRates["22"].onePavan ?? block22.onePavan ?? find([
       /22\s*k[^\n]{0,25}?pavan[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
       /gold22_1p[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
       /22\s*carat[^\n]{0,25}?pavan[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
     ]),
-    gold18_1g:block18.oneGram ?? find([
+    gold18_1g:ocrRates["18"].oneGram ?? block18.oneGram ?? find([
       /18\s*k[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
       /9\s*k[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
       /gold18_1g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
       /18\s*carat[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
     ]),
     silver_1g:silverRate,
-    kgsma:block22.oneGram ?? find([
+    kgsma:ocrRates["22"].oneGram ?? block22.oneGram ?? find([
       /kgsma[^\d]{0,20}([\d,]+(?:\.\d+)?)/i,
       /kg\s*sma[^\d]{0,20}([\d,]+(?:\.\d+)?)/i,
       /22\s*k[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
