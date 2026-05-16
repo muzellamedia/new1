@@ -334,84 +334,90 @@ loadCurrentRates();
 // LOAD CURRENT RATES
 // =====================
 
+
+lines.
+
+---
+
+# ✅ Correct code should be
+
+:::writing{variant="standard" id="58214"}
 async function loadCurrentRates(){
 
-try{
+  try{
 
-```
-const res =
-  await fetch(FIREBASE_URL);
+    const res =
+      await fetch(FIREBASE_URL);
 
-const data =
-  await res.json();
+    const data =
+      await res.json();
 
-const f = data.fields || {};
+    const f = data.fields || {};
 
-const gold22 =
-  f.gold22_1g?.integerValue || 0;
+    const gold22 =
+      f.gold22_1g?.integerValue || 0;
 
-const pavan =
-  f.gold22_1p?.integerValue || 0;
+    const pavan =
+      f.gold22_1p?.integerValue || 0;
 
-const gold18 =
-  f.gold18_1g?.integerValue || 0;
+    const gold18 =
+      f.gold18_1g?.integerValue || 0;
 
-const silver =
-  f.silver_1g?.integerValue || 0;
+    const silver =
+      f.silver_1g?.integerValue || 0;
 
-const diff =
-  f.diff?.stringValue || "0";
+    const diff =
+      f.diff?.stringValue || "0";
 
-const time =
-  f.time?.stringValue || "";
+    const time =
+      f.time?.stringValue || "";
 
-let trend = "➡️ മാറ്റമില്ല";
+    let trend = "➡️ മാറ്റമില്ല";
 
-if(diff.startsWith("+")){
+    if(diff.startsWith("+")){
 
-  trend =
-    "🔼 22K പവന് ഇന്ന് വില കൂടി";
+      trend =
+        "🔼 22K പവന് ഇന്ന് വില കൂടി";
 
-}else if(diff.startsWith("-")){
+    }else if(diff.startsWith("-")){
 
-  trend =
-    "🔽 22K പവന് ഇന്ന് വില കുറഞ്ഞു";
+      trend =
+        "🔽 22K പവന് ഇന്ന് വില കുറഞ്ഞു";
+    }
+
+    document.getElementById(
+      "currentRates"
+    ).innerHTML = `
+
+      <b>Current KGSMA Rates</b><br><br>
+
+      22K 1gm: ₹${gold22}<br>
+      22K 8gm: ₹${pavan}<br>
+      18K 1gm: ₹${gold18}<br>
+      Silver: ₹${silver}<br>
+      Time: ${time}<br><br>
+
+      <b>${trend}</b>
+    `;
+
+  }catch(err){
+
+    document.getElementById(
+      "currentRates"
+    ).innerHTML =
+      "❌ Failed to load current rates";
+  }
 }
+:::
 
-document.getElementById(
-  "currentRates"
-).innerHTML = `
+---
 
-  <b>Current KGSMA Rates</b><br><br>
+# 🎯 Why Loading... stayed
 
-  22K 1gm: ₹${gold22}<br>
-  22K 8gm: ₹${pavan}<br>
-  18K 1gm: ₹${gold18}<br>
-  Silver: ₹${silver}<br>
-  Time: ${time}<br><br>
+Because JS syntax error വന്നപ്പോൾ:
 
-  <b>${trend}</b>
-`;
-```
-
-}catch(err){
-
-```
-document.getElementById(
-  "currentRates"
-).innerHTML =
-  "❌ Failed to load current rates";
-```
-
-}
-}
-
-// =====================
-// AUTO LOAD
-// =====================
-
-loadCurrentRates();
-
+```javascript id="0jlwo0"
+loadCurrentRates()
 </script>
 
 </body>
