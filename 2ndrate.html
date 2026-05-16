@@ -392,6 +392,7 @@ function extractRatesFromText(text){
 
   let pendingGram = null;
   let currentKarat = null;
+  let lastStandaloneGram = null;
 
   const assignGram = function(karat, value){
     if(ocrRates[karat] && ocrRates[karat].oneGram === null){
@@ -414,13 +415,8 @@ function extractRatesFromText(text){
       const gramValue = parseNumber(gramLine[1]);
 
       if(gramValue !== null){
-
-        if(currentKarat){
-          assignGram(currentKarat, gramValue);
-        }else{
-          pendingGram = gramValue;
-        }
-
+        lastStandaloneGram = gramValue;
+        pendingGram = gramValue;
         continue;
       }
     }
@@ -463,9 +459,13 @@ function extractRatesFromText(text){
 
         if(pavanValue !== null){
           assignPavan(currentKarat, pavanValue);
-          continue;
-        }
-      }
+      continue;
+    }
+
+    if(/silver/i.test(line) && lastStandaloneGram !== null){
+      break;
+    }
+  }
     }
   }
 
@@ -529,10 +529,13 @@ function extractRatesFromText(text){
     /750/i
   ]);
 
-  const silverRate = find([
-    /silver[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
-    /silver_1g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
-  ]);
+  const silverRate =
+    /silver/i.test(normalized) && lastStandaloneGram !== null
+      ? lastStandaloneGram
+      : find([
+          /silver[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
+          /silver_1g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
+        ]);
 
   return {
     gold22_1g:ocrRates["22"].oneGram ?? block22.oneGram ?? find([
