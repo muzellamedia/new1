@@ -140,6 +140,13 @@ img{
 </div>
 
 <div class="status" id="status"></div>
+<div class="preview" id="currentRates">
+
+<b>Current KGSMA Rates</b><br><br>
+
+Loading...
+
+</div>
 
 <div class="preview" id="preview"></div>
 
@@ -147,6 +154,9 @@ img{
 
 const SCRIPT_URL =
 "https://script.google.com/macros/s/AKfycbw1Kp7C2yLMlSfau_Ik97jJ9ODdCzPRbw_dMgyK3On-OZv3NzVN42jrIu_8a47JP8Bm/exec";
+  const FIREBASE_URL =
+"https://firestore.googleapis.com/v1/projects/gold-5735f/databases/(default)/documents/rates/kgsma";
+
 
 // =====================
 // IMAGE PREVIEW
@@ -279,7 +289,11 @@ async function updateRates(){
   status.innerText =
     "⏳ Processing...";
 
-  preview.innerHTML = "";
+  preview.innerHTML =
+  "Updated Successfully";
+
+// 🔄 Reload latest rates
+loadCurrentRates();
 
   try{
 
@@ -316,6 +330,87 @@ async function updateRates(){
   }
 
 }
+// =====================
+// LOAD CURRENT RATES
+// =====================
+
+async function loadCurrentRates(){
+
+try{
+
+```
+const res =
+  await fetch(FIREBASE_URL);
+
+const data =
+  await res.json();
+
+const f = data.fields || {};
+
+const gold22 =
+  f.gold22_1g?.integerValue || 0;
+
+const pavan =
+  f.gold22_1p?.integerValue || 0;
+
+const gold18 =
+  f.gold18_1g?.integerValue || 0;
+
+const silver =
+  f.silver_1g?.integerValue || 0;
+
+const diff =
+  f.diff?.stringValue || "0";
+
+const time =
+  f.time?.stringValue || "";
+
+let trend = "➡️ മാറ്റമില്ല";
+
+if(diff.startsWith("+")){
+
+  trend =
+    "🔼 22K പവന് ഇന്ന് വില കൂടി";
+
+}else if(diff.startsWith("-")){
+
+  trend =
+    "🔽 22K പവന് ഇന്ന് വില കുറഞ്ഞു";
+}
+
+document.getElementById(
+  "currentRates"
+).innerHTML = `
+
+  <b>Current KGSMA Rates</b><br><br>
+
+  22K 1gm: ₹${gold22}<br>
+  22K 8gm: ₹${pavan}<br>
+  18K 1gm: ₹${gold18}<br>
+  Silver: ₹${silver}<br>
+  Time: ${time}<br><br>
+
+  <b>${trend}</b>
+`;
+```
+
+}catch(err){
+
+```
+document.getElementById(
+  "currentRates"
+).innerHTML =
+  "❌ Failed to load current rates";
+```
+
+}
+}
+
+// =====================
+// AUTO LOAD
+// =====================
+
+loadCurrentRates();
 
 </script>
 
