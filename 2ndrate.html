@@ -284,12 +284,12 @@ async function updateRates(){
     return;
   }
 
-  status.className = "status";
+status.className = "status success";
 
-  status.innerText =
-    "⏳ Processing...";
+status.innerText =
+  "✅ Update request sent successfully";
 
-  preview.innerHTML =
+preview.innerHTML =
   "Updated Successfully";
 
 // 🔄 Reload latest rates
