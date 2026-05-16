@@ -313,6 +313,13 @@ function parseNumber(value){
 function extractRatesFromText(text){
 
   const normalized = text.replace(/\r/g, "");
+  const lines =
+    normalized
+      .split("\n")
+      .map(function(line){
+        return line.trim();
+      })
+      .filter(Boolean);
 
   const find = function(patterns){
 
@@ -332,27 +339,90 @@ function extractRatesFromText(text){
     return null;
   };
 
+  const extractBlockRates = function(blockPatterns){
+
+    let active = false;
+    let oneGram = null;
+    let onePavan = null;
+
+    for(const line of lines){
+
+      if(blockPatterns.some(function(pattern){
+        return pattern.test(line);
+      })){
+        active = true;
+        continue;
+      }
+
+      if(active){
+
+        if(oneGram === null){
+          const gramMatch =
+            line.match(/1\s*g(?:m)?[^\d]{0,10}[\u20B9Rs.\- ]*([\d,]+(?:\.\d+)?)/i);
+
+          if(gramMatch){
+            oneGram = parseNumber(gramMatch[1]);
+            continue;
+          }
+        }
+
+        if(onePavan === null){
+          const pavanMatch =
+            line.match(/(?:8\s*g(?:m)?|1\s*pavan)[^\d]{0,10}[\u20B9Rs.\- ]*([\d,]+(?:\.\d+)?)/i);
+
+          if(pavanMatch){
+            onePavan = parseNumber(pavanMatch[1]);
+          }
+        }
+
+        if(oneGram !== null && onePavan !== null){
+          break;
+        }
+      }
+    }
+
+    return {
+      oneGram:oneGram,
+      onePavan:onePavan
+    };
+  };
+
+  const block22 = extractBlockRates([
+    /22\s*k/i,
+    /916/i,
+    /hallmark/i
+  ]);
+
+  const block18 = extractBlockRates([
+    /18\s*k/i,
+    /9\s*k/i,
+    /750/i
+  ]);
+
+  const silverRate = find([
+    /silver[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
+    /silver_1g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
+  ]);
+
   return {
-    gold22_1g:find([
+    gold22_1g:block22.oneGram ?? find([
       /22\s*k[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
       /gold22_1g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
       /22\s*carat[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
     ]),
-    gold22_1p:find([
+    gold22_1p:block22.onePavan ?? find([
       /22\s*k[^\n]{0,25}?pavan[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
       /gold22_1p[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
       /22\s*carat[^\n]{0,25}?pavan[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
     ]),
-    gold18_1g:find([
+    gold18_1g:block18.oneGram ?? find([
       /18\s*k[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
+      /9\s*k[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
       /gold18_1g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
       /18\s*carat[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
     ]),
-    silver_1g:find([
-      /silver[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
-      /silver_1g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
-    ]),
-    kgsma:find([
+    silver_1g:silverRate,
+    kgsma:block22.oneGram ?? find([
       /kgsma[^\d]{0,20}([\d,]+(?:\.\d+)?)/i,
       /kg\s*sma[^\d]{0,20}([\d,]+(?:\.\d+)?)/i,
       /22\s*k[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
