@@ -310,6 +310,29 @@ function parseNumber(value){
   return Number.isNaN(numeric) ? null : numeric;
 }
 
+function parseDiffValue(value){
+
+  const raw = String(value ?? "").trim();
+
+  if(!raw || raw === "0"){
+    return 0;
+  }
+
+  const match = raw.match(/^(\+\+|\+|--|-)(\d+(?:\.\d+)?)$/);
+
+  if(!match){
+    return 0;
+  }
+
+  const amount = Number(match[2]);
+
+  if(Number.isNaN(amount)){
+    return 0;
+  }
+
+  return match[1].includes("-") ? -amount : amount;
+}
+
 function extractRatesFromText(text){
 
   const normalized = text.replace(/\r/g, "");
@@ -461,7 +484,8 @@ function getTrendText(previousPavan, newPavan){
 
 function getTrendFromDiff(diff){
 
-  const numericDiff = parseNumber(diff);
+  const numericDiff = parseDiffValue(diff);
+  const absValue = Math.abs(numericDiff);
 
   if(numericDiff === null || numericDiff === 0){
     return {
@@ -472,13 +496,13 @@ function getTrendFromDiff(diff){
 
   if(numericDiff > 0){
     return {
-      text:"22കെ പവന് ഇന്ന് വില കൂടി",
+      text:"22കെ പവന് ഇന്ന് " + formatRate(absValue) + " രൂപ കൂടി",
       className:"rate-subtext up"
     };
   }
 
   return {
-    text:"22കെ പവന് ഇന്ന് വില കുറഞ്ഞു",
+    text:"22കെ പവന് ഇന്ന് " + formatRate(absValue) + " രൂപ കുറഞ്ഞു",
     className:"rate-subtext down"
   };
 }
@@ -486,6 +510,13 @@ function getTrendFromDiff(diff){
 function renderTrend(previousPavan, newPavan){
 
   const trend = getTrendText(previousPavan, newPavan);
+  ui.pavanTrend.className = trend.className;
+  ui.pavanTrend.innerText = trend.text;
+}
+
+function renderTrendFromDiff(diff){
+
+  const trend = getTrendFromDiff(diff);
   ui.pavanTrend.className = trend.className;
   ui.pavanTrend.innerText = trend.text;
 }
@@ -536,6 +567,7 @@ async function loadCurrentRates(){
     };
 
     renderCurrentSnapshot(snapshot);
+    renderTrendFromDiff(snapshot.diff);
     setStatus("Current rate loaded", "success");
 
   }catch(err){
@@ -612,11 +644,25 @@ function showPreview(){
     kgsma:
       parsed.kgsma !== null
         ? parsed.kgsma
-        : parsed.gold22_1g,
-    gold22_1g:parsed.gold22_1g,
-    gold22_1p:parsed.gold22_1p,
-    gold18_1g:parsed.gold18_1g,
-    silver_1g:parsed.silver_1g
+        : parsed.gold22_1g !== null
+          ? parsed.gold22_1g
+          : currentSnapshot?.kgsma ?? null,
+    gold22_1g:
+      parsed.gold22_1g !== null
+        ? parsed.gold22_1g
+        : currentSnapshot?.gold22_1g ?? null,
+    gold22_1p:
+      parsed.gold22_1p !== null
+        ? parsed.gold22_1p
+        : currentSnapshot?.gold22_1p ?? null,
+    gold18_1g:
+      parsed.gold18_1g !== null
+        ? parsed.gold18_1g
+        : currentSnapshot?.gold18_1g ?? null,
+    silver_1g:
+      parsed.silver_1g !== null
+        ? parsed.silver_1g
+        : currentSnapshot?.silver_1g ?? null
   };
 
   renderPreviewEditor(previewSnapshot);
@@ -633,6 +679,49 @@ function getPreviewValues(){
     gold18_1g:parseNumber(document.getElementById("preview18g")?.value),
     silver_1g:parseNumber(document.getElementById("previewSilver")?.value)
   };
+}
+
+function buildDiffString(previousSnapshot, nextPavan, todayDate){
+
+  if(
+    typeof previousSnapshot?.gold22_1p !== "number" ||
+    typeof nextPavan !== "number"
+  ){
+    return "0";
+  }
+
+  const previousDate =
+    String(previousSnapshot.date || "");
+
+  const previousDiff =
+    parseDiffValue(previousSnapshot.diff);
+
+  let baselinePavan =
+    previousSnapshot.gold22_1p;
+
+  let repeated = false;
+
+  if(previousDate === todayDate){
+    baselinePavan =
+      previousSnapshot.gold22_1p - previousDiff;
+    repeated = previousDiff !== 0;
+  }
+
+  const totalDiff =
+    nextPavan - baselinePavan;
+
+  if(totalDiff === 0){
+    return "0";
+  }
+
+  const absValue =
+    Math.abs(totalDiff);
+
+  if(totalDiff > 0){
+    return (repeated ? "++" : "+") + absValue;
+  }
+
+  return (repeated ? "--" : "-") + absValue;
 }
 
 async function updateRates(){
@@ -687,12 +776,13 @@ async function updateRates(){
   };
 
   const diffValue =
-    typeof previousSnapshot?.gold22_1p === "number" &&
-    typeof nextSnapshot.gold22_1p === "number"
-      ? nextSnapshot.gold22_1p - previousSnapshot.gold22_1p
-      : 0;
+    buildDiffString(
+      previousSnapshot,
+      nextSnapshot.gold22_1p,
+      nextSnapshot.date
+    );
 
-  nextSnapshot.diff = String(diffValue);
+  nextSnapshot.diff = diffValue;
 
   setStatus("Updating Firebase...", "");
   ui.preview.innerHTML = "";
@@ -713,10 +803,7 @@ async function updateRates(){
     ui.updatedKgsmaRate.innerText =
       formatRate(nextSnapshot.kgsma);
 
-    renderTrend(
-      previousSnapshot?.gold22_1p,
-      nextSnapshot.gold22_1p
-    );
+    renderTrendFromDiff(nextSnapshot.diff);
 
     ui.preview.innerHTML = [
       "<b>Updated Preview</b><br><br>",
