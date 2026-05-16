@@ -91,6 +91,49 @@ button{
   line-height:1.7;
 }
 
+.rate-board{
+  margin-top:15px;
+  display:grid;
+  gap:12px;
+}
+
+.rate-card{
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:10px;
+  padding:14px;
+}
+
+.rate-label{
+  font-size:13px;
+  color:#666;
+  margin-bottom:6px;
+}
+
+.rate-value{
+  font-size:24px;
+  font-weight:bold;
+  color:#111;
+}
+
+.rate-subtext{
+  margin-top:8px;
+  font-size:14px;
+  font-weight:bold;
+}
+
+.up{
+  color:#0f9d58;
+}
+
+.down{
+  color:#d93025;
+}
+
+.same{
+  color:#555;
+}
+
 img{
   width:100%;
   margin-top:15px;
@@ -124,300 +167,413 @@ img{
 ></textarea>
 
 <div class="buttons">
-
-  <button class="ocr" onclick="extractText()">
-    OCR IMAGE
-  </button>
-
-  <button class="update" onclick="updateRates()">
-    UPDATE
-  </button>
-
-  <button class="clear" onclick="clearBox()">
-    CLEAR
-  </button>
-
+  <button class="ocr" onclick="extractText()">OCR IMAGE</button>
+  <button class="update" onclick="updateRates()">UPDATE</button>
+  <button class="clear" onclick="clearBox()">CLEAR</button>
 </div>
 
 <div class="status" id="status"></div>
+
+<div class="rate-board">
+  <div class="rate-card">
+    <div class="rate-label">Current KGSMA Rate</div>
+    <div class="rate-value" id="currentKgsmaRate">--</div>
+  </div>
+
+  <div class="rate-card">
+    <div class="rate-label">Updated KGSMA Rate</div>
+    <div class="rate-value" id="updatedKgsmaRate">--</div>
+    <div class="rate-subtext same" id="pavanTrend">22കെ പവന് സ്റ്റാറ്റസ് ഇവിടെ കാണിക്കും</div>
+  </div>
+</div>
+
 <div class="preview" id="currentRates">
-
-<b>Current KGSMA Rates</b><br><br>
-
-Loading...
-
+  <b>Current KGSMA Rates</b><br><br>
+  Loading...
 </div>
 
 <div class="preview" id="preview"></div>
 
-<script>
+<script type="module">
 
-const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbw1Kp7C2yLMlSfau_Ik97jJ9ODdCzPRbw_dMgyK3On-OZv3NzVN42jrIu_8a47JP8Bm/exec";
-  const FIREBASE_URL =
-"https://firestore.googleapis.com/v1/projects/gold-5735f/databases/(default)/documents/rates/kgsma";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyBxnjf4XDfnr4kj6mb-bR_wHW_3ZT0e9BU",
+  authDomain: "gold-5735f.firebaseapp.com",
+  projectId: "gold-5735f",
+  storageBucket: "gold-5735f.firebasestorage.app",
+  messagingSenderId: "5295731508",
+  appId: "1:5295731508:web:07d5430da5ebaaf6886b61"
+};
 
-// =====================
-// IMAGE PREVIEW
-// =====================
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const rateRef = doc(db, "rates", "kgsma");
 
-document
-  .getElementById("imageInput")
-  .addEventListener("change", function(e){
+const ui = {
+  imageInput:document.getElementById("imageInput"),
+  previewImage:document.getElementById("previewImage"),
+  data:document.getElementById("data"),
+  status:document.getElementById("status"),
+  currentKgsmaRate:document.getElementById("currentKgsmaRate"),
+  updatedKgsmaRate:document.getElementById("updatedKgsmaRate"),
+  pavanTrend:document.getElementById("pavanTrend"),
+  currentRates:document.getElementById("currentRates"),
+  preview:document.getElementById("preview")
+};
 
-    const file = e.target.files[0];
+let currentSnapshot = null;
 
-    if(!file) return;
+window.extractText = extractText;
+window.updateRates = updateRates;
+window.clearBox = clearBox;
 
-    const reader = new FileReader();
+ui.imageInput.addEventListener("change", function(e){
 
-    reader.onload = function(evt){
+  const file = e.target.files[0];
 
-      const img =
-        document.getElementById("previewImage");
+  if(!file) return;
 
-      img.src = evt.target.result;
+  const reader = new FileReader();
 
-      img.style.display = "block";
-    };
+  reader.onload = function(evt){
+    ui.previewImage.src = evt.target.result;
+    ui.previewImage.style.display = "block";
+  };
 
-    reader.readAsDataURL(file);
-
+  reader.readAsDataURL(file);
 });
 
-// =====================
-// CLEAR
-// =====================
+function setStatus(message, type){
 
-function clearBox(){
+  ui.status.className =
+    type ? "status " + type : "status";
 
-  document.getElementById("data").value = "";
-
-  document.getElementById("status").innerHTML = "";
-
-  document.getElementById("preview").innerHTML = "";
-
-  document.getElementById("previewImage").style.display =
-    "none";
-
-  document.getElementById("imageInput").value = "";
+  ui.status.innerText = message;
 }
 
-// =====================
-// OCR IMAGE
-// =====================
+function formatRate(value){
 
-async function extractText(){
-
-  const file =
-    document.getElementById("imageInput").files[0];
-
-  const status =
-    document.getElementById("status");
-
-  if(!file){
-
-    status.className = "status error";
-
-    status.innerText =
-      "❌ Please select image";
-
-    return;
+  if(typeof value !== "number" || Number.isNaN(value)){
+    return "--";
   }
 
-  status.className = "status";
-
-  status.innerText =
-    "⏳ Reading image...";
-
-  try{
-
-    const result =
-      await Tesseract.recognize(
-        file,
-        "eng"
-      );
-
-    const text = result.data.text;
-
-    document.getElementById("data").value =
-      text;
-
-    status.className = "status success";
-
-    status.innerText =
-      "✅ OCR completed";
-
-  }catch(err){
-
-    status.className = "status error";
-
-    status.innerText =
-      "❌ OCR failed";
-  }
-
+  return new Intl.NumberFormat("en-IN").format(value);
 }
 
-// =====================
-// UPDATE
-// =====================
+function parseNumber(value){
 
-async function updateRates(){
+  const numeric =
+    Number(String(value ?? "").replace(/,/g, "").trim());
 
-  const text =
-    document.getElementById("data").value;
+  return Number.isNaN(numeric) ? null : numeric;
+}
 
-  const status =
-    document.getElementById("status");
+function extractRatesFromText(text){
 
-  const preview =
-    document.getElementById("preview");
+  const normalized = text.replace(/\r/g, "");
 
-  if(!text.trim()){
+  const find = function(patterns){
 
-    status.className = "status error";
+    for(const pattern of patterns){
 
-    status.innerText =
-      "❌ Please paste message";
+      const match = normalized.match(pattern);
 
-    return;
-  }
+      if(match){
+        const numeric = parseNumber(match[1]);
 
-status.className = "status success";
-
-status.innerText =
-  "✅ Update request sent successfully";
-
-preview.innerHTML =
-  "Updated Successfully";
-
-// 🔄 Reload latest rates
-loadCurrentRates();
-
-  try{
-
-    await fetch(
-      SCRIPT_URL,
-      {
-        method:"POST",
-        mode:"no-cors",
-
-        headers:{
-          "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify({
-          text:text
-        })
+        if(numeric !== null){
+          return numeric;
+        }
       }
-    );
+    }
 
-    status.className = "status success";
+    return null;
+  };
 
-    status.innerText =
-      "✅ Update request sent successfully";
+  return {
+    gold22_1g:find([
+      /22\s*k[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
+      /gold22_1g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
+      /22\s*carat[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
+    ]),
+    gold22_1p:find([
+      /22\s*k[^\n]{0,25}?pavan[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
+      /gold22_1p[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
+      /22\s*carat[^\n]{0,25}?pavan[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
+    ]),
+    gold18_1g:find([
+      /18\s*k[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
+      /gold18_1g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
+      /18\s*carat[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
+    ]),
+    silver_1g:find([
+      /silver[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i,
+      /silver_1g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
+    ]),
+    kgsma:find([
+      /kgsma[^\d]{0,20}([\d,]+(?:\.\d+)?)/i,
+      /kg\s*sma[^\d]{0,20}([\d,]+(?:\.\d+)?)/i,
+      /22\s*k[^\n]{0,25}?1\s*g[^\d]{0,10}([\d,]+(?:\.\d+)?)/i
+    ])
+  };
+}
 
-    preview.innerHTML =
-      "Check Google Sheet / Firebase";
+function getTrendText(previousPavan, newPavan){
 
-  }catch(err){
-
-    status.className = "status error";
-
-    status.innerText =
-      "❌ Error: " + err.message;
+  if(typeof previousPavan !== "number" || typeof newPavan !== "number"){
+    return {
+      text:"22കെ പവന്റെ താരതമ്യത്തിനുള്ള റേറ്റ് ലഭ്യമല്ല",
+      className:"rate-subtext same"
+    };
   }
 
+  if(newPavan > previousPavan){
+    return {
+      text:"22കെ പവന് ഇന്ന് വില കൂടി",
+      className:"rate-subtext up"
+    };
+  }
+
+  if(newPavan < previousPavan){
+    return {
+      text:"22കെ പവന് ഇന്ന് വില കുറഞ്ഞു",
+      className:"rate-subtext down"
+    };
+  }
+
+  return {
+    text:"22കെ പവന് ഇന്ന് മാറ്റമില്ല",
+    className:"rate-subtext same"
+  };
 }
-// =====================
-// LOAD CURRENT RATES
-// =====================
 
+function getTrendFromDiff(diff){
 
-lines.
+  const numericDiff = parseNumber(diff);
 
----
+  if(numericDiff === null || numericDiff === 0){
+    return {
+      text:"22കെ പവന് ഇന്ന് മാറ്റമില്ല",
+      className:"rate-subtext same"
+    };
+  }
 
-# ✅ Correct code should be
+  if(numericDiff > 0){
+    return {
+      text:"22കെ പവന് ഇന്ന് വില കൂടി",
+      className:"rate-subtext up"
+    };
+  }
 
-:::writing{variant="standard" id="58214"}
+  return {
+    text:"22കെ പവന് ഇന്ന് വില കുറഞ്ഞു",
+    className:"rate-subtext down"
+  };
+}
+
+function renderTrend(previousPavan, newPavan){
+
+  const trend = getTrendText(previousPavan, newPavan);
+  ui.pavanTrend.className = trend.className;
+  ui.pavanTrend.innerText = trend.text;
+}
+
+function renderCurrentSnapshot(snapshot){
+
+  currentSnapshot = snapshot;
+  ui.currentKgsmaRate.innerText = formatRate(snapshot?.kgsma);
+
+  const trend = getTrendFromDiff(snapshot?.diff);
+
+  ui.currentRates.innerHTML = [
+    "<b>Current KGSMA Rates</b><br><br>",
+    "Date: " + (snapshot?.date || "--") + "<br>",
+    "Time: " + (snapshot?.time || "--") + "<br>",
+    "KGSMA: ₹" + formatRate(snapshot?.kgsma) + "<br>",
+    "22K 1gm: ₹" + formatRate(snapshot?.gold22_1g) + "<br>",
+    "22K Pavan: ₹" + formatRate(snapshot?.gold22_1p) + "<br>",
+    "18K 1gm: ₹" + formatRate(snapshot?.gold18_1g) + "<br>",
+    "Silver 1gm: ₹" + formatRate(snapshot?.silver_1g) + "<br><br>",
+    "<b>" + trend.text + "</b>"
+  ].join("");
+}
+
 async function loadCurrentRates(){
 
   try{
 
-    const res =
-      await fetch(FIREBASE_URL);
+    setStatus("Loading current rate...", "");
 
-    const data =
-      await res.json();
+    const snap = await getDoc(rateRef);
 
-    const f = data.fields || {};
-
-    const gold22 =
-      f.gold22_1g?.integerValue || 0;
-
-    const pavan =
-      f.gold22_1p?.integerValue || 0;
-
-    const gold18 =
-      f.gold18_1g?.integerValue || 0;
-
-    const silver =
-      f.silver_1g?.integerValue || 0;
-
-    const diff =
-      f.diff?.stringValue || "0";
-
-    const time =
-      f.time?.stringValue || "";
-
-    let trend = "➡️ മാറ്റമില്ല";
-
-    if(diff.startsWith("+")){
-
-      trend =
-        "🔼 22K പവന് ഇന്ന് വില കൂടി";
-
-    }else if(diff.startsWith("-")){
-
-      trend =
-        "🔽 22K പവന് ഇന്ന് വില കുറഞ്ഞു";
+    if(!snap.exists()){
+      throw new Error("rates/kgsma document not found");
     }
 
-    document.getElementById(
-      "currentRates"
-    ).innerHTML = `
+    const data = snap.data();
 
-      <b>Current KGSMA Rates</b><br><br>
+    const snapshot = {
+      date:data.date || "",
+      time:data.time || "",
+      diff:data.diff || "0",
+      kgsma:parseNumber(data.kgsma ?? data.gold22_1g),
+      gold22_1g:parseNumber(data.gold22_1g),
+      gold22_1p:parseNumber(data.gold22_1p),
+      gold18_1g:parseNumber(data.gold18_1g),
+      silver_1g:parseNumber(data.silver_1g)
+    };
 
-      22K 1gm: ₹${gold22}<br>
-      22K 8gm: ₹${pavan}<br>
-      18K 1gm: ₹${gold18}<br>
-      Silver: ₹${silver}<br>
-      Time: ${time}<br><br>
-
-      <b>${trend}</b>
-    `;
+    renderCurrentSnapshot(snapshot);
+    setStatus("Current rate loaded", "success");
 
   }catch(err){
-
-    document.getElementById(
-      "currentRates"
-    ).innerHTML =
-      "❌ Failed to load current rates";
+    ui.currentRates.innerHTML = "Failed to load current rates";
+    ui.currentKgsmaRate.innerText = "--";
+    setStatus("Current rate load failed: " + err.message, "error");
   }
 }
-:::
 
----
+function clearBox(){
 
-# 🎯 Why Loading... stayed
+  ui.data.value = "";
+  ui.preview.innerHTML = "";
+  ui.updatedKgsmaRate.innerText = "--";
+  ui.pavanTrend.className = "rate-subtext same";
+  ui.pavanTrend.innerText = "22കെ പവന് സ്റ്റാറ്റസ് ഇവിടെ കാണിക്കും";
+  ui.previewImage.style.display = "none";
+  ui.imageInput.value = "";
+  setStatus("", "");
+}
 
-Because JS syntax error വന്നപ്പോൾ:
+async function extractText(){
 
-```javascript id="0jlwo0"
-loadCurrentRates()
+  const file = ui.imageInput.files[0];
+
+  if(!file){
+    setStatus("Please select image", "error");
+    return;
+  }
+
+  setStatus("Reading image...", "");
+
+  try{
+
+    const result =
+      await Tesseract.recognize(file, "eng");
+
+    ui.data.value = result.data.text;
+    setStatus("OCR completed", "success");
+
+  }catch(err){
+    setStatus("OCR failed", "error");
+  }
+}
+
+async function updateRates(){
+
+  const text = ui.data.value;
+
+  if(!text.trim()){
+    setStatus("Please paste message", "error");
+    return;
+  }
+
+  const previousSnapshot = currentSnapshot;
+  const parsed = extractRatesFromText(text);
+
+  if(
+    parsed.gold22_1g === null &&
+    parsed.gold22_1p === null &&
+    parsed.kgsma === null
+  ){
+    setStatus("Rate not found in text", "error");
+    return;
+  }
+
+  const now = new Date();
+  const nextSnapshot = {
+    date:now.toISOString().slice(0, 10),
+    time:now.toLocaleTimeString("en-IN", {
+      hour:"2-digit",
+      minute:"2-digit",
+      hour12:true
+    }),
+    kgsma:
+      parsed.kgsma !== null
+        ? parsed.kgsma
+        : parsed.gold22_1g !== null
+          ? parsed.gold22_1g
+          : previousSnapshot?.kgsma ?? null,
+    gold22_1g:
+      parsed.gold22_1g !== null
+        ? parsed.gold22_1g
+        : previousSnapshot?.gold22_1g ?? null,
+    gold22_1p:
+      parsed.gold22_1p !== null
+        ? parsed.gold22_1p
+        : previousSnapshot?.gold22_1p ?? null,
+    gold18_1g:
+      parsed.gold18_1g !== null
+        ? parsed.gold18_1g
+        : previousSnapshot?.gold18_1g ?? null,
+    silver_1g:
+      parsed.silver_1g !== null
+        ? parsed.silver_1g
+        : previousSnapshot?.silver_1g ?? null
+  };
+
+  const diffValue =
+    typeof previousSnapshot?.gold22_1p === "number" &&
+    typeof nextSnapshot.gold22_1p === "number"
+      ? nextSnapshot.gold22_1p - previousSnapshot.gold22_1p
+      : 0;
+
+  nextSnapshot.diff = String(diffValue);
+
+  setStatus("Updating Firebase...", "");
+  ui.preview.innerHTML = "";
+
+  try{
+
+    await updateDoc(rateRef, {
+      date:nextSnapshot.date,
+      time:nextSnapshot.time,
+      diff:nextSnapshot.diff,
+      kgsma:nextSnapshot.kgsma,
+      gold22_1g:nextSnapshot.gold22_1g,
+      gold22_1p:nextSnapshot.gold22_1p,
+      gold18_1g:nextSnapshot.gold18_1g,
+      silver_1g:nextSnapshot.silver_1g
+    });
+
+    ui.updatedKgsmaRate.innerText =
+      formatRate(nextSnapshot.kgsma);
+
+    renderTrend(
+      previousSnapshot?.gold22_1p,
+      nextSnapshot.gold22_1p
+    );
+
+    ui.preview.innerHTML = [
+      "Previous KGSMA Rate: ₹" + formatRate(previousSnapshot?.kgsma),
+      "Updated KGSMA Rate: ₹" + formatRate(nextSnapshot.kgsma),
+      "22K Pavan Rate: ₹" + formatRate(nextSnapshot.gold22_1p)
+    ].join("<br>");
+
+    setStatus("Update completed successfully", "success");
+
+    await loadCurrentRates();
+
+  }catch(err){
+    setStatus("Update failed: " + err.message, "error");
+  }
+}
+
+loadCurrentRates();
+
 </script>
 
 </body>
