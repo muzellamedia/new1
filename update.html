@@ -2,138 +2,680 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gold Rate Admin</title>
+
 <style>
-body{font-family:Arial,sans-serif;background:#111;color:#eee;max-width:900px;margin:auto;padding:20px}
-textarea,input{width:100%;padding:10px;margin:5px 0;border-radius:6px;border:1px solid #555;background:#222;color:#fff;box-sizing:border-box}
-.row{display:grid;grid-template-columns:1fr 90px;gap:8px;align-items:center}
-button{padding:10px 15px;border:none;border-radius:6px;background:#0b5ed7;color:#fff;cursor:pointer}
-.card{background:#1b1b1b;padding:15px;border-radius:10px;margin:15px 0}
-h2{margin-top:0}
-.copybtn{padding:6px}
-pre{white-space:pre-wrap}
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#101010;
+  color:#fff;
+}
+
+.page{
+  width:min(900px, 100%);
+  padding:14px;
+}
+
+h1{
+  margin:8px 0 18px;
+  font-size:24px;
+}
+
+h2{
+  margin:24px 0 12px;
+  font-size:19px;
+}
+
+.panel{
+  margin-bottom:16px;
+}
+
+textarea{
+  width:100%;
+  min-height:190px;
+  padding:12px;
+  border:1px solid #555;
+  border-radius:6px;
+  background:#222;
+  color:#fff;
+  font-size:15px;
+  line-height:1.45;
+  resize:vertical;
+  outline:none;
+}
+
+.btn{
+  min-height:38px;
+  padding:0 16px;
+  border:0;
+  border-radius:6px;
+  background:#0b63e5;
+  color:#fff;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.btn.secondary{
+  background:#2d2d2d;
+  border:1px solid #555;
+}
+
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:10px;
+}
+
+.status{
+  margin:14px 0;
+  font-weight:bold;
+}
+
+.success{
+  color:#35c46b;
+}
+
+.error{
+  color:#ff5f5f;
+}
+
+.preview{
+  padding:12px;
+  border:1px solid #333;
+  border-radius:6px;
+  background:#181818;
+}
+
+.message-preview{
+  margin-bottom:14px;
+  padding-bottom:12px;
+  border-bottom:1px solid #333;
+  white-space:pre-wrap;
+  line-height:1.45;
+}
+
+.copy-row,
+.rate-row{
+  display:grid;
+  grid-template-columns:1fr 90px;
+  gap:8px;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.copy-value{
+  min-height:38px;
+  padding:9px 12px;
+  border:1px solid #444;
+  border-radius:6px;
+  background:#222;
+  color:#fff;
+}
+
+.copy-label{
+  color:#b8c0cc;
+}
+
+input{
+  width:100%;
+  min-height:38px;
+  padding:0 12px;
+  border:1px solid #555;
+  border-radius:6px;
+  background:#242424;
+  color:#fff;
+  font-size:15px;
+  outline:none;
+}
+
+input::placeholder{
+  color:#9ca3af;
+}
+
+.readonly input{
+  color:#d6d6d6;
+  background:#1a1a1a;
+}
+
+.readonly .rate-row{
+  grid-template-columns:170px 1fr;
+}
+
+.label{
+  color:#b8c0cc;
+}
+
+.diff-box{
+  margin-top:12px;
+  font-size:20px;
+  font-weight:bold;
+}
+
+@media(max-width:560px){
+  .page{
+    padding:10px 8px;
+  }
+
+  h1{
+    font-size:22px;
+  }
+
+  .copy-row,
+  .rate-row{
+    grid-template-columns:1fr 82px;
+  }
+
+  .readonly .rate-row{
+    grid-template-columns:1fr;
+    gap:5px;
+  }
+}
 </style>
 </head>
+
 <body>
+<main class="page">
+  <h1>Gold Rate Admin</h1>
 
-<h2>Gold Rate Update</h2>
+  <section class="panel">
+    <h2>WhatsApp Message</h2>
+    <textarea id="messageInput" placeholder="Paste complete WhatsApp message"></textarea>
+    <div class="actions">
+      <button class="btn" type="button" id="previewBtn">Preview</button>
+    </div>
+  </section>
 
-<div class="card">
-<label>WhatsApp Message</label>
-<textarea id="msg" rows="10" placeholder="Paste WhatsApp message here"></textarea>
-<button onclick="preview()">Preview</button>
-</div>
+  <div class="status" id="status">Connecting Firebase...</div>
 
-<div class="card">
-<h3>Preview</h3>
-<div id="previewArea">No Preview</div>
-</div>
+  <section class="panel">
+    <h2>Preview</h2>
+    <div class="preview" id="previewArea">Paste WhatsApp message and click Preview.</div>
+  </section>
 
+  <section class="panel">
+    <h2>New Rate</h2>
 
-<h3>New Rate</h3>
+    <div class="rate-row">
+      <input id="new22g" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="22K 1gm">
+      <button class="btn" type="button" data-paste="new22g">Paste</button>
+    </div>
 
-<div class="row">
-<input id="new22" placeholder="22K 1gm">
-<button onclick="pasteClipboard('new22')">Paste</button>
-</div>
+    <div class="rate-row">
+      <input id="new22p" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="22K 8gm">
+      <button class="btn" type="button" data-paste="new22p">Paste</button>
+    </div>
 
-<div class="row">
-<input id="new22p" placeholder="22K 8gm">
-<button onclick="pasteClipboard('new22p')">Paste</button>
-</div>
+    <div class="rate-row">
+      <input id="new18g" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="18K 1gm">
+      <button class="btn" type="button" data-paste="new18g">Paste</button>
+    </div>
 
-<div class="row">
-<input id="new18" placeholder="18K 1gm">
-<button onclick="pasteClipboard('new18')">Paste</button>
-</div>
+    <div class="rate-row">
+      <input id="newSilver" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="Silver">
+      <button class="btn" type="button" data-paste="newSilver">Paste</button>
+    </div>
+  </section>
 
-<div class="row">
-<input id="newsilver" placeholder="Silver">
-<button onclick="pasteClipboard('newsilver')">Paste</button>
-</div>
+  <section class="panel readonly">
+    <h2>Previous Rate (Firebase)</h2>
 
-<button onclick="calculate()">Calculate</button>
+    <div class="rate-row">
+      <div class="label">22K 1gm</div>
+      <input id="old22g" readonly>
+    </div>
 
-<h3 id="result">Diff :</h3>
+    <div class="rate-row">
+      <div class="label">22K 8gm</div>
+      <input id="old22p" readonly>
+    </div>
 
-<button onclick="alert('Firebase update code goes here')">Update Firebase</button>
+    <div class="rate-row">
+      <div class="label">18K 1gm</div>
+      <input id="old18g" readonly>
+    </div>
 
-</div>
+    <div class="rate-row">
+      <div class="label">Silver</div>
+      <input id="oldSilver" readonly>
+    </div>
 
-444
+    <div class="rate-row">
+      <div class="label">Previous Diff</div>
+      <input id="oldDiff" readonly>
+    </div>
 
-<script>
+    <div class="rate-row">
+      <div class="label">Date</div>
+      <input id="oldDate" readonly>
+    </div>
 
-function copyValue(v){
-navigator.clipboard.writeText(v.toString());
-alert("Copied : "+v);
+    <div class="rate-row">
+      <div class="label">Time</div>
+      <input id="oldTime" readonly>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="actions">
+      <button class="btn" type="button" id="calculateBtn">Calculate</button>
+      <button class="btn" type="button" id="updateBtn">Update Firebase</button>
+    </div>
+    <div class="diff-box" id="diffBox">Diff :</div>
+  </section>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBxnjf4XDfnr4kj6mb-bR_wHW_3ZT0e9BU",
+  authDomain: "gold-5735f.firebaseapp.com",
+  projectId: "gold-5735f",
+  storageBucket: "gold-5735f.firebasestorage.app",
+  messagingSenderId: "5295731508",
+  appId: "1:5295731508:web:07d5430da5ebaaf6886b61"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const rateRef = doc(db, "rates", "kgsma");
+
+const inputIds = ["new22g", "new22p", "new18g", "newSilver"];
+const ui = {
+  messageInput:document.getElementById("messageInput"),
+  previewBtn:document.getElementById("previewBtn"),
+  previewArea:document.getElementById("previewArea"),
+  status:document.getElementById("status"),
+  calculateBtn:document.getElementById("calculateBtn"),
+  updateBtn:document.getElementById("updateBtn"),
+  diffBox:document.getElementById("diffBox"),
+  new22g:document.getElementById("new22g"),
+  new22p:document.getElementById("new22p"),
+  new18g:document.getElementById("new18g"),
+  newSilver:document.getElementById("newSilver"),
+  old22g:document.getElementById("old22g"),
+  old22p:document.getElementById("old22p"),
+  old18g:document.getElementById("old18g"),
+  oldSilver:document.getElementById("oldSilver"),
+  oldDiff:document.getElementById("oldDiff"),
+  oldDate:document.getElementById("oldDate"),
+  oldTime:document.getElementById("oldTime")
+};
+
+let previousRate = null;
+let calculatedDiff = "";
+let nextUpdateCount = 1;
+
+function setStatus(message, type){
+  ui.status.className = type ? "status " + type : "status";
+  ui.status.textContent = message;
 }
 
-function preview(){
-
-let t=document.getElementById("msg").value;
-
-let html=t
-.replace(/1gm\s*[-–]\s*₹?(\d+)/g,(m,n)=>`1gm - ₹${n} <button class='copybtn' onclick='copyValue("${n}")'>Copy</button>`)
-.replace(/8gm\s*[-–]\s*₹?(\d+)/g,(m,n)=>`8gm - ₹${n} <button class='copybtn' onclick='copyValue("${n}")'>Copy</button>`);
-
-document.getElementById("previewArea").innerHTML="<pre>"+html+"</pre>";
-
+function todayDate(){
+  return new Date().toISOString().slice(0, 10);
 }
 
-async function pasteClipboard(id){
-let txt=await navigator.clipboard.readText();
-txt=txt.replace(/\D/g,"");
-document.getElementById(id).value=txt;
+function currentTime(){
+  return new Date().toLocaleTimeString("en-IN", {
+    hour:"2-digit",
+    minute:"2-digit",
+    hour12:true
+  });
 }
 
-function calculate(){
-
-let oldRate=parseInt(document.getElementById("old22").value);
-let newRate=parseInt(document.getElementById("new22").value);
-
-if(isNaN(newRate)){alert("Enter 22K Rate");return;}
-
-let diff=newRate-oldRate;
-
-let sign="";
-
-const oldDate="2026-07-01";
-let today=new Date().toISOString().slice(0,10);
-
-if(diff>0){
-
-if(today==oldDate) sign="++";
-else sign="+";
-
+function digitsOnly(value){
+  return String(value ?? "").replace(/\D/g, "");
 }
 
-else if(diff<0){
-
-if(today==oldDate) sign="--";
-else sign="-";
-
-diff=Math.abs(diff);
-
-}
-else{
-
-sign="";
-
+function toNumber(value){
+  const clean = digitsOnly(value);
+  return clean ? Number(clean) : null;
 }
 
-document.getElementById("result").innerHTML="Diff : "+sign+diff;
+function formatNumber(value){
+  if(typeof value !== "number" || Number.isNaN(value)){
+    return "";
+  }
 
+  return String(value);
 }
 
+function copyText(value){
+  navigator.clipboard.writeText(String(value)).then(function(){
+    setStatus("Copied " + value, "success");
+  }).catch(function(){
+    setStatus("Copy failed", "error");
+  });
+}
+
+function normalizeMessage(message){
+  return String(message || "")
+    .replace(/\r/g, "")
+    .replace(/[–—]/g, "-")
+    .replace(/₹/g, " ")
+    .replace(/\bRs\.?\b/gi, " ")
+    .replace(/[()]/g, " ");
+}
+
+function parseFirstNumber(line){
+  const matches = String(line).match(/\d[\d,.]*/g);
+
+  if(!matches || !matches.length){
+    return null;
+  }
+
+  return toNumber(matches[matches.length - 1]);
+}
+
+function parseWhatsAppMessage(message){
+  const normalized = normalizeMessage(message);
+  const lines = normalized
+    .split("\n")
+    .map(function(line){
+      return line.trim();
+    })
+    .filter(Boolean);
+
+  const result = {
+    gold22_1g:null,
+    gold22_1p:null,
+    gold18_1g:null,
+    silver_1g:null
+  };
+
+  let section = "";
+
+  for(let i = 0; i < lines.length; i++){
+    const line = lines[i];
+
+    if(/\b22\s*k\b|916/i.test(line)){
+      section = "22";
+      continue;
+    }
+
+    if(/\b18\s*k\b|750/i.test(line)){
+      section = "18";
+      continue;
+    }
+
+    if(/silver/i.test(line)){
+      section = "silver";
+
+      const sameLineValue = parseFirstNumber(line);
+
+      if(sameLineValue !== null){
+        result.silver_1g = sameLineValue;
+      }else if(i + 1 < lines.length){
+        const nextLineValue = parseFirstNumber(lines[i + 1]);
+
+        if(nextLineValue !== null){
+          result.silver_1g = nextLineValue;
+        }
+      }
+
+      continue;
+    }
+
+    if(section === "22"){
+      if(/1\s*g|1\s*gm/i.test(line) && result.gold22_1g === null){
+        result.gold22_1g = parseFirstNumber(line);
+        continue;
+      }
+
+      if(/8\s*g|8\s*gm|pavan/i.test(line) && result.gold22_1p === null){
+        result.gold22_1p = parseFirstNumber(line);
+        continue;
+      }
+    }
+
+    if(section === "18"){
+      if(/1\s*g|1\s*gm/i.test(line) && result.gold18_1g === null){
+        result.gold18_1g = parseFirstNumber(line);
+        continue;
+      }
+    }
+
+    if(section === "silver" && result.silver_1g === null){
+      const value = parseFirstNumber(line);
+
+      if(value !== null){
+        result.silver_1g = value;
+      }
+    }
+  }
+
+  return result;
+}
+
+function fillNewRates(parsed){
+  ui.new22g.value = formatNumber(parsed.gold22_1g);
+  ui.new22p.value = formatNumber(parsed.gold22_1p);
+  ui.new18g.value = formatNumber(parsed.gold18_1g);
+  ui.newSilver.value = formatNumber(parsed.silver_1g);
+}
+
+function renderPreview(message, parsed){
+  const rows = [
+    ["22K 1gm", parsed.gold22_1g],
+    ["22K 8gm", parsed.gold22_1p],
+    ["18K 1gm", parsed.gold18_1g],
+    ["Silver", parsed.silver_1g]
+  ];
+
+  const priceRows = rows.map(function(row){
+    const label = row[0];
+    const value = row[1];
+    const displayValue = value === null ? "" : String(value);
+
+    return [
+      "<div class=\"copy-row\">",
+      "<div class=\"copy-value\"><span class=\"copy-label\">" + label + "</span> ₹" + displayValue + "</div>",
+      "<button class=\"btn secondary\" type=\"button\" data-copy=\"" + displayValue + "\"" + (displayValue ? "" : " disabled") + ">Copy</button>",
+      "</div>"
+    ].join("");
+  }).join("");
+
+  ui.previewArea.innerHTML = [
+    "<div class=\"message-preview\"></div>",
+    priceRows
+  ].join("");
+
+  ui.previewArea.querySelector(".message-preview").textContent = message;
+
+  ui.previewArea.querySelectorAll("[data-copy]").forEach(function(button){
+    button.addEventListener("click", function(){
+      copyText(button.dataset.copy);
+    });
+  });
+}
+
+function getNewRates(){
+  return {
+    gold22_1g:toNumber(ui.new22g.value),
+    gold22_1p:toNumber(ui.new22p.value),
+    gold18_1g:toNumber(ui.new18g.value),
+    silver_1g:toNumber(ui.newSilver.value)
+  };
+}
+
+function validateNewRates(rates){
+  return rates.gold22_1g !== null &&
+    rates.gold22_1p !== null &&
+    rates.gold18_1g !== null &&
+    rates.silver_1g !== null;
+}
+
+function calculateDiff(){
+  if(!previousRate){
+    setStatus("Firebase previous rate not loaded", "error");
+    return null;
+  }
+
+  const newRates = getNewRates();
+
+  if(!validateNewRates(newRates)){
+    setStatus("Please enter all new rates", "error");
+    return null;
+  }
+
+  const today = todayDate();
+  const isSameDate = previousRate.date === today;
+  const previousCount = Number(previousRate.updateCount || 0);
+  const diffAmount = newRates.gold22_1g - previousRate.gold22_1g;
+
+  nextUpdateCount = isSameDate ? previousCount + 1 : 1;
+
+  if(diffAmount === 0){
+    calculatedDiff = "0";
+  }else{
+    const sign = diffAmount > 0 ? "+" : "-";
+    const prefix = isSameDate && nextUpdateCount >= 2 ? sign + sign : sign;
+    calculatedDiff = prefix + Math.abs(diffAmount);
+  }
+
+  ui.diffBox.textContent = "Diff : " + calculatedDiff;
+  setStatus("Calculated", "success");
+  return calculatedDiff;
+}
+
+window.calculate = calculateDiff;
+window.calculateDiff = calculateDiff;
+
+async function loadPreviousRate(){
+  try{
+    setStatus("Connecting Firebase...", "");
+
+    const snap = await getDoc(rateRef);
+
+    if(!snap.exists()){
+      throw new Error("rates/kgsma document not found");
+    }
+
+    const data = snap.data();
+
+    previousRate = {
+      gold22_1g:toNumber(data.gold22_1g),
+      gold22_1p:toNumber(data.gold22_1p),
+      gold18_1g:toNumber(data.gold18_1g),
+      silver_1g:toNumber(data.silver_1g),
+      diff:String(data.diff || "0"),
+      date:String(data.date || ""),
+      time:String(data.time || ""),
+      updateCount:Number(data.updateCount || 0)
+    };
+
+    ui.old22g.value = formatNumber(previousRate.gold22_1g);
+    ui.old22p.value = formatNumber(previousRate.gold22_1p);
+    ui.old18g.value = formatNumber(previousRate.gold18_1g);
+    ui.oldSilver.value = formatNumber(previousRate.silver_1g);
+    ui.oldDiff.value = previousRate.diff;
+    ui.oldDate.value = previousRate.date;
+    ui.oldTime.value = previousRate.time;
+
+    setStatus("Firebase Connected", "success");
+  }catch(error){
+    setStatus("Firebase connection failed: " + error.message, "error");
+  }
+}
+
+async function updateFirebase(){
+  const diff = calculateDiff();
+
+  if(diff === null){
+    return;
+  }
+
+  const newRates = getNewRates();
+
+  try{
+    ui.updateBtn.disabled = true;
+    setStatus("Updating Firebase...", "");
+
+    await updateDoc(rateRef, {
+      gold22_1g:newRates.gold22_1g,
+      gold22_1p:newRates.gold22_1p,
+      gold18_1g:newRates.gold18_1g,
+      silver_1g:newRates.silver_1g,
+      diff:diff,
+      date:todayDate(),
+      time:currentTime(),
+      kgsma:newRates.gold22_1g,
+      updateCount:nextUpdateCount
+    });
+
+    setStatus("Updated Successfully", "success");
+    await loadPreviousRate();
+  }catch(error){
+    setStatus("Update failed: " + error.message, "error");
+  }finally{
+    ui.updateBtn.disabled = false;
+  }
+}
+
+window.update = updateFirebase;
+window.updateFirebase = updateFirebase;
+
+function previewMessage(){
+  const message = ui.messageInput.value.trim();
+
+  if(!message){
+    setStatus("Please paste WhatsApp message", "error");
+    return;
+  }
+
+  const parsed = parseWhatsAppMessage(message);
+  fillNewRates(parsed);
+  renderPreview(message, parsed);
+
+  if(!validateNewRates(parsed)){
+    setStatus("Preview created. Please fill missing rates.", "error");
+    return;
+  }
+
+  setStatus("Preview created", "success");
+}
+
+async function pasteIntoInput(inputId){
+  try{
+    const text = await navigator.clipboard.readText();
+    document.getElementById(inputId).value = digitsOnly(text);
+  }catch(error){
+    setStatus("Paste failed. Please paste manually.", "error");
+  }
+}
+
+inputIds.forEach(function(id){
+  const input = document.getElementById(id);
+
+  input.addEventListener("input", function(){
+    input.value = digitsOnly(input.value);
+  });
+});
+
+document.querySelectorAll("[data-paste]").forEach(function(button){
+  button.addEventListener("click", function(){
+    pasteIntoInput(button.dataset.paste);
+  });
+});
+
+ui.previewBtn.addEventListener("click", previewMessage);
+ui.calculateBtn.addEventListener("click", calculateDiff);
+ui.updateBtn.addEventListener("click", updateFirebase);
+
+loadPreviousRate();
 </script>
-
-<!--
-Replace oldDate with Firebase date.
-Load all values from Firestore on page load.
-Use updateDoc() inside Update button.
--->
-
 </body>
 </html>
