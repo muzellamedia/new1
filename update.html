@@ -1,681 +1,724 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gold Rate Admin</title>
+
+<title>KGSMA Gold Rate Admin</title>
 
 <style>
+
 *{
-  box-sizing:border-box;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
 }
 
 body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#101010;
-  color:#fff;
+background:#f2f4f7;
+padding:25px;
 }
 
-.page{
-  width:min(900px, 100%);
-  padding:14px;
+.container{
+max-width:750px;
+margin:auto;
 }
 
-h1{
-  margin:8px 0 18px;
-  font-size:24px;
+.card{
+background:#fff;
+border-radius:12px;
+padding:25px;
+box-shadow:0 3px 15px rgba(0,0,0,.15);
 }
 
 h2{
-  margin:24px 0 12px;
-  font-size:19px;
+text-align:center;
+margin-bottom:25px;
+color:#333;
 }
 
-.panel{
-  margin-bottom:16px;
+.row{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:15px;
+gap:20px;
+
 }
 
-textarea{
-  width:100%;
-  min-height:190px;
-  padding:12px;
-  border:1px solid #555;
-  border-radius:6px;
-  background:#222;
-  color:#fff;
-  font-size:15px;
-  line-height:1.45;
-  resize:vertical;
-  outline:none;
+.row label{
+
+font-weight:bold;
+width:180px;
+
 }
 
-.btn{
-  min-height:38px;
-  padding:0 16px;
-  border:0;
-  border-radius:6px;
-  background:#0b63e5;
-  color:#fff;
-  font-size:14px;
-  cursor:pointer;
+.row input{
+
+flex:1;
+padding:10px;
+font-size:16px;
+border:1px solid #ccc;
+border-radius:6px;
+
 }
 
-.btn:disabled{
-  opacity:.55;
-  cursor:not-allowed;
+.readonly{
+
+background:#ececec;
+
 }
 
-.btn.secondary{
-  background:#2d2d2d;
-  border:1px solid #555;
+.buttons{
+
+display:flex;
+justify-content:center;
+gap:10px;
+margin-top:25px;
+
 }
 
-.actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-top:10px;
+button{
+
+padding:12px 25px;
+font-size:16px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+
 }
 
-.status{
-  margin:14px 0;
-  font-weight:bold;
+#editBtn{
+
+background:#1976D2;
+color:white;
+
 }
 
-.success{
-  color:#35c46b;
+#updateBtn{
+
+background:#4CAF50;
+color:white;
+display:none;
+
 }
 
-.error{
-  color:#ff5f5f;
+#cancelBtn{
+
+background:#f44336;
+color:white;
+display:none;
+
 }
 
 .preview{
-  padding:12px;
-  border:1px solid #333;
-  border-radius:6px;
-  background:#181818;
+
+margin-top:30px;
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 3px 12px rgba(0,0,0,.15);
+
 }
 
-.message-preview{
-  margin-bottom:14px;
-  padding-bottom:12px;
-  border-bottom:1px solid #333;
-  white-space:pre-wrap;
-  line-height:1.45;
+.preview h3{
+
+margin-bottom:20px;
+
 }
 
-.copy-row,
-.rate-row{
-  display:grid;
-  grid-template-columns:1fr 90px;
-  gap:8px;
-  align-items:center;
-  margin-bottom:10px;
+.preview p{
+
+font-size:18px;
+margin-bottom:12px;
+
 }
 
-.copy-value{
-  min-height:38px;
-  padding:9px 12px;
-  border:1px solid #444;
-  border-radius:6px;
-  background:#222;
-  color:#fff;
+.loading{
+
+display:none;
+text-align:center;
+font-size:18px;
+margin-top:15px;
+color:#1976D2;
+
 }
 
-.copy-label{
-  color:#b8c0cc;
+.success{
+
+display:none;
+text-align:center;
+font-size:17px;
+margin-top:15px;
+color:green;
+
 }
 
-input{
-  width:100%;
-  min-height:38px;
-  padding:0 12px;
-  border:1px solid #555;
-  border-radius:6px;
-  background:#242424;
-  color:#fff;
-  font-size:15px;
-  outline:none;
+.error{
+
+display:none;
+text-align:center;
+font-size:17px;
+margin-top:15px;
+color:red;
+
 }
 
-input::placeholder{
-  color:#9ca3af;
+@media(max-width:600px){
+
+.row{
+
+flex-direction:column;
+align-items:flex-start;
+
 }
 
-.readonly input{
-  color:#d6d6d6;
-  background:#1a1a1a;
+.row label{
+
+width:100%;
+
 }
 
-.readonly .rate-row{
-  grid-template-columns:170px 1fr;
+.row input{
+
+width:100%;
+
 }
 
-.label{
-  color:#b8c0cc;
+.buttons{
+
+flex-wrap:wrap;
+
 }
 
-.diff-box{
-  margin-top:12px;
-  font-size:20px;
-  font-weight:bold;
 }
 
-@media(max-width:560px){
-  .page{
-    padding:10px 8px;
-  }
-
-  h1{
-    font-size:22px;
-  }
-
-  .copy-row,
-  .rate-row{
-    grid-template-columns:1fr 82px;
-  }
-
-  .readonly .rate-row{
-    grid-template-columns:1fr;
-    gap:5px;
-  }
-}
 </style>
+
 </head>
 
 <body>
-<main class="page">
-  <h1>Gold Rate Admin</h1>
 
-  <section class="panel">
-    <h2>WhatsApp Message</h2>
-    <textarea id="messageInput" placeholder="Paste complete WhatsApp message"></textarea>
-    <div class="actions">
-      <button class="btn" type="button" id="previewBtn">Preview</button>
-    </div>
-  </section>
+<div class="container">
 
-  <div class="status" id="status">Connecting Firebase...</div>
+<div class="card">
 
-  <section class="panel">
-    <h2>Preview</h2>
-    <div class="preview" id="previewArea">Paste WhatsApp message and click Preview.</div>
-  </section>
+<h2>KGSMA Gold Rate Admin</h2>
 
-  <section class="panel">
-    <h2>New Rate</h2>
+<div class="row">
+<label>22K 1 Pavan</label>
+<input type="number" id="gold22_1p" disabled>
+</div>
 
-    <div class="rate-row">
-      <input id="new22g" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="22K 1gm">
-      <button class="btn" type="button" data-paste="new22g">Paste</button>
-    </div>
+<div class="row">
+<label>22K 1 Gram</label>
+<input type="number" id="gold22_1g" disabled>
+</div>
 
-    <div class="rate-row">
-      <input id="new22p" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="22K 8gm">
-      <button class="btn" type="button" data-paste="new22p">Paste</button>
-    </div>
+<div class="row">
+<label>18K 1 Gram</label>
+<input type="number" id="gold18_1g" disabled>
+</div>
 
-    <div class="rate-row">
-      <input id="new18g" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="18K 1gm">
-      <button class="btn" type="button" data-paste="new18g">Paste</button>
-    </div>
+<div class="row">
+<label>Silver 1 Gram</label>
+<input type="number" id="silver_1g" disabled>
+</div>
 
-    <div class="rate-row">
-      <input id="newSilver" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="Silver">
-      <button class="btn" type="button" data-paste="newSilver">Paste</button>
-    </div>
-  </section>
+<div class="row">
+<label>KGSMA</label>
+<input type="number" id="kgsma" disabled>
+</div>
 
-  <section class="panel readonly">
-    <h2>Previous Rate (Firebase)</h2>
+<div class="row">
+<label>Date</label>
+<input id="date" class="readonly" readonly>
+</div>
 
-    <div class="rate-row">
-      <div class="label">22K 1gm</div>
-      <input id="old22g" readonly>
-    </div>
+<div class="row">
+<label>Time</label>
+<input id="time" class="readonly" readonly>
+</div>
 
-    <div class="rate-row">
-      <div class="label">22K 8gm</div>
-      <input id="old22p" readonly>
-    </div>
+<div class="row">
+<label>Difference</label>
+<input id="diff" class="readonly" readonly>
+</div>
 
-    <div class="rate-row">
-      <div class="label">18K 1gm</div>
-      <input id="old18g" readonly>
-    </div>
+<div class="buttons">
 
-    <div class="rate-row">
-      <div class="label">Silver</div>
-      <input id="oldSilver" readonly>
-    </div>
+<button id="editBtn">
+Edit
+</button>
 
-    <div class="rate-row">
-      <div class="label">Previous Diff</div>
-      <input id="oldDiff" readonly>
-    </div>
+<button id="updateBtn">
+Update
+</button>
 
-    <div class="rate-row">
-      <div class="label">Date</div>
-      <input id="oldDate" readonly>
-    </div>
+<button id="cancelBtn">
+Cancel
+</button>
 
-    <div class="rate-row">
-      <div class="label">Time</div>
-      <input id="oldTime" readonly>
-    </div>
-  </section>
+</div>
 
-  <section class="panel">
-    <div class="actions">
-      <button class="btn" type="button" id="calculateBtn">Calculate</button>
-      <button class="btn" type="button" id="updateBtn">Update Firebase</button>
-    </div>
-    <div class="diff-box" id="diffBox">Diff :</div>
-  </section>
-</main>
+<div class="loading" id="loading">
+
+Updating...
+
+</div>
+
+<div class="success" id="success">
+
+Updated Successfully
+
+</div>
+
+<div class="error" id="error">
+
+Update Failed
+
+</div>
+
+</div>
+
+<div class="preview">
+
+<h3>Preview</h3>
+
+<hr><br>
+
+<p>
+📅 Date :
+<span id="pDate"></span>
+</p>
+
+<p>
+🕒 Time :
+<span id="pTime"></span>
+</p>
+
+<p>
+22K 1 Pavan :
+₹<span id="p22p"></span>
+</p>
+
+<p>
+22K 1 Gram :
+₹<span id="p22g"></span>
+</p>
+<p>
+18K 1 Gram :
+₹<span id="p18g"></span>
+</p>
+
+<p>
+Silver 1 Gram :
+₹<span id="pSilver"></span>
+</p>
+
+<p>
+KGSMA :
+₹<span id="pKgsma"></span>
+</p>
+
+<p>
+Difference :
+<span id="pDiff"></span>
+</p>
+
+</div>
+
+</div>
 
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBxnjf4XDfnr4kj6mb-bR_wHW_3ZT0e9BU",
-  authDomain: "gold-5735f.firebaseapp.com",
-  projectId: "gold-5735f",
-  storageBucket: "gold-5735f.firebasestorage.app",
-  messagingSenderId: "5295731508",
-  appId: "1:5295731508:web:07d5430da5ebaaf6886b61"
+import {
+getFirestore,
+doc,
+getDoc,
+updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig={
+
+apiKey:"AIzaSyBxnjf4XDfnr4kj6mb-bR_wHW_3ZT0e9BU",
+
+authDomain:"gold-5735f.firebaseapp.com",
+
+projectId:"gold-5735f",
+
+storageBucket:"gold-5735f.firebasestorage.app",
+
+messagingSenderId:"5295731508",
+
+appId:"1:5295731508:web:07d5430da5ebaaf6886b61"
+
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const rateRef = doc(db, "rates", "kgsma");
+const app=initializeApp(firebaseConfig);
 
-const inputIds = ["new22g", "new22p", "new18g", "newSilver"];
-const ui = {
-  messageInput:document.getElementById("messageInput"),
-  previewBtn:document.getElementById("previewBtn"),
-  previewArea:document.getElementById("previewArea"),
-  status:document.getElementById("status"),
-  calculateBtn:document.getElementById("calculateBtn"),
-  updateBtn:document.getElementById("updateBtn"),
-  diffBox:document.getElementById("diffBox"),
-  new22g:document.getElementById("new22g"),
-  new22p:document.getElementById("new22p"),
-  new18g:document.getElementById("new18g"),
-  newSilver:document.getElementById("newSilver"),
-  old22g:document.getElementById("old22g"),
-  old22p:document.getElementById("old22p"),
-  old18g:document.getElementById("old18g"),
-  oldSilver:document.getElementById("oldSilver"),
-  oldDiff:document.getElementById("oldDiff"),
-  oldDate:document.getElementById("oldDate"),
-  oldTime:document.getElementById("oldTime")
-};
+const db=getFirestore(app);
 
-let previousRate = null;
-let calculatedDiff = "";
-let nextUpdateCount = 1;
+const ref=doc(db,"rates","kgsma");
 
-function setStatus(message, type){
-  ui.status.className = type ? "status " + type : "status";
-  ui.status.textContent = message;
+let oldData={};
+
+async function loadData(){
+
+loading.style.display="block";
+
+try{
+
+const snap=await getDoc(ref);
+
+if(!snap.exists()){
+
+alert("Document not found");
+
+return;
+
 }
+
+oldData=snap.data();
+
+gold22_1p.value=oldData.gold22_1p || 0;
+
+gold22_1g.value=oldData.gold22_1g || 0;
+
+gold18_1g.value=oldData.gold18_1g || 0;
+
+silver_1g.value=oldData.silver_1g || 0;
+
+kgsma.value=oldData.kgsma || 0;
+
+date.value=oldData.date || "";
+
+time.value=oldData.time || "";
+
+diff.value=oldData.diff || "";
+
+preview();
+
+}
+catch(e){
+
+console.log(e);
+
+alert("Loading Failed");
+
+}
+
+loading.style.display="none";
+
+}
+
+loadData();
+
+function preview(){
+
+pDate.textContent=date.value;
+
+pTime.textContent=time.value;
+
+p22p.textContent=gold22_1p.value;
+
+p22g.textContent=gold22_1g.value;
+
+p18g.textContent=gold18_1g.value;
+
+pSilver.textContent=silver_1g.value;
+
+pKgsma.textContent=kgsma.value;
+
+pDiff.textContent=diff.value;
+
+}
+
+const editable=[
+
+gold22_1p,
+
+gold22_1g,
+
+gold18_1g,
+
+silver_1g,
+
+kgsma
+
+];
+
+editable.forEach(box=>{
+
+box.addEventListener("input",preview);
+
+});
+
+// =======================================
+// EDIT BUTTON
+// =======================================
+
+editBtn.onclick = () => {
+
+editable.forEach(box => {
+
+box.disabled = false;
+
+});
+
+editBtn.style.display = "none";
+updateBtn.style.display = "inline-block";
+cancelBtn.style.display = "inline-block";
+
+success.style.display = "none";
+error.style.display = "none";
+
+};
+
+// =======================================
+// CANCEL BUTTON
+// =======================================
+
+cancelBtn.onclick = () => {
+
+editable.forEach(box => {
+
+box.disabled = true;
+
+});
+
+gold22_1p.value = oldData.gold22_1p;
+gold22_1g.value = oldData.gold22_1g;
+gold18_1g.value = oldData.gold18_1g;
+silver_1g.value = oldData.silver_1g;
+kgsma.value = oldData.kgsma;
+
+preview();
+
+editBtn.style.display = "inline-block";
+updateBtn.style.display = "none";
+cancelBtn.style.display = "none";
+
+};
+
+// =======================================
+// DATE
+// =======================================
 
 function todayDate(){
-  return new Date().toISOString().slice(0, 10);
+
+const d = new Date();
+
+const day = String(d.getDate()).padStart(2,"0");
+
+const month = String(d.getMonth()+1).padStart(2,"0");
+
+const year = d.getFullYear();
+
+return `${day}-${month}-${year}`;
+
 }
+
+// =======================================
+// TIME
+// =======================================
 
 function currentTime(){
-  return new Date().toLocaleTimeString("en-IN", {
-    hour:"2-digit",
-    minute:"2-digit",
-    hour12:true
-  });
+
+return new Date().toLocaleTimeString("en-IN",{
+
+hour:"2-digit",
+
+minute:"2-digit",
+
+hour12:true
+
+});
+
 }
 
-function digitsOnly(value){
-  return String(value ?? "").replace(/\D/g, "");
-}
+// =======================================
+// LIVE PREVIEW
+// =======================================
 
-function toNumber(value){
-  const clean = digitsOnly(value);
-  return clean ? Number(clean) : null;
-}
+editable.forEach(box=>{
 
-function formatNumber(value){
-  if(typeof value !== "number" || Number.isNaN(value)){
-    return "";
-  }
+box.addEventListener("input",()=>{
 
-  return String(value);
-}
+p22p.innerHTML = gold22_1p.value;
 
-function copyText(value){
-  navigator.clipboard.writeText(String(value)).then(function(){
-    setStatus("Copied " + value, "success");
-  }).catch(function(){
-    setStatus("Copy failed", "error");
-  });
-}
+p22g.innerHTML = gold22_1g.value;
 
-function normalizeMessage(message){
-  return String(message || "")
-    .replace(/\r/g, "")
-    .replace(/[–—]/g, "-")
-    .replace(/₹/g, " ")
-    .replace(/\bRs\.?\b/gi, " ")
-    .replace(/[()]/g, " ");
-}
+p18g.innerHTML = gold18_1g.value;
 
-function parseFirstNumber(line){
-  const matches = String(line).match(/\d[\d,.]*/g);
+pSilver.innerHTML = silver_1g.value;
 
-  if(!matches || !matches.length){
-    return null;
-  }
+pKgsma.innerHTML = kgsma.value;
 
-  return toNumber(matches[matches.length - 1]);
-}
+});
 
-function parseWhatsAppMessage(message){
-  const normalized = normalizeMessage(message);
-  const lines = normalized
-    .split("\n")
-    .map(function(line){
-      return line.trim();
-    })
-    .filter(Boolean);
+});
 
-  const result = {
-    gold22_1g:null,
-    gold22_1p:null,
-    gold18_1g:null,
-    silver_1g:null
-  };
-
-  let section = "";
-
-  for(let i = 0; i < lines.length; i++){
-    const line = lines[i];
-
-    if(/\b22\s*k\b|916/i.test(line)){
-      section = "22";
-      continue;
-    }
-
-    if(/\b18\s*k\b|750/i.test(line)){
-      section = "18";
-      continue;
-    }
-
-    if(/silver/i.test(line)){
-      section = "silver";
-
-      const sameLineValue = parseFirstNumber(line);
-
-      if(sameLineValue !== null){
-        result.silver_1g = sameLineValue;
-      }else if(i + 1 < lines.length){
-        const nextLineValue = parseFirstNumber(lines[i + 1]);
-
-        if(nextLineValue !== null){
-          result.silver_1g = nextLineValue;
-        }
-      }
-
-      continue;
-    }
-
-    if(section === "22"){
-      if(/1\s*g|1\s*gm/i.test(line) && result.gold22_1g === null){
-        result.gold22_1g = parseFirstNumber(line);
-        continue;
-      }
-
-      if(/8\s*g|8\s*gm|pavan/i.test(line) && result.gold22_1p === null){
-        result.gold22_1p = parseFirstNumber(line);
-        continue;
-      }
-    }
-
-    if(section === "18"){
-      if(/1\s*g|1\s*gm/i.test(line) && result.gold18_1g === null){
-        result.gold18_1g = parseFirstNumber(line);
-        continue;
-      }
-    }
-
-    if(section === "silver" && result.silver_1g === null){
-      const value = parseFirstNumber(line);
-
-      if(value !== null){
-        result.silver_1g = value;
-      }
-    }
-  }
-
-  return result;
-}
-
-function fillNewRates(parsed){
-  ui.new22g.value = formatNumber(parsed.gold22_1g);
-  ui.new22p.value = formatNumber(parsed.gold22_1p);
-  ui.new18g.value = formatNumber(parsed.gold18_1g);
-  ui.newSilver.value = formatNumber(parsed.silver_1g);
-}
-
-function renderPreview(message, parsed){
-  const rows = [
-    ["22K 1gm", parsed.gold22_1g],
-    ["22K 8gm", parsed.gold22_1p],
-    ["18K 1gm", parsed.gold18_1g],
-    ["Silver", parsed.silver_1g]
-  ];
-
-  const priceRows = rows.map(function(row){
-    const label = row[0];
-    const value = row[1];
-    const displayValue = value === null ? "" : String(value);
-
-    return [
-      "<div class=\"copy-row\">",
-      "<div class=\"copy-value\"><span class=\"copy-label\">" + label + "</span> ₹" + displayValue + "</div>",
-      "<button class=\"btn secondary\" type=\"button\" data-copy=\"" + displayValue + "\"" + (displayValue ? "" : " disabled") + ">Copy</button>",
-      "</div>"
-    ].join("");
-  }).join("");
-
-  ui.previewArea.innerHTML = [
-    "<div class=\"message-preview\"></div>",
-    priceRows
-  ].join("");
-
-  ui.previewArea.querySelector(".message-preview").textContent = message;
-
-  ui.previewArea.querySelectorAll("[data-copy]").forEach(function(button){
-    button.addEventListener("click", function(){
-      copyText(button.dataset.copy);
-    });
-  });
-}
-
-function getNewRates(){
-  return {
-    gold22_1g:toNumber(ui.new22g.value),
-    gold22_1p:toNumber(ui.new22p.value),
-    gold18_1g:toNumber(ui.new18g.value),
-    silver_1g:toNumber(ui.newSilver.value)
-  };
-}
-
-function validateNewRates(rates){
-  return rates.gold22_1g !== null &&
-    rates.gold22_1p !== null &&
-    rates.gold18_1g !== null &&
-    rates.silver_1g !== null;
-}
+// =======================================
+// DIFFERENCE CALCULATION
+// =======================================
 
 function calculateDiff(){
-  if(!previousRate){
-    setStatus("Firebase previous rate not loaded", "error");
-    return null;
-  }
 
-  const newRates = getNewRates();
+const newRate = Number(gold22_1p.value);
 
-  if(!validateNewRates(newRates)){
-    setStatus("Please enter all new rates", "error");
-    return null;
-  }
+const oldRate = Number(oldData.gold22_1p);
 
-  const today = todayDate();
-  const isSameDate = previousRate.date === today;
-  const previousCount = Number(previousRate.updateCount || 0);
-  const diffAmount = newRates.gold22_1g - previousRate.gold22_1g;
+let difference = newRate - oldRate;
 
-  nextUpdateCount = isSameDate ? previousCount + 1 : 1;
+let count = oldData.updateCount || 0;
 
-  if(diffAmount === 0){
-    calculatedDiff = "0";
-  }else{
-    const sign = diffAmount > 0 ? "+" : "-";
-    const prefix = isSameDate && nextUpdateCount >= 2 ? sign + sign : sign;
-    calculatedDiff = prefix + Math.abs(diffAmount);
-  }
+let sign = "";
 
-  ui.diffBox.textContent = "Diff : " + calculatedDiff;
-  setStatus("Calculated", "success");
-  return calculatedDiff;
+if(todayDate() !== oldData.date){
+
+count = 0;
+
 }
 
-window.calculate = calculateDiff;
-window.calculateDiff = calculateDiff;
+const nextCount = count + 1;
 
-async function loadPreviousRate(){
-  try{
-    setStatus("Connecting Firebase...", "");
+if(difference > 0){
 
-    const snap = await getDoc(rateRef);
+sign = (nextCount == 1) ? "+" : "++";
 
-    if(!snap.exists()){
-      throw new Error("rates/kgsma document not found");
-    }
-
-    const data = snap.data();
-
-    previousRate = {
-      gold22_1g:toNumber(data.gold22_1g),
-      gold22_1p:toNumber(data.gold22_1p),
-      gold18_1g:toNumber(data.gold18_1g),
-      silver_1g:toNumber(data.silver_1g),
-      diff:String(data.diff || "0"),
-      date:String(data.date || ""),
-      time:String(data.time || ""),
-      updateCount:Number(data.updateCount || 0)
-    };
-
-    ui.old22g.value = formatNumber(previousRate.gold22_1g);
-    ui.old22p.value = formatNumber(previousRate.gold22_1p);
-    ui.old18g.value = formatNumber(previousRate.gold18_1g);
-    ui.oldSilver.value = formatNumber(previousRate.silver_1g);
-    ui.oldDiff.value = previousRate.diff;
-    ui.oldDate.value = previousRate.date;
-    ui.oldTime.value = previousRate.time;
-
-    setStatus("Firebase Connected", "success");
-  }catch(error){
-    setStatus("Firebase connection failed: " + error.message, "error");
-  }
 }
 
-async function updateFirebase(){
-  const diff = calculateDiff();
+else if(difference < 0){
 
-  if(diff === null){
-    return;
-  }
+sign = (nextCount == 1) ? "-" : "--";
 
-  const newRates = getNewRates();
-
-  try{
-    ui.updateBtn.disabled = true;
-    setStatus("Updating Firebase...", "");
-
-    await updateDoc(rateRef, {
-      gold22_1g:newRates.gold22_1g,
-      gold22_1p:newRates.gold22_1p,
-      gold18_1g:newRates.gold18_1g,
-      silver_1g:newRates.silver_1g,
-      diff:diff,
-      date:todayDate(),
-      time:currentTime(),
-      kgsma:newRates.gold22_1g,
-      updateCount:nextUpdateCount
-    });
-
-    setStatus("Updated Successfully", "success");
-    await loadPreviousRate();
-  }catch(error){
-    setStatus("Update failed: " + error.message, "error");
-  }finally{
-    ui.updateBtn.disabled = false;
-  }
 }
 
-window.update = updateFirebase;
-window.updateFirebase = updateFirebase;
+else{
 
-function previewMessage(){
-  const message = ui.messageInput.value.trim();
+sign = "";
 
-  if(!message){
-    setStatus("Please paste WhatsApp message", "error");
-    return;
-  }
-
-  const parsed = parseWhatsAppMessage(message);
-  fillNewRates(parsed);
-  renderPreview(message, parsed);
-
-  if(!validateNewRates(parsed)){
-    setStatus("Preview created. Please fill missing rates.", "error");
-    return;
-  }
-
-  setStatus("Preview created", "success");
 }
 
-async function pasteIntoInput(inputId){
-  try{
-    const text = await navigator.clipboard.readText();
-    document.getElementById(inputId).value = digitsOnly(text);
-  }catch(error){
-    setStatus("Paste failed. Please paste manually.", "error");
-  }
+return sign + Math.abs(difference);
+
+}
+// =======================================
+// UPDATE BUTTON
+// =======================================
+
+updateBtn.onclick = async () => {
+
+loading.style.display = "block";
+success.style.display = "none";
+error.style.display = "none";
+
+try{
+
+const today = todayDate();
+
+let count = oldData.updateCount || 0;
+
+// പുതിയ ദിവസം ആണെങ്കിൽ reset
+if(today !== oldData.date){
+
+count = 0;
+
 }
 
-inputIds.forEach(function(id){
-  const input = document.getElementById(id);
+const nextCount = count + 1;
 
-  input.addEventListener("input", function(){
-    input.value = digitsOnly(input.value);
-  });
+const newDiff = calculateDiff();
+
+const newDate = todayDate();
+
+const newTime = currentTime();
+
+await updateDoc(ref,{
+
+gold22_1p:Number(gold22_1p.value),
+
+gold22_1g:Number(gold22_1g.value),
+
+gold18_1g:Number(gold18_1g.value),
+
+silver_1g:Number(silver_1g.value),
+
+kgsma:Number(kgsma.value),
+
+date:newDate,
+
+time:newTime,
+
+diff:newDiff,
+
+updateCount:nextCount
+
 });
 
-document.querySelectorAll("[data-paste]").forEach(function(button){
-  button.addEventListener("click", function(){
-    pasteIntoInput(button.dataset.paste);
-  });
+// വീണ്ടും ലോഡ് ചെയ്യുക
+
+await loadData();
+
+editable.forEach(box=>{
+
+box.disabled=true;
+
 });
 
-ui.previewBtn.addEventListener("click", previewMessage);
-ui.calculateBtn.addEventListener("click", calculateDiff);
-ui.updateBtn.addEventListener("click", updateFirebase);
+editBtn.style.display="inline-block";
+updateBtn.style.display="none";
+cancelBtn.style.display="none";
 
-loadPreviousRate();
+success.style.display="block";
+
+setTimeout(()=>{
+
+success.style.display="none";
+
+},3000);
+
+}
+catch(err){
+
+console.error(err);
+
+error.style.display="block";
+
+setTimeout(()=>{
+
+error.style.display="none";
+
+},3000);
+
+}
+
+loading.style.display="none";
+
+};
+
+// =======================================
+// PREVIEW REFRESH
+// =======================================
+
+setInterval(()=>{
+
+pDate.innerHTML=date.value;
+
+pTime.innerHTML=time.value;
+
+pDiff.innerHTML=diff.value;
+
+},1000);
+
 </script>
+
 </body>
+
 </html>
