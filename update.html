@@ -1,14 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>KGSMA Gold Rate Admin</title>
-
 <style>
-
 *{
 margin:0;
 padding:0;
@@ -40,182 +36,150 @@ color:#333;
 }
 
 .row{
-
 display:flex;
 justify-content:space-between;
 align-items:center;
 margin-bottom:15px;
 gap:20px;
-
 }
 
 .row label{
-
 font-weight:bold;
 width:180px;
-
 }
 
 .row input{
-
 flex:1;
 padding:10px;
 font-size:16px;
 border:1px solid #ccc;
 border-radius:6px;
-
 }
 
 .readonly{
-
 background:#ececec;
-
 }
 
 .buttons{
-
 display:flex;
 justify-content:center;
 gap:10px;
 margin-top:25px;
-
 }
 
 button{
-
 padding:12px 25px;
 font-size:16px;
 border:none;
 border-radius:6px;
 cursor:pointer;
+}
 
+button:disabled{
+opacity:.6;
+cursor:not-allowed;
+}
+
+#calculateBtn{
+background:#ff9800;
+color:white;
 }
 
 #editBtn{
-
 background:#1976D2;
 color:white;
-
 }
 
 #updateBtn{
-
 background:#4CAF50;
 color:white;
 display:none;
-
 }
 
 #cancelBtn{
-
 background:#f44336;
 color:white;
 display:none;
-
 }
 
 .preview{
-
 margin-top:30px;
 background:white;
 padding:25px;
 border-radius:12px;
 box-shadow:0 3px 12px rgba(0,0,0,.15);
-
 }
 
 .preview h3{
-
 margin-bottom:20px;
-
 }
 
 .preview p{
-
 font-size:18px;
 margin-bottom:12px;
-
 }
 
 .loading{
-
 display:none;
 text-align:center;
 font-size:18px;
 margin-top:15px;
 color:#1976D2;
-
 }
 
 .success{
-
 display:none;
 text-align:center;
 font-size:17px;
 margin-top:15px;
 color:green;
-
 }
 
 .error{
-
 display:none;
 text-align:center;
 font-size:17px;
 margin-top:15px;
 color:red;
-
 }
 
 @media(max-width:600px){
-
 .row{
-
 flex-direction:column;
 align-items:flex-start;
-
 }
 
 .row label{
-
 width:100%;
-
 }
 
 .row input{
-
 width:100%;
-
 }
 
 .buttons{
-
 flex-wrap:wrap;
-
 }
-
 }
-
 </style>
-
 </head>
-
 <body>
-
 <div class="container">
-
 <div class="card">
-
 <h2>KGSMA Gold Rate Admin</h2>
-
-<div class="row">
-<label>22K 1 Pavan</label>
-<input type="number" id="gold22_1p" disabled>
-</div>
 
 <div class="row">
 <label>22K 1 Gram</label>
 <input type="number" id="gold22_1g" disabled>
+</div>
+
+<div class="buttons">
+<button id="calculateBtn" type="button" disabled>Calculate</button>
+</div>
+
+<div class="row">
+<label>22K 1 Pavan</label>
+<input type="number" id="gold22_1p" class="readonly" readonly>
 </div>
 
 <div class="row">
@@ -249,94 +213,32 @@ flex-wrap:wrap;
 </div>
 
 <div class="buttons">
-
-<button id="editBtn">
-Edit
-</button>
-
-<button id="updateBtn">
-Update
-</button>
-
-<button id="cancelBtn">
-Cancel
-</button>
-
+<button id="editBtn">Edit</button>
+<button id="updateBtn">Update</button>
+<button id="cancelBtn">Cancel</button>
 </div>
 
-<div class="loading" id="loading">
-
-Updating...
-
-</div>
-
-<div class="success" id="success">
-
-Updated Successfully
-
-</div>
-
-<div class="error" id="error">
-
-Update Failed
-
-</div>
-
+<div class="loading" id="loading">Updating...</div>
+<div class="success" id="success">Updated Successfully</div>
+<div class="error" id="error">Update Failed</div>
 </div>
 
 <div class="preview">
-
 <h3>Preview</h3>
-
 <hr><br>
-
-<p>
-📅 Date :
-<span id="pDate"></span>
-</p>
-
-<p>
-🕒 Time :
-<span id="pTime"></span>
-</p>
-
-<p>
-22K 1 Pavan :
-₹<span id="p22p"></span>
-</p>
-
-<p>
-22K 1 Gram :
-₹<span id="p22g"></span>
-</p>
-<p>
-18K 1 Gram :
-₹<span id="p18g"></span>
-</p>
-
-<p>
-Silver 1 Gram :
-₹<span id="pSilver"></span>
-</p>
-
-<p>
-KGSMA :
-₹<span id="pKgsma"></span>
-</p>
-
-<p>
-Difference :
-<span id="pDiff"></span>
-</p>
-
+<p>Date : <span id="pDate"></span></p>
+<p>Time : <span id="pTime"></span></p>
+<p>22K 1 Pavan : Rs <span id="p22p"></span></p>
+<p>22K 1 Gram : Rs <span id="p22g"></span></p>
+<p>18K 1 Gram : Rs <span id="p18g"></span></p>
+<p>Silver 1 Gram : Rs <span id="pSilver"></span></p>
+<p>KGSMA : Rs <span id="pKgsma"></span></p>
+<p>Difference : <span id="pDiff"></span></p>
 </div>
-
 </div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
 import {
 getFirestore,
 doc,
@@ -344,381 +246,274 @@ getDoc,
 updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig={
-
+const firebaseConfig = {
 apiKey:"AIzaSyBxnjf4XDfnr4kj6mb-bR_wHW_3ZT0e9BU",
-
 authDomain:"gold-5735f.firebaseapp.com",
-
 projectId:"gold-5735f",
-
 storageBucket:"gold-5735f.firebasestorage.app",
-
 messagingSenderId:"5295731508",
-
 appId:"1:5295731508:web:07d5430da5ebaaf6886b61"
-
 };
 
-const app=initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const ref = doc(db,"rates","kgsma");
+const GRAMS_PER_PAVAN = 8;
 
-const db=getFirestore(app);
+let oldData = {};
 
-const ref=doc(db,"rates","kgsma");
-
-let oldData={};
-
-async function loadData(){
-
-loading.style.display="block";
-
-try{
-
-const snap=await getDoc(ref);
-
-if(!snap.exists()){
-
-alert("Document not found");
-
-return;
-
-}
-
-oldData=snap.data();
-
-gold22_1p.value=oldData.gold22_1p || 0;
-
-gold22_1g.value=oldData.gold22_1g || 0;
-
-gold18_1g.value=oldData.gold18_1g || 0;
-
-silver_1g.value=oldData.silver_1g || 0;
-
-kgsma.value=oldData.kgsma || 0;
-
-date.value=oldData.date || "";
-
-time.value=oldData.time || "";
-
-diff.value=oldData.diff || "";
-
-preview();
-
-}
-catch(e){
-
-console.log(e);
-
-alert("Loading Failed");
-
-}
-
-loading.style.display="none";
-
-}
-
-loadData();
-
-function preview(){
-
-pDate.textContent=date.value;
-
-pTime.textContent=time.value;
-
-p22p.textContent=gold22_1p.value;
-
-p22g.textContent=gold22_1g.value;
-
-p18g.textContent=gold18_1g.value;
-
-pSilver.textContent=silver_1g.value;
-
-pKgsma.textContent=kgsma.value;
-
-pDiff.textContent=diff.value;
-
-}
-
-const editable=[
-
-gold22_1p,
-
+const editable = [
 gold22_1g,
-
 gold18_1g,
-
 silver_1g,
-
 kgsma
-
 ];
 
-editable.forEach(box=>{
+function preview(){
+pDate.textContent = date.value;
+pTime.textContent = time.value;
+p22p.textContent = gold22_1p.value;
+p22g.textContent = gold22_1g.value;
+p18g.textContent = gold18_1g.value;
+pSilver.textContent = silver_1g.value;
+pKgsma.textContent = kgsma.value;
+pDiff.textContent = diff.value;
+}
 
-box.addEventListener("input",preview);
-
+function setEditMode(isEditing){
+editable.forEach((box)=>{
+box.disabled = !isEditing;
 });
 
-// =======================================
-// EDIT BUTTON
-// =======================================
-
-editBtn.onclick = () => {
-
-editable.forEach(box => {
-
-box.disabled = false;
-
-});
-
-editBtn.style.display = "none";
-updateBtn.style.display = "inline-block";
-cancelBtn.style.display = "inline-block";
-
-success.style.display = "none";
-error.style.display = "none";
-
-};
-
-// =======================================
-// CANCEL BUTTON
-// =======================================
-
-cancelBtn.onclick = () => {
-
-editable.forEach(box => {
-
-box.disabled = true;
-
-});
-
-gold22_1p.value = oldData.gold22_1p;
-gold22_1g.value = oldData.gold22_1g;
-gold18_1g.value = oldData.gold18_1g;
-silver_1g.value = oldData.silver_1g;
-kgsma.value = oldData.kgsma;
-
-preview();
-
-editBtn.style.display = "inline-block";
-updateBtn.style.display = "none";
-cancelBtn.style.display = "none";
-
-};
-
-// =======================================
-// DATE
-// =======================================
+calculateBtn.disabled = !isEditing;
+editBtn.style.display = isEditing ? "none" : "inline-block";
+updateBtn.style.display = isEditing ? "inline-block" : "none";
+cancelBtn.style.display = isEditing ? "inline-block" : "none";
+}
 
 function todayDate(){
-
 const d = new Date();
-
 const day = String(d.getDate()).padStart(2,"0");
-
-const month = String(d.getMonth()+1).padStart(2,"0");
-
+const month = String(d.getMonth() + 1).padStart(2,"0");
 const year = d.getFullYear();
-
 return `${day}-${month}-${year}`;
-
 }
-
-// =======================================
-// TIME
-// =======================================
 
 function currentTime(){
-
 return new Date().toLocaleTimeString("en-IN",{
-
 hour:"2-digit",
-
 minute:"2-digit",
-
 hour12:true
-
 });
-
 }
 
-// =======================================
-// LIVE PREVIEW
-// =======================================
+function normalizeDateParts(value){
+if(!value){
+return null;
+}
 
-editable.forEach(box=>{
+const parts = String(value).trim().split("-");
 
-box.addEventListener("input",()=>{
+if(parts.length !== 3){
+return null;
+}
 
-p22p.innerHTML = gold22_1p.value;
+if(parts[0].length === 4){
+return {
+year:parts[0],
+month:parts[1].padStart(2,"0"),
+day:parts[2].padStart(2,"0")
+};
+}
 
-p22g.innerHTML = gold22_1g.value;
+return {
+year:parts[2],
+month:parts[1].padStart(2,"0"),
+day:parts[0].padStart(2,"0")
+};
+}
 
-p18g.innerHTML = gold18_1g.value;
+function isSameRateDate(firstDate,secondDate){
+const first = normalizeDateParts(firstDate);
+const second = normalizeDateParts(secondDate);
 
-pSilver.innerHTML = silver_1g.value;
+if(!first || !second){
+return false;
+}
 
-pKgsma.innerHTML = kgsma.value;
+return first.year === second.year
+&& first.month === second.month
+&& first.day === second.day;
+}
 
-});
+function getPreviousDirection(){
+const previousDiff = String(oldData.diff || "").trim();
 
-});
+if(previousDiff.startsWith("+")){
+return "up";
+}
 
-// =======================================
-// DIFFERENCE CALCULATION
-// =======================================
+if(previousDiff.startsWith("-")){
+return "down";
+}
+
+return "";
+}
 
 function calculateDiff(){
-
 const newRate = Number(gold22_1p.value);
-
-const oldRate = Number(oldData.gold22_1p);
-
-let difference = newRate - oldRate;
-
-let count = oldData.updateCount || 0;
-
-let sign = "";
-
-if(todayDate() !== oldData.date){
-
-count = 0;
-
-}
-
-const nextCount = count + 1;
+const oldRate = Number(oldData.gold22_1p) || 0;
+const difference = newRate - oldRate;
+const sameDate = isSameRateDate(todayDate(), oldData.date);
+const previousDirection = getPreviousDirection();
 
 if(difference > 0){
-
-sign = (nextCount == 1) ? "+" : "++";
-
+const prefix = sameDate && previousDirection === "up" ? "++" : "+";
+return `${prefix}${Math.abs(difference)}`;
 }
 
-else if(difference < 0){
-
-sign = (nextCount == 1) ? "-" : "--";
-
+if(difference < 0){
+const prefix = sameDate && previousDirection === "down" ? "--" : "-";
+return `${prefix}${Math.abs(difference)}`;
 }
 
-else{
-
-sign = "";
-
+return "0";
 }
 
-return sign + Math.abs(difference);
-
+function resetCalculatedFields(){
+gold22_1p.value = "";
+date.value = "";
+time.value = "";
+diff.value = "";
+preview();
 }
-// =======================================
-// UPDATE BUTTON
-// =======================================
+
+function fillCalculatedValues(){
+const gramRate = Number(gold22_1g.value);
+
+if(!gramRate){
+resetCalculatedFields();
+return;
+}
+
+gold22_1p.value = gramRate * GRAMS_PER_PAVAN;
+date.value = todayDate();
+time.value = currentTime();
+diff.value = calculateDiff();
+preview();
+}
+
+async function loadData(){
+loading.style.display = "block";
+
+try{
+const snap = await getDoc(ref);
+
+if(!snap.exists()){
+alert("Document not found");
+return;
+}
+
+oldData = snap.data();
+gold22_1p.value = oldData.gold22_1p || 0;
+gold22_1g.value = oldData.gold22_1g || 0;
+gold18_1g.value = oldData.gold18_1g || 0;
+silver_1g.value = oldData.silver_1g || 0;
+kgsma.value = oldData.kgsma || 0;
+date.value = oldData.date || "";
+time.value = oldData.time || "";
+diff.value = oldData.diff || "";
+preview();
+}
+catch(error){
+console.log(error);
+alert("Loading Failed");
+}
+
+loading.style.display = "none";
+}
+
+editable.forEach((box)=>{
+box.addEventListener("input",preview);
+});
+
+gold22_1g.addEventListener("input",()=>{
+if(!calculateBtn.disabled){
+resetCalculatedFields();
+}
+});
+
+calculateBtn.onclick = () => {
+fillCalculatedValues();
+};
+
+editBtn.onclick = () => {
+setEditMode(true);
+success.style.display = "none";
+error.style.display = "none";
+};
+
+cancelBtn.onclick = () => {
+gold22_1p.value = oldData.gold22_1p || 0;
+gold22_1g.value = oldData.gold22_1g || 0;
+gold18_1g.value = oldData.gold18_1g || 0;
+silver_1g.value = oldData.silver_1g || 0;
+kgsma.value = oldData.kgsma || 0;
+date.value = oldData.date || "";
+time.value = oldData.time || "";
+diff.value = oldData.diff || "";
+preview();
+setEditMode(false);
+};
 
 updateBtn.onclick = async () => {
-
 loading.style.display = "block";
 success.style.display = "none";
 error.style.display = "none";
 
 try{
-
-const today = todayDate();
-
-let count = oldData.updateCount || 0;
-
-// പുതിയ ദിവസം ആണെങ്കിൽ reset
-if(today !== oldData.date){
-
-count = 0;
-
+if(!gold22_1g.value){
+throw new Error("22K 1 Gram is required");
 }
 
-const nextCount = count + 1;
-
-const newDiff = calculateDiff();
-
-const newDate = todayDate();
-
-const newTime = currentTime();
+if(!gold22_1p.value || !date.value || !time.value || diff.value === ""){
+fillCalculatedValues();
+}
 
 await updateDoc(ref,{
-
 gold22_1p:Number(gold22_1p.value),
-
 gold22_1g:Number(gold22_1g.value),
-
 gold18_1g:Number(gold18_1g.value),
-
 silver_1g:Number(silver_1g.value),
-
 kgsma:Number(kgsma.value),
-
-date:newDate,
-
-time:newTime,
-
-diff:newDiff,
-
-updateCount:nextCount
-
+date:date.value,
+time:time.value,
+diff:diff.value,
+updateCount:Number(oldData.updateCount) || 0
 });
-
-// വീണ്ടും ലോഡ് ചെയ്യുക
 
 await loadData();
-
-editable.forEach(box=>{
-
-box.disabled=true;
-
-});
-
-editBtn.style.display="inline-block";
-updateBtn.style.display="none";
-cancelBtn.style.display="none";
-
-success.style.display="block";
+setEditMode(false);
+success.style.display = "block";
 
 setTimeout(()=>{
-
-success.style.display="none";
-
+success.style.display = "none";
 },3000);
-
 }
-catch(err){
-
-console.error(err);
-
-error.style.display="block";
+catch(error){
+console.error(error);
+error.style.display = "block";
 
 setTimeout(()=>{
-
-error.style.display="none";
-
+error.style.display = "none";
 },3000);
-
 }
 
-loading.style.display="none";
-
+loading.style.display = "none";
 };
 
-// =======================================
-// PREVIEW REFRESH
-// =======================================
-
-setInterval(()=>{
-
-pDate.innerHTML=date.value;
-
-pTime.innerHTML=time.value;
-
-pDiff.innerHTML=diff.value;
-
-},1000);
-
+setEditMode(false);
+loadData();
 </script>
-
 </body>
-
 </html>
