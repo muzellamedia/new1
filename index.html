@@ -3925,32 +3925,37 @@ function template26(ctx, canvas, share){
 
     ctx.save();
 
-    const hexW = 360;
-    const hexH = 210;
+    const hexW = 650;
+    const hexH = 320;
 
-    const gap = 40;
+    const gapX = 40;
+    const gapY = 45;
 
-    const totalWidth = hexW * 4 + gap * 3;
+    const totalWidth = hexW * 2 + gapX;
     const startX = (canvas.width - totalWidth) / 2;
-    const centerY = 2000;
+    const startY = 1950;
 
     function drawHexagon(x, y, title, value){
 
-        const s = 35;
+        const s = 50;
 
+        // =======================
         // Shadow
+        // =======================
         ctx.shadowColor = "rgba(0,0,0,0.7)";
         ctx.shadowBlur = 18;
 
+        // =======================
         // Hexagon
+        // =======================
         ctx.beginPath();
 
-        ctx.moveTo(x+s, y);
-        ctx.lineTo(x+hexW-s, y);
-        ctx.lineTo(x+hexW, y+hexH/2);
-        ctx.lineTo(x+hexW-s, y+hexH);
-        ctx.lineTo(x+s, y+hexH);
-        ctx.lineTo(x, y+hexH/2);
+        ctx.moveTo(x + s, y);
+        ctx.lineTo(x + hexW - s, y);
+        ctx.lineTo(x + hexW, y + hexH / 2);
+        ctx.lineTo(x + hexW - s, y + hexH);
+        ctx.lineTo(x + s, y + hexH);
+        ctx.lineTo(x, y + hexH / 2);
 
         ctx.closePath();
 
@@ -3958,74 +3963,91 @@ function template26(ctx, canvas, share){
         ctx.fill();
 
         ctx.strokeStyle = "#FFD700";
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
         ctx.stroke();
 
         ctx.shadowColor = "transparent";
 
-        // Small Gold Line
+        // =======================
+        // Inner Gold Line
+        // =======================
         ctx.beginPath();
-        ctx.moveTo(x+40, y+60);
-        ctx.lineTo(x+hexW-40, y+60);
+        ctx.moveTo(x + 60, y + 85);
+        ctx.lineTo(x + hexW - 60, y + 85);
 
-        ctx.strokeStyle = "rgba(255,215,0,.4)";
+        ctx.strokeStyle = "rgba(255,215,0,.45)";
         ctx.lineWidth = 2;
         ctx.stroke();
 
+        // =======================
         // Title
+        // =======================
         ctx.textAlign = "center";
         ctx.fillStyle = "#FFFFFF";
-        ctx.font = "bold 48px Arial";
-
-        ctx.fillText(
-            title,
-            x + hexW/2,
-            y + 48
-        );
-
-        // Price
-        ctx.fillStyle = "#FFE600";
-        ctx.font = "bold 50px Arial";
-
-        ctx.fillText(
-            "₹",
-            x + hexW/2,
-            y + 120
-        );
-
         ctx.font = "bold 64px Arial";
 
         ctx.fillText(
+            title,
+            x + hexW / 2,
+            y + 65
+        );
+
+        // =======================
+        // Rupee
+        // =======================
+        ctx.fillStyle = "#FFE600";
+        ctx.font = "bold 72px Arial";
+
+        ctx.fillText(
+            "₹",
+            x + hexW / 2,
+            y + 180
+        );
+
+        // =======================
+        // Value
+        // =======================
+        ctx.font = "bold 84px Arial";
+
+        ctx.fillText(
             formatRateValue(value),
-            x + hexW/2,
-            y + 179
+            x + hexW / 2,
+            y + 275
         );
     }
 
+    // =======================
+    // TOP ROW
+    // =======================
+
     drawHexagon(
         startX,
-        centerY,
+        startY,
         "22K 1G",
         rate22k_1g
     );
 
     drawHexagon(
-        startX + hexW + gap,
-        centerY,
-        "22K 8G",
+        startX + hexW + gapX,
+        startY,
+        "22K 1 PAVAN",
         rate22k_1p
     );
 
+    // =======================
+    // BOTTOM ROW
+    // =======================
+
     drawHexagon(
-        startX + (hexW + gap) * 2,
-        centerY,
+        startX,
+        startY + hexH + gapY,
         "18K 1G",
         rate18k_1g
     );
 
     drawHexagon(
-        startX + (hexW + gap) * 3,
-        centerY,
+        startX + hexW + gapX,
+        startY + hexH + gapY,
         "SILVER",
         rateSilver_1g
     );
