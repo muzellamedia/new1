@@ -3728,20 +3728,21 @@ function template24(ctx, canvas, share){
 
     ctx.save();
 
-    const radius = 180;
+    const radius = 250;
 
-    const gap = 35;
+    const gapX = 60;
+    const gapY = 70;
 
-    const totalWidth = radius * 2 * 4 + gap * 3;
+    const totalWidth = radius * 2 * 2 + gapX;
     const startX = (canvas.width - totalWidth) / 2 + radius;
 
-    const centerY = 2150;
+    const startY = 1800;
 
     function drawCircle(cx, cy, title, value){
 
         // Shadow
-        ctx.shadowColor = "rgba(0,0,0,0.7)";
-        ctx.shadowBlur = 20;
+        ctx.shadowColor = "rgba(0,0,0,0.75)";
+        ctx.shadowBlur = 25;
 
         // Outer Circle
         ctx.beginPath();
@@ -3749,13 +3750,13 @@ function template24(ctx, canvas, share){
         ctx.fillStyle = "rgba(0,51,64,0.82)";
         ctx.fill();
 
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 6;
         ctx.strokeStyle = "#FFD700";
         ctx.stroke();
 
         // Inner Ring
         ctx.beginPath();
-        ctx.arc(cx, cy, radius - 16, 0, Math.PI * 2);
+        ctx.arc(cx, cy, radius - 18, 0, Math.PI * 2);
         ctx.strokeStyle = "rgba(255,255,255,0.20)";
         ctx.lineWidth = 2;
         ctx.stroke();
@@ -3767,75 +3768,81 @@ function template24(ctx, canvas, share){
         ctx.arc(
             cx,
             cy,
-            radius - 12,
+            radius - 14,
             -Math.PI * 0.90,
             -Math.PI * 0.10
         );
         ctx.strokeStyle = "#FFD700";
-        ctx.lineWidth = 8;
+        ctx.lineWidth = 10;
+        ctx.lineCap = "round";
         ctx.stroke();
 
         // Title
         ctx.textAlign = "center";
         ctx.fillStyle = "#FFFFFF";
-        ctx.font = "bold 50px Arial";
+        ctx.font = "bold 60px Arial";
 
         ctx.fillText(
             title,
             cx,
-            cy - 28
+            cy - 40
         );
 
         // Rupee
         ctx.fillStyle = "#FFE600";
-        ctx.font = "bold 46px Arial";
+        ctx.font = "bold 70px Arial";
 
         ctx.fillText(
             "₹",
             cx,
-            cy + 28
+            cy + 50
         );
 
         // Value
-        ctx.font = "bold 70px Arial";
+        ctx.font = "bold 82px Arial";
 
         ctx.fillText(
             formatRateValue(value),
             cx,
-            cy + 88
+            cy + 140
         );
     }
 
+    // ===== TOP ROW =====
+
     drawCircle(
         startX,
-        centerY,
+        startY,
         "22K 1G",
         rate22k_1g
     );
 
     drawCircle(
-        startX + radius * 2 + gap,
-        centerY,
-        "22K 8G",
+        startX + radius * 2 + gapX,
+        startY,
+        "22K 1 PAVAN",
         rate22k_1p
     );
 
+    // ===== BOTTOM ROW =====
+
     drawCircle(
-        startX + (radius * 2 + gap) * 2,
-        centerY,
+        startX,
+        startY + radius * 2 + gapY,
         "18K 1G",
         rate18k_1g
     );
 
     drawCircle(
-        startX + (radius * 2 + gap) * 3,
-        centerY,
+        startX + radius * 2 + gapX,
+        startY + radius * 2 + gapY,
         "SILVER",
         rateSilver_1g
     );
 
     ctx.restore();
 }
+
 
 function template25(ctx, canvas, share){
 
