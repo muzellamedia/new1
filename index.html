@@ -510,10 +510,9 @@ function withCacheBust(url){
   return raw + sep + "t=" + Date.now();
 }
 
-function getRateDocIdByAssociation(association){
-  const key = String(association || "AKGSMA").trim().toUpperCase();
-  if(key === "KGSMA") return "kgsma";
-  return "today"; // AKGSMA default
+function getRateDocIdByAssociation(){
+  // Every customer poster uses the shared "today" rate, regardless of association.
+  return "today";
 }
 
 function mmToCanvasPx(mm){
