@@ -251,6 +251,16 @@ th{background:#f9fafb}
   padding:10px;
   background:#fcfcfd;
 }
+.today-rate-box{
+  border:2px solid var(--brand);
+  background:#f0fdfa;
+}
+.rate-box-note{
+  margin:-4px 0 12px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
 .rate-box h4{
   margin:0 0 10px;
 }
@@ -332,8 +342,9 @@ th{background:#f9fafb}
   <div class="gr-card">
     <h3 class="gr-title">Association Rates (Firestore)</h3>
     <div class="rates-grid">
-      <div class="rate-box">
-        <h4>AKGSMA (rates/today)</h4>
+      <div class="rate-box today-rate-box">
+        <h4>Today Rate — used by all posters</h4>
+        <p class="rate-box-note">Edits the shared rates/today document.</p>
         <div class="row"><label>Date</label><input id="r_today_date" placeholder="YYYY-MM-DD"></div>
         <div class="row"><label>Time</label><input id="r_today_time" placeholder="09:27 AM"></div>
         <div class="row"><label>Diff (Auto)</label><input id="r_today_diff" placeholder="+240" readonly></div>
@@ -342,8 +353,8 @@ th{background:#f9fafb}
         <div class="row"><label>18K 1g</label><input id="r_today_g18_1g" type="number"></div>
         <div class="row"><label>Silver 1g</label><input id="r_today_s1g" type="number"></div>
         <div class="gr-buttons">
-          <button class="btn" id="loadTodayRatesBtn">Load</button>
-          <button class="btn-brand" id="saveTodayRatesBtn">Save</button>
+          <button class="btn" id="loadTodayRatesBtn">Load Today Rate</button>
+          <button class="btn-brand" id="saveTodayRatesBtn">Save Today Rate</button>
         </div>
       </div>
       <div class="rate-box">
@@ -484,6 +495,7 @@ async function verifyAdminPassword(){
     setAdminLockMsg("");
     unlockAdminUi();
     await loadPage(0);
+    await loadRatesDoc("today", "today", "Today");
   }catch(err){
     console.error(err);
     setAdminLockMsg("Failed to verify password");
@@ -829,6 +841,7 @@ adminPasswordInputEl.addEventListener("keydown", (e) => {
 
 if(sessionStorage.getItem(ADMIN_SESSION_KEY) === "1"){
   unlockAdminUi();
+  loadRatesDoc("today", "today", "Today");
   loadPage(0).catch((err) => {
     console.error(err);
     rowsEl.innerHTML = `<tr><td colspan="5" class="muted">Failed to load users: ${err.message || err}</td></tr>`;
@@ -943,8 +956,8 @@ async function saveRatesDoc(docId, prefix, label){
   }
 }
 
-document.getElementById("loadTodayRatesBtn")?.addEventListener("click", () => loadRatesDoc("today", "today", "AKGSMA"));
-document.getElementById("saveTodayRatesBtn")?.addEventListener("click", () => saveRatesDoc("today", "today", "AKGSMA"));
+document.getElementById("loadTodayRatesBtn")?.addEventListener("click", () => loadRatesDoc("today", "today", "Today"));
+document.getElementById("saveTodayRatesBtn")?.addEventListener("click", () => saveRatesDoc("today", "today", "Today"));
 document.getElementById("loadKgsmaRatesBtn")?.addEventListener("click", () => loadRatesDoc("kgsma", "kgsma", "KGSMA"));
 document.getElementById("saveKgsmaRatesBtn")?.addEventListener("click", () => saveRatesDoc("kgsma", "kgsma", "KGSMA"));
 </script>
