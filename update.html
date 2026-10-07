@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KGSMA Gold Rate Admin</title>
+<title>Gold Rate Admin</title>
 <style>
 *{
 margin:0;
@@ -75,36 +75,6 @@ font-size:16px;
 cursor:pointer;
 }
 
-.number-pad{
-display:none;
-position:fixed;
-left:0;
-right:0;
-bottom:0;
-z-index:20;
-padding:14px;
-background:#fff;
-border-top:1px solid #ddd;
-box-shadow:0 -8px 24px rgba(0,0,0,.25);
-}
-
-.number-pad.active{
-display:block;
-}
-
-.number-pad .keypad-grid{
-width:min(520px,100%);
-margin:auto;
-gap:10px;
-}
-
-.number-pad .keypad-key{
-min-height:72px;
-font-size:52px;
-border:1px solid #eee;
-border-radius:8px;
-}
-
 .card{
 background:#fff;
 border-radius:12px;
@@ -124,11 +94,36 @@ align-items:center;
 justify-content:space-between;
 gap:12px;
 margin-bottom:25px;
+flex-wrap:wrap;
 }
 
 .topbar h2{
 margin-bottom:0;
 text-align:left;
+}
+
+.rate-targets{
+display:flex;
+gap:8px;
+margin-bottom:18px;
+}
+
+.rate-targets button{
+flex:1;
+background:#e8ebef;
+color:#333;
+}
+
+.rate-targets button.active{
+background:#1976D2;
+color:#fff;
+}
+
+.rate-note{
+margin:-8px 0 18px;
+color:#606975;
+font-size:14px;
+line-height:1.5;
 }
 
 .row{
@@ -275,6 +270,45 @@ width:100%;
 flex-wrap:wrap;
 }
 }
+
+body{background:#f5f6f8;color:#17191d}
+.container{max-width:900px;padding:24px 0}
+.card{padding:30px;background:#fff;border:1px solid #e1e4e8;border-radius:14px;box-shadow:0 5px 24px rgba(16,24,40,.08)}
+.rate-targets{max-width:360px;margin:0 auto 12px}
+.rate-targets button{min-height:44px;border:1px solid #d7dce2;font-size:14px}
+.rate-targets button.active{background:#183c30;color:#fff;border-color:#183c30}
+.rate-note{text-align:center;margin:0 0 20px;font-size:13px}
+.topbar{margin-bottom:22px}
+.topbar h2{text-align:left;font-size:22px;color:#183c30}
+.rate-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 26px}
+.rate-fields .row{display:grid;grid-template-columns:minmax(86px,auto) minmax(0,1fr);align-items:center;gap:12px;margin:0;min-width:0}
+.rate-fields .row label{width:auto;font-size:15px;line-height:1.3;color:#20242a}
+.rate-fields .row input,.association-row input{width:100%;min-width:0;height:54px;padding:10px 12px;border:2px solid #555;border-radius:2px;background:#fff;font-size:21px;font-weight:600;color:#111}
+.rate-fields .row input:focus,.association-row input:focus{outline:3px solid #dce9e2;border-color:#183c30}
+.rate-fields .row input.readonly{background:#f0f1f2}
+.association-row{display:none;margin:22px 0 0}
+.association-row label{width:180px;font-weight:bold}
+.calculate-row{display:none;margin-top:14px}
+.calculate-row button{background:#e9edf0;color:#183c30;font-size:14px}
+.meta-row{display:none}
+.buttons:not(.calculate-row){justify-content:flex-end;margin-top:25px}
+#editBtn{background:#e9edf0;color:#183c30;display:none}
+#updateBtn{background:#183c30;color:#fff;min-width:160px;min-height:48px;font-size:16px}
+#cancelBtn{background:#f1f2f3;color:#343a40;min-height:48px}
+.success,.error,.loading{font-size:14px;font-weight:700}
+.success{color:#17834b}
+.error{color:#c43c35}
+@media(max-width:600px){
+body{padding:12px}
+.container{padding:12px 0}
+.card{padding:20px 16px}
+.rate-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 12px}
+.rate-fields .row{grid-template-columns:minmax(0,1fr);gap:7px;align-content:start}
+.rate-fields .row label{font-size:12px;min-height:30px;display:flex;align-items:end}
+.rate-fields .row input{height:48px;padding:8px;font-size:18px}
+.association-row{gap:8px}
+.association-row label{width:auto}
+}
 </style>
 </head>
 <body>
@@ -300,23 +334,25 @@ flex-wrap:wrap;
 
 <div class="container">
 <div class="card">
+<div class="rate-targets" role="group" aria-label="Rate type">
+<button id="todayModeBtn" class="active" type="button">Today Rate</button>
+<button id="kgsmaModeBtn" type="button">KGSMA Rate</button>
+</div>
+<p class="rate-note" id="rateNote">Editing rates/today. This rate is used on every customer's poster.</p>
 <div class="topbar">
-<h2>KGSMA Gold Rate Admin</h2>
+<h2 id="ratePageTitle">Today Gold Rate Admin</h2>
 <button id="editBtn">Edit</button>
 </div>
 
+<div class="rate-fields">
 <div class="row">
 <label>22K 1 Gram</label>
 <input type="text" inputmode="numeric" pattern="[0-9]*" id="gold22_1g" disabled>
 </div>
 
-<div class="buttons">
-<button id="calculateBtn" type="button" disabled>Calculate</button>
-</div>
-
 <div class="row">
 <label>22K 1 Pavan</label>
-<input type="text" inputmode="numeric" pattern="[0-9]*" id="gold22_1p" class="readonly" readonly>
+<input type="text" inputmode="numeric" pattern="[0-9]*" id="gold22_1p" class="readonly" readonly disabled>
 </div>
 
 <div class="row">
@@ -328,23 +364,28 @@ flex-wrap:wrap;
 <label>Silver 1 Gram</label>
 <input type="text" inputmode="numeric" pattern="[0-9]*" id="silver_1g" disabled>
 </div>
+</div>
 
-<div class="row">
-<label>KGSMA</label>
+<div class="row association-row">
+<label id="associationRateLabel">KGSMA</label>
 <input type="text" inputmode="numeric" pattern="[0-9]*" id="kgsma" disabled>
 </div>
 
-<div class="row">
+<div class="buttons calculate-row">
+<button id="calculateBtn" type="button" disabled>Calculate 1 Pavan</button>
+</div>
+
+<div class="row meta-row">
 <label>Date</label>
 <input id="date" class="readonly" readonly>
 </div>
 
-<div class="row">
+<div class="row meta-row">
 <label>Time</label>
 <input id="time" class="readonly" readonly>
 </div>
 
-<div class="row">
+<div class="row meta-row">
 <label>Difference</label>
 <input id="diff" class="readonly" readonly>
 </div>
@@ -358,37 +399,7 @@ flex-wrap:wrap;
 <div class="success" id="success">Updated Successfully</div>
 <div class="error" id="error">Update Failed</div>
 </div>
-
-<div class="preview">
-<h3>Preview</h3>
-<hr><br>
-<p>Date : <span id="pDate"></span></p>
-<p>Time : <span id="pTime"></span></p>
-<p>22K 1 Pavan : Rs <span id="p22p"></span></p>
-<p>22K 1 Gram : Rs <span id="p22g"></span></p>
-<p>18K 1 Gram : Rs <span id="p18g"></span></p>
-<p>Silver 1 Gram : Rs <span id="pSilver"></span></p>
-<p>KGSMA : Rs <span id="pKgsma"></span></p>
-<p>Difference : <span id="pDiff"></span></p>
 </div>
-</div>
-
-<section class="number-pad" id="numberPad">
-<div class="keypad-grid">
-<button class="keypad-key" type="button" data-input-key="1">1</button>
-<button class="keypad-key" type="button" data-input-key="2">2</button>
-<button class="keypad-key" type="button" data-input-key="3">3</button>
-<button class="keypad-key" type="button" data-input-key="4">4</button>
-<button class="keypad-key" type="button" data-input-key="5">5</button>
-<button class="keypad-key" type="button" data-input-key="6">6</button>
-<button class="keypad-key" type="button" data-input-key="7">7</button>
-<button class="keypad-key" type="button" data-input-key="8">8</button>
-<button class="keypad-key" type="button" data-input-key="9">9</button>
-<button class="keypad-tool" type="button" data-input-back>Back</button>
-<button class="keypad-key" type="button" data-input-key="0">0</button>
-<button class="keypad-tool" type="button" data-input-done>Done</button>
-</div>
-</section>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -410,16 +421,23 @@ appId:"1:5295731508:web:07d5430da5ebaaf6886b61"
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const ref = doc(db,"rates","kgsma");
+const rateRefs = {
+  kgsma: doc(db,"rates","kgsma"),
+  today: doc(db,"rates","today")
+};
 const GRAMS_PER_PAVAN = 8;
 
 let oldData = {};
 let pinValue = "";
 let activeInput = null;
+let activeRateType = "today";
 const adminPin = "1994";
+const kgsmaRow = document.getElementById("kgsma").closest(".row");
+const calculateRow = document.getElementById("calculateBtn").closest(".buttons");
 
 const editable = [
 gold22_1g,
+gold22_1p,
 gold18_1g,
 silver_1g,
 kgsma
@@ -436,6 +454,31 @@ pinView.textContent = "•".repeat(pinValue.length);
 function unlockPage(){
 lockScreen.style.display = "none";
 document.querySelector(".container").style.display = "block";
+setRateType("today",true);
+}
+
+async function setRateType(type,isEditing=true){
+activeRateType = type === "today" ? "today" : "kgsma";
+const isToday = activeRateType === "today";
+kgsmaModeBtn.classList.toggle("active",!isToday);
+todayModeBtn.classList.toggle("active",isToday);
+ratePageTitle.textContent = isToday ? "Today Gold Rate Admin" : "KGSMA Gold Rate Admin";
+rateNote.textContent = isToday
+  ? "Editing rates/today. This rate is used on every customer's poster."
+  : "Editing the KGSMA rate.";
+associationRateLabel.textContent = isToday ? "Association Rate" : "KGSMA";
+kgsmaRow.style.display = isToday ? "none" : "flex";
+gold22_1p.readOnly = !isToday;
+gold22_1p.classList.toggle("readonly",!isToday);
+activeInput = null;
+setEditMode(isEditing);
+success.style.display = "none";
+error.style.display = "none";
+updateBtn.disabled = true;
+await loadData();
+updateBtn.disabled = false;
+activeInput = null;
+setEditMode(isEditing);
 }
 
 function handlePinDigit(digit){
@@ -459,23 +502,12 @@ renderPin();
 }
 }
 
-function showNumberPad(){
-numberPad.classList.add("active");
-if(!activeInput){
-activeInput = gold22_1g;
-activeInput.focus();
-}
-}
-
-function hideNumberPad(){
-numberPad.classList.remove("active");
-}
-
 function clearEditableFields(){
 editable.forEach((box)=>{
 box.value = "";
 });
 
+activeInput = gold22_1g;
 gold22_1p.value = "";
 date.value = "";
 time.value = "";
@@ -483,50 +515,24 @@ diff.value = "";
 preview();
 }
 
-function appendDigit(digit){
-if(!activeInput){
-activeInput = gold22_1g;
-}
-
-activeInput.value = digitsOnly(activeInput.value + digit);
-activeInput.dispatchEvent(new Event("input"));
-}
-
-function backspaceDigit(){
-if(!activeInput){
-activeInput = gold22_1g;
-}
-
-activeInput.value = activeInput.value.slice(0,-1);
-activeInput.dispatchEvent(new Event("input"));
-}
-
 function preview(){
-pDate.textContent = date.value;
-pTime.textContent = time.value;
-p22p.textContent = gold22_1p.value;
-p22g.textContent = gold22_1g.value;
-p18g.textContent = gold18_1g.value;
-pSilver.textContent = silver_1g.value;
-pKgsma.textContent = kgsma.value;
-pDiff.textContent = diff.value;
+// Rate values are shown directly in the editable fields.
 }
 
 function setEditMode(isEditing){
 editable.forEach((box)=>{
 box.disabled = !isEditing;
 });
+gold22_1p.readOnly = activeRateType !== "today";
 
 calculateBtn.disabled = !isEditing;
-editBtn.style.display = isEditing ? "none" : "inline-block";
+calculateRow.style.display = isEditing ? "flex" : "none";
+editBtn.style.display = "inline-block";
 updateBtn.style.display = isEditing ? "inline-block" : "none";
 cancelBtn.style.display = isEditing ? "inline-block" : "none";
+updateBtn.textContent = activeRateType === "today" ? "Save Today Rate" : "Save KGSMA Rate";
 
-if(isEditing){
-showNumberPad();
-}else{
-hideNumberPad();
-}
+if(!isEditing) activeInput = null;
 }
 
 function todayDate(){
@@ -535,6 +541,14 @@ const day = String(d.getDate()).padStart(2,"0");
 const month = String(d.getMonth() + 1).padStart(2,"0");
 const year = d.getFullYear();
 return `${day}-${month}-${year}`;
+}
+
+function todayIsoDate(){
+const d = new Date();
+const year = d.getFullYear();
+const month = String(d.getMonth() + 1).padStart(2,"0");
+const day = String(d.getDate()).padStart(2,"0");
+return `${year}-${month}-${day}`;
 }
 
 function currentTime(){
@@ -599,11 +613,18 @@ return "";
 }
 
 function calculateDiff(){
-const newRate = Number(gold22_1p.value);
-const oldRate = Number(oldData.gold22_1p) || 0;
+const isToday = activeRateType === "today";
+const newRate = Number(isToday ? gold22_1g.value : gold22_1p.value);
+const oldRate = Number(isToday ? oldData.gold22_1g : oldData.gold22_1p) || 0;
 const difference = newRate - oldRate;
 const sameDate = isSameRateDate(todayDate(), oldData.date);
 const previousDirection = getPreviousDirection();
+
+if(isToday){
+if(difference > 0) return "+" + difference;
+if(difference < 0) return String(difference);
+return "0";
+}
 
 if(difference > 0){
 const prefix = sameDate && previousDirection === "up" ? "++" : "+";
@@ -619,14 +640,14 @@ return "0";
 }
 
 function resetCalculatedFields(){
-gold22_1p.value = "";
+if(activeRateType === "kgsma") gold22_1p.value = "";
 date.value = "";
 time.value = "";
 diff.value = "";
 preview();
 }
 
-function fillCalculatedValues(){
+function fillCalculatedValues(forcePavan=false){
 const gramRate = Number(gold22_1g.value);
 
 if(!gramRate){
@@ -634,8 +655,12 @@ resetCalculatedFields();
 return;
 }
 
+if(activeRateType === "kgsma" || forcePavan || !gold22_1p.value){
 gold22_1p.value = gramRate * GRAMS_PER_PAVAN;
-date.value = todayDate();
+}
+date.value = activeRateType === "today"
+  ? todayIsoDate()
+  : todayDate();
 time.value = currentTime();
 diff.value = calculateDiff();
 preview();
@@ -645,7 +670,7 @@ async function loadData(){
 loading.style.display = "block";
 
 try{
-const snap = await getDoc(ref);
+const snap = await getDoc(rateRefs[activeRateType]);
 
 if(!snap.exists()){
 alert("Document not found");
@@ -674,30 +699,42 @@ loading.style.display = "none";
 editable.forEach((box)=>{
 box.addEventListener("input",()=>{
 box.value = digitsOnly(box.value);
+if(activeRateType === "today"){
+date.value = "";
+time.value = "";
+diff.value = "";
+}
 preview();
 });
 
 box.addEventListener("focus",()=>{
 activeInput = box;
-if(!box.disabled){
-showNumberPad();
-}
 });
 });
 
 gold22_1g.addEventListener("input",()=>{
-if(!calculateBtn.disabled){
+if(activeRateType === "kgsma" && !calculateBtn.disabled){
 resetCalculatedFields();
+}else if(activeRateType === "today"){
+gold22_1p.value = gold22_1g.value
+  ? String(Number(gold22_1g.value) * GRAMS_PER_PAVAN)
+  : "";
+date.value = "";
+time.value = "";
+diff.value = "";
+preview();
 }
 });
 
 calculateBtn.onclick = () => {
-fillCalculatedValues();
+fillCalculatedValues(true);
 };
 
 editBtn.onclick = () => {
 clearEditableFields();
 setEditMode(true);
+activeInput = gold22_1g;
+gold22_1g.focus();
 success.style.display = "none";
 error.style.display = "none";
 };
@@ -729,17 +766,20 @@ if(!gold22_1p.value || !date.value || !time.value || diff.value === ""){
 fillCalculatedValues();
 }
 
-await updateDoc(ref,{
+const payload = {
 gold22_1p:Number(gold22_1p.value),
 gold22_1g:Number(gold22_1g.value),
 gold18_1g:Number(gold18_1g.value),
 silver_1g:Number(silver_1g.value),
-kgsma:Number(kgsma.value),
 date:date.value,
 time:time.value,
-diff:diff.value,
-updateCount:Number(oldData.updateCount) || 0
-});
+diff:diff.value
+};
+if(activeRateType === "kgsma"){
+payload.kgsma = Number(kgsma.value);
+payload.updateCount = Number(oldData.updateCount) || 0;
+}
+await updateDoc(rateRefs[activeRateType],payload);
 
 await loadData();
 setEditMode(false);
@@ -762,7 +802,9 @@ loading.style.display = "none";
 };
 
 setEditMode(false);
-loadData();
+
+kgsmaModeBtn.addEventListener("click",()=>setRateType("kgsma"));
+todayModeBtn.addEventListener("click",()=>setRateType("today"));
 
 document.querySelectorAll("[data-lock-key]").forEach((button)=>{
 button.addEventListener("click",()=>{
@@ -780,14 +822,6 @@ pinValue = "";
 renderPin();
 });
 
-document.querySelectorAll("[data-input-key]").forEach((button)=>{
-button.addEventListener("click",()=>{
-appendDigit(button.dataset.inputKey);
-});
-});
-
-document.querySelector("[data-input-back]").addEventListener("click",backspaceDigit);
-document.querySelector("[data-input-done]").addEventListener("click",hideNumberPad);
 renderPin();
 </script>
 </body>
