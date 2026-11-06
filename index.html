@@ -548,9 +548,9 @@ function withCacheBust(url){
   return raw + sep + "t=" + Date.now();
 }
 
-function getRateDocIdByAssociation(){
-  // Every customer poster uses the shared "today" rate, regardless of association.
-  return "today";
+function getRateDocIdByAssociation(association, specialDayActive){
+  const normalized = String(association || "").trim().toUpperCase();
+  return specialDayActive && normalized === "KGSMA" ? "kgsma" : "today";
 }
 
 function mmToCanvasPx(mm){
@@ -925,7 +925,9 @@ try{
   // =====================
   // LOAD RATES
   // =====================
-  const rateDocId = getRateDocIdByAssociation(userAssociation);
+  const specialDaySnap = await getDoc(doc(db, "settings", "specialDay"));
+  const specialDayActive = specialDaySnap.exists() && specialDaySnap.data()?.active === true;
+  const rateDocId = getRateDocIdByAssociation(userAssociation, specialDayActive);
   const rateRef = doc(db,"rates",rateDocId);
 const rateSnap = await getDoc(rateRef);
 
