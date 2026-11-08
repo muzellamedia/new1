@@ -862,8 +862,8 @@ if(sessionStorage.getItem(ADMIN_SESSION_KEY) === "1"){
 
 async function loadSpecialDayStatus(){
   try{
-    const snap = await getDoc(doc(db, "settings", "specialDay"));
-    const active = snap.exists() && snap.data()?.active === true;
+    const snap = await getDoc(doc(db, "rates", "today"));
+    const active = snap.exists() && snap.data()?.specialDayActive === true;
     specialDayStatusEl.textContent = active ? "Special Day is ACTIVE." : "Special Day is stopped.";
     specialDayStatusEl.style.color = active ? "#0f766e" : "#6b7280";
   }catch(err){
@@ -878,9 +878,9 @@ async function setSpecialDay(active){
   buttons.forEach((button) => button.disabled = true);
   specialDayStatusEl.textContent = active ? "Starting Special Day..." : "Stopping Special Day...";
   try{
-    await setDoc(doc(db, "settings", "specialDay"), {
-      active,
-      updatedAt: new Date().toISOString()
+    await setDoc(doc(db, "rates", "today"), {
+      specialDayActive: active,
+      specialDayUpdatedAt: new Date().toISOString()
     }, { merge: true });
     await loadSpecialDayStatus();
   }catch(err){
