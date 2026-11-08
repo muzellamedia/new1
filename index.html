@@ -925,11 +925,13 @@ try{
   // =====================
   // LOAD RATES
   // =====================
-  const specialDaySnap = await getDoc(doc(db, "settings", "specialDay"));
-  const specialDayActive = specialDaySnap.exists() && specialDaySnap.data()?.active === true;
+  const todayRateSnap = await getDoc(doc(db, "rates", "today"));
+  const todayRates = todayRateSnap.exists() ? (todayRateSnap.data() || {}) : {};
+  const specialDayActive = todayRates.specialDayActive === true;
   const rateDocId = getRateDocIdByAssociation(userAssociation, specialDayActive);
-  const rateRef = doc(db,"rates",rateDocId);
-const rateSnap = await getDoc(rateRef);
+  const rateSnap = rateDocId === "today"
+    ? todayRateSnap
+    : await getDoc(doc(db,"rates",rateDocId));
 
 if(rateSnap.exists()){
 
